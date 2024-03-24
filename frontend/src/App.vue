@@ -3,7 +3,6 @@ import {useAppStore} from "@/store/modules/app";
 import {storeToRefs} from "pinia";
 
 const appStore = useAppStore();
-
 const {locale} = storeToRefs(appStore);
 </script>
 
