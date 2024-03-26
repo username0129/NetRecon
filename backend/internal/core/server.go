@@ -13,6 +13,9 @@ func StartServer() {
 	r := InitializeRout()
 
 	address := fmt.Sprintf("%v:%v", global.Config.System.Ip, global.Config.System.Port)
+
+	global.Logger.Info(fmt.Sprintf("服务端开始监听在: %s", address))
+
 	server := &http.Server{
 		Addr:           address,
 		Handler:        r,
@@ -20,8 +23,6 @@ func StartServer() {
 		WriteTimeout:   20 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-
-	global.Logger.Info(fmt.Sprintf("服务端开始监听在: %s", address))
 
 	// 监听并服务
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

@@ -1,38 +1,32 @@
-system:
-    ip: 0.0.0.0
-    port: 8080
-    db_type: mysql
-    config_path: ./config/config.yaml
-    router_prefix: /api/v1
-
+captcha:
+    long: 6
+    img_width: 240
+    img_height: 80
+    open_captcha: 0
+    open_captcha_timeout: 5m0s
 jwt:
     signing_key: f11a18af934b4b758de6f7e9e7c239ac
     expiration_time: 72h
     buffer_time: 24h
     issuer: server
-
-# 验证码配置
-captcha:
-    long: 6 # 验证码字符长度
-    img_width: 240 # 验证码图片宽度
-    img_height: 80 # 验证码图片高度
-    open_captcha: 3 # 0 代表一直开启，大于 0 代表限制次数
-    open_captcha_timeout: 5m # open-captcha 大于 0 时才生效
-
 mysql:
-    host: "" # 地址
-    port: "" # 端口
-    db_name: "" # 数据库名称
-    username: "" # 账号
-    password: "" # 密码
-    max_idle_conns: 10 # 最大空闲连接数
-    max_open_conns: 100 # 最大连接数
-    conn_max_lifetime: 10s # 连接存活时间
+    host: 192.168.80.130
+    port: "3306"
+    db_name: test
+    username: root
+    password: root
+    max_idle_conns: 10
+    max_open_conns: 100
+    conn_max_lifetime: 10s
     config: charset=utf8mb4&parseTime=True&loc=Local
-    log_mode: error # 是否开启 gorm 全局日志
-    log_zap: false # 是否打印日志到 zap
-    prefix: sys_
-
+    log_mode: error
+    log_zap: false
+system:
+    ip: 0.0.0.0
+    port: "8080"
+    db_type: mysql
+    config_path: ./config/config.yaml
+    router_prefix: /api/v1
 zap:
     level: info
     format: console

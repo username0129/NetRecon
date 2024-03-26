@@ -17,7 +17,7 @@ import (
 
 type CaptchaController struct{}
 
-func (cc *CaptchaController) PostCaptcha(c *gin.Context) {
+func (cc *CaptchaController) GetCaptcha(c *gin.Context) {
 	openCaptcha := global.Config.Captcha.OpenCaptcha               // 是否开启验证码
 	openCaptchaTimeout := global.Config.Captcha.OpenCaptchaTimeout // 是否开启验证码
 
@@ -50,7 +50,7 @@ func (cc *CaptchaController) PostCaptcha(c *gin.Context) {
 
 	response.Response(c, http.StatusOK, "验证码获取成功", model.CaptchaResponse{
 		CaptchaId:     id,
-		PicPath:       b64s,
+		CaptchaImg:    b64s,
 		CaptchaLength: global.Config.Captcha.Long,
 		OpenCaptcha:   oc,
 	})

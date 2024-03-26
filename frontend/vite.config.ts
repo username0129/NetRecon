@@ -20,10 +20,13 @@ export default defineConfig({
             // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
             imports: ["vue", "@vueuse/core", "pinia", "vue-router", "vue-i18n"],
             resolvers: [
-                // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
                 ElementPlusResolver(),
+
+                // Auto import icon components
                 // 自动导入图标组件
-                IconsResolver({}),
+                IconsResolver({
+                    prefix: 'Icon',
+                }),
             ],
             eslintrc: {
                 // 是否自动生成 eslint 规则，建议生成之后设置 false
@@ -69,5 +72,17 @@ export default defineConfig({
         alias: {
             '@': path.resolve(__dirname, './src')
         }, // 指示 Vite 如何处理特定的别名
+    },
+    server: {
+        host: 'localhost',
+        port: 8081,
+        open: true,
+        proxy: {
+            '/api/v1': {
+                target: 'http://127.0.0.1:8080/',   //实际请求地址
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api\/v1/, '')
+            },
+        },
     },
 });

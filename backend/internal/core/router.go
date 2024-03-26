@@ -32,9 +32,18 @@ func getControllerList() []interface{} {
 
 func setupRoutes(router *gin.Engine, controllers []interface{}) {
 	publicGroup := router.Group(global.Config.System.RouterPrefix) // 无需鉴权的路由组
+	publicGroup.Use(middleware.CorsMiddleware())
 
-	protectedGroup := router.Group(global.Config.System.RouterPrefix)                  // 需要鉴权的路由组
-	protectedGroup.Use(middleware.JWTAuthMiddleware()).Use(middleware.CasbinHandler()) // 使用 JWT 和 Casbin 完成身份验证以及访问控制
+	{
+		// 全局处理 OPTIONS 请求 -> 防止 AXIOS CORS 错误
+		publicGroup.OPTIONS("/*any", func(c *gin.Context) {
+			// 可以选择返回一些内容或状态码
+			c.JSON(200, gin.H{"message": "ok"})
+		})
+
+	}
+	protectedGroup := router.Group(global.Config.System.RouterPrefix)                                                   // 需要鉴权的路由组
+	protectedGroup.Use(middleware.CorsMiddleware()).Use(middleware.JWTAuthMiddleware()).Use(middleware.CasbinHandler()) // 使用 JWT 和 Casbin 完成身份验证以及访问控制
 
 	for _, ctrl := range controllers {
 		ctrlType := reflect.TypeOf(ctrl)

@@ -1,11 +1,9 @@
-import {useAppStore} from "@/store/modules/app";
-
+import {useAppStoreHook} from "@/store/modules/app";
+import {createI18n} from "vue-i18n";
 import enLocale from "./package/en";
 import zhCnLocale from "./package/zh_cn";
-import {createI18n} from "vue-i18n";
 
-
-const appStore = useAppStore();
+const appStore = useAppStoreHook();
 
 const {language} = storeToRefs(appStore)
 

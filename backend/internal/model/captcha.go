@@ -2,7 +2,7 @@ package model
 
 type CaptchaResponse struct {
 	CaptchaId     string `json:"captchaId"`
-	PicPath       string `json:"picPath"`
+	CaptchaImg    string `json:"captchaImg"`
 	CaptchaLength int    `json:"captchaLength"`
 	OpenCaptcha   bool   `json:"openCaptcha"`
 }
