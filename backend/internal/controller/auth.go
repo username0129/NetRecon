@@ -47,9 +47,9 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 		u := model.User{Username: logonRequest.Username, Password: logonRequest.Password}
 		var user = &model.User{}
 		if user, err = service.AuthServiceApp.Login(u); err != nil {
-			global.Logger.Error(fmt.Sprintf("用户 %v 登陆失败：用户名不存在或者密码错误！", logonRequest.Username), zap.Error(err))
+			global.Logger.Error(fmt.Sprintf("用户 %v 登陆失败：%v", logonRequest.Username, err.Error()))
 			_ = global.Cache.Set(key, []byte(strconv.Itoa(count+1)))
-			response.Response(c, http.StatusInternalServerError, fmt.Sprintf("用户 %v 登陆失败：用户名不存在或者密码错误！", logonRequest.Username), nil)
+			response.Response(c, http.StatusInternalServerError, fmt.Sprintf("用户 %v 登陆失败：%v", logonRequest.Username, err.Error()), nil)
 			return
 		} // 用户身份校验失败
 		if user.Enable != 1 {

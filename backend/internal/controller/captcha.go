@@ -1,16 +1,15 @@
 package controller
 
 import (
-	"backend/internal/e"
 	"backend/internal/model"
 	"backend/internal/model/response"
-	"backend/internal/util"
 	"errors"
 	"github.com/allegro/bigcache/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/mojocn/base64Captcha"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 
 	"backend/internal/global"
 )
@@ -18,24 +17,23 @@ import (
 type CaptchaController struct{}
 
 func (cc *CaptchaController) GetCaptcha(c *gin.Context) {
-	openCaptcha := global.Config.Captcha.OpenCaptcha               // 是否开启验证码
-	openCaptchaTimeout := global.Config.Captcha.OpenCaptchaTimeout // 是否开启验证码
+	openCaptcha := global.Config.Captcha.OpenCaptcha // 是否开启验证码
 
 	key := c.ClientIP() // 客户端 IP
 
-	item, err := util.GetCacheItem(key)
+	item, err := global.Cache.Get(key)
 	if err != nil {
-		// 当条目不存在时或者超时时，初始化条目
-		if errors.Is(err, bigcache.ErrEntryNotFound) || errors.Is(err, e.ErrCacheEntryTimeout) {
-			util.SetCacheItem(key, []byte("1"), openCaptchaTimeout)
+		if errors.Is(err, bigcache.ErrEntryNotFound) {
+			_ = global.Cache.Set(key, []byte("1"))
 		} else {
-			global.Logger.Error("获取缓存条目错误", zap.Error(err))
+			global.Logger.Error("获取缓存条目错误！", zap.Error(err))
 			return
 		}
 	}
+	count, _ := strconv.Atoi(string(item))
 
 	var oc bool
-	if openCaptcha == 0 || openCaptcha <= util.ItemToInt(item) {
+	if openCaptcha == 0 || openCaptcha <= count {
 		oc = true
 	}
 

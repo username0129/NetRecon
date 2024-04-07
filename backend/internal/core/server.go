@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-func StartServer() {
+func StartServer(ip, port string) {
 	r := InitializeRout()
 
-	address := fmt.Sprintf("%v:%v", global.Config.System.Ip, global.Config.System.Port)
+	address := fmt.Sprintf("%v:%v", ip, port)
 
 	global.Logger.Info(fmt.Sprintf("服务端开始监听在: %s", address))
 

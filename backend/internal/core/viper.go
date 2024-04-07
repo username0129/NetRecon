@@ -7,10 +7,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-func InitializeViper() *viper.Viper {
+func InitializeViper(configPath string) *viper.Viper {
 	v := viper.New()
-	v.SetConfigFile(global.Config.System.ConfigPath) // 设置配置文件路径
-	v.SetConfigType("yaml")                          // 设置配置文件类型
+	v.SetConfigFile(configPath) // 设置配置文件路径
+	v.SetConfigType("yaml")     // 设置配置文件类型
 
 	if err := v.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("读取配置文件错误：%v\n", err))

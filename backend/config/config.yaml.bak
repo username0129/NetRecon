@@ -1,8 +1,5 @@
 system:
-  ip: 0.0.0.0
-  port: 8080
   db_type: mysql
-  config_path: ./config/config.yaml
   router_prefix: /api/v1
 
 jwt:
