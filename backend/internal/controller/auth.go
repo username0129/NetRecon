@@ -58,7 +58,7 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 			response.Response(c, http.StatusInternalServerError, fmt.Sprintf("用户 %v 登陆失败：用户被冻结，禁止登录！", logonRequest.Username), nil)
 			return
 		} // 用户账户被冻结
-		ac.TokenNext(c, user) // 用户登录成功，生成 Token
+		ac.TokenNext(c, *user) // 用户登录成功，生成 Token
 
 		return
 	} else {
@@ -68,8 +68,8 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 	}
 }
 
-func (ac *AuthController) TokenNext(c *gin.Context, user *model.User) {
-	jwt, err := util.GenerateJWT(util.CustomClaims{
+func (ac *AuthController) TokenNext(c *gin.Context, user model.User) {
+	token, err := util.GenerateJWT(util.CustomClaims{
 		UUID:        user.UUID,
 		ID:          user.ID,
 		Username:    user.Username,
@@ -80,6 +80,9 @@ func (ac *AuthController) TokenNext(c *gin.Context, user *model.User) {
 		response.Response(c, http.StatusUnauthorized, fmt.Sprintf("用户 %v 登陆失败：获取 token 失败！", user.Username), nil)
 	} else {
 		global.Logger.Info(fmt.Sprintf("用户 %v 登陆成功！", user.Username))
-		response.Response(c, http.StatusOK, "登陆成功！", gin.H{"token": jwt})
+		response.Response(c, http.StatusOK, "登陆成功！", model.LoginResponse{
+			User:  user,
+			Token: token,
+		})
 	}
 }

@@ -20,7 +20,7 @@ func (as *AuthService) Login(u model.User) (userInter *model.User, err error) {
 	}
 
 	var user model.User
-	if err = global.DB.Where("username = ?", u.Username).First(&user).Error; err != nil {
+	if err = global.DB.Model(&model.User{}).Where("username = ?", u.Username).Preload("Authorities").First(&user).Error; err != nil {
 		return nil, err
 	} else {
 		if ok := util.BcryptCheck(u.Password, user.Password); !ok {
