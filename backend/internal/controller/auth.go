@@ -49,21 +49,14 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 		if user, err = service.AuthServiceApp.Login(u); err != nil {
 			global.Logger.Error(fmt.Sprintf("用户 %v 登陆失败：%v", logonRequest.Username, err.Error()))
 			_ = global.Cache.Set(key, []byte(strconv.Itoa(count+1)))
-			response.Response(c, http.StatusInternalServerError, fmt.Sprintf("用户 %v 登陆失败：%v", logonRequest.Username, err.Error()), nil)
+			response.Response(c, http.StatusInternalServerError, fmt.Sprintf("登陆失败：%v", err.Error()), nil)
 			return
-		} // 用户身份校验失败
-		if user.Enable != 1 {
-			global.Logger.Error(fmt.Sprintf("用户 %v 登陆失败：用户被冻结，禁止登录!", logonRequest.Username))
-			_ = global.Cache.Set(key, []byte(strconv.Itoa(count+1)))
-			response.Response(c, http.StatusInternalServerError, fmt.Sprintf("用户 %v 登陆失败：用户被冻结，禁止登录！", logonRequest.Username), nil)
-			return
-		} // 用户账户被冻结
+		}
 		ac.TokenNext(c, *user) // 用户登录成功，生成 Token
-
 		return
 	} else {
 		_ = global.Cache.Set(key, []byte(strconv.Itoa(count+1)))
-		response.Response(c, http.StatusUnauthorized, fmt.Sprintf("用户 %v 登陆失败：验证码错误！", logonRequest.Username), nil)
+		response.Response(c, http.StatusUnauthorized, "登陆失败：验证码错误", nil)
 		return
 	}
 }

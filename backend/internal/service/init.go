@@ -20,6 +20,10 @@ type IDatabaseInitializer interface {
 
 type InitService struct{}
 
+var (
+	InitServiceApp = new(InitService)
+)
+
 func (is *InitService) Init(req model.InitRequest) (err error) {
 	c := context.TODO()
 

@@ -12,8 +12,6 @@ import (
 
 type InitController struct{}
 
-var initService = new(service.InitService)
-
 // GetInit
 //
 //	@Description: 检查数据库初始化状态
@@ -49,7 +47,7 @@ func (ic *InitController) PostInit(c *gin.Context) {
 		return
 	}
 
-	if err := initService.Init(req); err != nil {
+	if err := service.InitServiceApp.Init(req); err != nil {
 		global.Logger.Error(fmt.Sprintf("数据库初始化错误：%v", err.Error()))
 		response.Response(c, http.StatusInternalServerError, "数据库初始化错误，详情请查看后端。", nil)
 		return

@@ -10,10 +10,10 @@ type User struct {
 	gorm.Model
 	UUID        uuid.UUID   `json:"uuid" gorm:"comment:用户 UUID;"`
 	Username    string      `json:"username" gorm:"index;comment:用户登录名;"`
-	Password    string      `json:"password" gorm:"comment:用户登录密码;"`
+	Password    string      `json:"-" gorm:"comment:用户登录密码;"`
 	Nickname    string      `json:"nickname" gorm:"comment:用户昵称;"`
 	Avatar      string      `json:"avatar" gorm:"comment:用户头像;"`
-	AuthorityId uint        `json:"authority_id" gorm:"default:1;comment:用户身份 ID;"`
+	AuthorityId uint        `json:"authorityId" gorm:"default:1;comment:用户身份 ID;"`
 	Authorities []Authority `json:"authorities" gorm:"many2many:sys_user_authority;"`
 	Email       string      `json:"email" gorm:"comment:邮箱;"`
 	Enable      int         `json:"enable" gorm:"default:1;comment:用户状态 1正常 0冻结;"`

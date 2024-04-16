@@ -1,8 +1,8 @@
 <script setup>
-import { reactive, ref } from 'vue'
-import { ElLoading, ElMessage } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
-import { init } from '@/apis/init.js'
+import {reactive, ref} from 'vue'
+import {ElLoading, ElMessage} from 'element-plus'
+import {Search} from '@element-plus/icons-vue'
+import {init} from '@/apis/init.js'
 import router from '@/router/index.js'
 
 const initForm = ref(null)
@@ -17,19 +17,19 @@ const initFormData = reactive({
 })
 
 const rules = reactive({
-  dbType: [{ required: true, message: '请选择数据库类型', trigger: 'blur' }],
+  dbType: [{required: true, message: '请选择数据库类型', trigger: 'blur'}],
   host: [
-    { required: true, message: '请输入数据库地址', trigger: 'blur' },
+    {required: true, message: '请输入数据库地址', trigger: 'blur'},
     {
       pattern:
-        /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+          /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
       message: '数据库地址必须是有效的 IPv4 地址',
       trigger: 'blur'
     }
   ],
   port: [
-    { required: true, message: '请输入数据库端口', trigger: 'blur' },
-    { pattern: /^[0-9]+$/, message: '数据库端口必须为数字', trigger: 'blur' },
+    {required: true, message: '请输入数据库端口', trigger: 'blur'},
+    {pattern: /^[0-9]+$/, message: '数据库端口必须为数字', trigger: 'blur'},
     {
       validator: (rule, value, callback) => {
         const portNumber = parseInt(value, 10)
@@ -42,8 +42,8 @@ const rules = reactive({
       trigger: 'blur'
     }
   ],
-  username: [{ required: true, message: '请输入数据库用户名', trigger: 'blur' }],
-  dbName: [{ required: true, message: '请输入数据库名', trigger: 'blur' }]
+  username: [{required: true, message: '请输入数据库用户名', trigger: 'blur'}],
+  dbName: [{required: true, message: '请输入数据库名', trigger: 'blur'}]
 })
 
 const onChange = (val) => {
@@ -104,16 +104,16 @@ async function submitForm() {
 
       try {
         const response = await init(initFormData)
-        if (response.Code === 200) {
+        if (response.code === 200) {
           ElMessage({
             type: 'success',
             message: '数据库初始化成功'
           })
-          await router.push({ name: 'Login' })
+          await router.push({name: 'Login'})
         } else {
           ElMessage({
             type: 'error',
-            message: response.Msg,
+            message: response.msg,
             showClose: true
           })
         }
@@ -155,84 +155,84 @@ async function submitForm() {
           </div>
 
           <el-form
-            ref="initForm"
-            :model="initFormData"
-            :rules="rules"
-            :validate-on-rule-change="false"
+              ref="initForm"
+              :model="initFormData"
+              :rules="rules"
+              :validate-on-rule-change="false"
           >
             <el-form-item prop="dbType" class="mb-6">
               <!-- mb -> margin-bottom，底部距离-->
               <el-select
-                size="large"
-                clearable
-                v-model="initFormData.dbType"
-                placeholder="请选择数据库类型"
-                @change="onChange"
+                  size="large"
+                  clearable
+                  v-model="initFormData.dbType"
+                  placeholder="请选择数据库类型"
+                  @change="onChange"
               >
                 <template #prefix>
                   <el-icon>
-                    <Search />
+                    <Search/>
                   </el-icon>
                 </template>
 
-                <el-option key="mysql" label="mysql" value="mysql" />
-                <el-option key="pgsql" label="pgsql" value="pgsql" />
+                <el-option key="mysql" label="mysql" value="mysql"/>
+                <el-option key="pgsql" label="pgsql" value="pgsql"/>
               </el-select>
             </el-form-item>
 
             <el-form-item prop="host" class="mb-6">
               <el-input
-                prefix-icon="lock"
-                v-model="initFormData.host"
-                size="large"
-                placeholder="请输入数据库地址"
+                  prefix-icon="lock"
+                  v-model="initFormData.host"
+                  size="large"
+                  placeholder="请输入数据库地址"
               />
             </el-form-item>
 
             <el-form-item prop="port" class="mb-6">
               <el-input
-                prefix-icon="lock"
-                v-model="initFormData.port"
-                size="large"
-                placeholder="请输入数据库端口"
+                  prefix-icon="lock"
+                  v-model="initFormData.port"
+                  size="large"
+                  placeholder="请输入数据库端口"
               />
             </el-form-item>
 
             <el-form-item prop="username" class="mb-6">
               <el-input
-                prefix-icon="user"
-                v-model="initFormData.username"
-                size="large"
-                placeholder="请输入数据库用户名"
+                  prefix-icon="user"
+                  v-model="initFormData.username"
+                  size="large"
+                  placeholder="请输入数据库用户名"
               />
             </el-form-item>
 
             <el-form-item prop="password" class="mb-6">
               <el-input
-                prefix-icon="lock"
-                show-password
-                v-model="initFormData.password"
-                size="large"
-                placeholder="请输入数据库密码"
+                  prefix-icon="lock"
+                  show-password
+                  v-model="initFormData.password"
+                  size="large"
+                  placeholder="请输入数据库密码"
               />
             </el-form-item>
 
             <el-form-item prop="dbName" class="mb-6">
               <el-input
-                prefix-icon="lock"
-                v-model="initFormData.dbName"
-                size="large"
-                placeholder="请输入数据库名"
+                  prefix-icon="lock"
+                  v-model="initFormData.dbName"
+                  size="large"
+                  placeholder="请输入数据库名"
               />
             </el-form-item>
           </el-form>
           <el-form-item class="mb-6">
             <el-button
-              class="shadow shadow-blue-600 h-11 w-full"
-              type="primary"
-              size="large"
-              @click="submitForm"
-              >初始化数据库
+                class="shadow shadow-blue-600 h-11 w-full"
+                type="primary"
+                size="large"
+                @click="submitForm"
+            >初始化数据库
             </el-button>
           </el-form-item>
         </div>
