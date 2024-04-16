@@ -1,10 +1,10 @@
 package model
 
-type AuthorityMenu struct {
-	MenuId      string `json:"menuId" gorm:"comment:菜单 ID;"`
-	AuthorityId string `json:"authorityId" gorm:"comment:角色 ID;"`
+type AuthorityRoute struct {
+	RouteId     uint `json:"routeId" gorm:"comment:路由 ID;"`
+	AuthorityId uint `json:"authorityId" gorm:"comment:角色 ID;"`
 }
 
-func (*AuthorityMenu) TableName() string {
-	return "sys_authority_menu"
+func (*AuthorityRoute) TableName() string {
+	return "sys_authority_route"
 }

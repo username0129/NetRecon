@@ -3,6 +3,7 @@ import {captcha, login} from '@/apis/login.js'
 import {reactive, ref} from 'vue'
 import {ElLoading, ElMessage} from 'element-plus'
 import {useUserStore} from '@/stores/modules/user.js'
+import {useRouterStore} from '@/stores/modules/route.js'
 import router from '@/router/index.js'
 import {checkInit} from '@/apis/init.js'
 
@@ -52,6 +53,7 @@ async function loginVerify() {
 loginVerify()
 
 const userStore = useUserStore()
+const routeStore = useRouterStore()
 
 async function submitForm() {
   // 访问 Form 实例
@@ -74,6 +76,15 @@ async function submitForm() {
         const response = await login(loginFormData)
         if (response.code == 200) {
           userStore.setToken(response.data.token)
+          userStore.setUserInfo(response.data.user)
+          await routeStore.setRoutes()
+
+          const routes = routeStore.routes
+          routes.forEach(route => {
+            router.addRoute(route)
+          })
+
+          await router.replace({"name": "dashboard"})
         } else {
           // 登录失败，例如：后端验证失败，密码错误等
           ElMessage({

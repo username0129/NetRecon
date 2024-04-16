@@ -16,7 +16,7 @@ type User struct {
 	AuthorityId uint        `json:"authorityId" gorm:"default:1;comment:用户身份 ID;"`
 	Authorities []Authority `json:"authorities" gorm:"many2many:sys_user_authority;"`
 	Email       string      `json:"email" gorm:"comment:邮箱;"`
-	Enable      int         `json:"enable" gorm:"default:1;comment:用户状态 1正常 0冻结;"`
+	Enable      int         `json:"enable" gorm:"default:1;comment:用户状态 1=>正常 0=>冻结;"`
 }
 
 func (*User) TableName() string {

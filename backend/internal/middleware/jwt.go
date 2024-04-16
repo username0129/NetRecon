@@ -4,32 +4,20 @@ import (
 	"backend/internal/model/response"
 	"backend/internal/util"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
-	"strings"
 )
 
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		const BearerSchema = "Bearer "
-		authHeader := c.GetHeader("Authorization")
-		// 检查是否有请求头
-		if authHeader == "" {
-			response.Response(c, http.StatusUnauthorized, "用户未登录！", gin.H{"reload": true})
+		tokenString, err := util.GetToken(c)
+		if err != nil {
+			response.Response(c, http.StatusUnauthorized, fmt.Sprintf("Token 验证失败: %v", err.Error()), gin.H{"reload": true})
 			c.Abort()
 			return
 		}
-
-		// 检查 Token 是否有 Bearer 前缀
-		if !strings.HasPrefix(authHeader, BearerSchema) {
-			response.Response(c, http.StatusUnauthorized, "无效的 Token 格式！", gin.H{"reload": true})
-			c.Abort()
-			return
-		}
-
-		// 提取实际的 Token
-		tokenString := authHeader[len(BearerSchema):]
 
 		// 解析 Token
 		claims, err := util.ParseToken(tokenString)

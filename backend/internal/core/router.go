@@ -27,6 +27,7 @@ func getControllerList() []interface{} {
 		&controller.CasbinController{},
 		&controller.InitController{},
 		&controller.CaptchaController{},
+		&controller.RouteController{},
 	}
 }
 

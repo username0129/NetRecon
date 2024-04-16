@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"backend/internal/model"
 	"backend/internal/model/response"
 	"backend/internal/service"
-	"backend/internal/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -20,7 +20,7 @@ func CasbinHandler() gin.HandlerFunc {
 
 		// 获取请求主体（身份 id）
 		claims, _ := c.Get("claims")
-		typedClaims, _ := claims.(*util.CustomClaims)
+		typedClaims, _ := claims.(*model.CustomClaims)
 		sub := strconv.Itoa(int(typedClaims.AuthorityId))
 
 		// 判断是否存在对应的 ACL

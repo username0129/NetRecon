@@ -26,20 +26,26 @@ var initialDatas = []InitialData{
 	{
 		TableName: "casbin_role",
 		Data: []interface{}{
+			// 管理员组
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postuserinfo", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/route/getroute", V2: "GET"},
+
+			// 普通用户组
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postuserinfo", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/route/getroute", V2: "GET"},
 		},
 	},
 	{
-		TableName: "sys_menus",
+		TableName: "sys_routes",
 		Data: []interface{}{
 			// 顶级菜单
-			&model.Menu{Hidden: false, ParentId: "0", Title: "仪表盘", Icon: "odometer", Name: "dashboard", Path: "dashboard", Component: "view/dashboard/index.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
-			&model.Menu{Hidden: false, ParentId: "0", Title: "管理员面板", Icon: "user", Name: "admin", Path: "admin", Component: "view/admin/index.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
-			&model.Menu{Hidden: false, ParentId: "0", Title: "个人信息", Icon: "message", Name: "person", Path: "person", Component: "view/person/index.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Title: "仪表盘", Icon: "odometer"}, Name: "dashboard", Path: "dashboard", Component: "views/dashboard/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Title: "管理员面板", Icon: "user"}, Name: "admin", Path: "admin", Component: "views/admin/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Title: "个人信息", Icon: "message"}, Name: "person", Path: "person", Component: "views/person/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 			// 管理员菜单
-			&model.Menu{Hidden: false, ParentId: "2", Title: "角色管理", Icon: "avatar", Name: "authority", Path: "authority", Component: "view/admin/authority/index.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
-			&model.Menu{Hidden: false, ParentId: "2", Title: "用户管理", Icon: "coordinate", Name: "user", Path: "user", Component: "view/admin/user/index.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
-			&model.Menu{Hidden: false, ParentId: "2", Title: "操作历史", Icon: "pie-chart", Name: "operation", Path: "operation", Component: "view/admin/operation/index.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 2, Meta: model.Meta{Title: "角色管理", Icon: "avatar"}, Name: "authority", Path: "authority", Component: "views/admin/AuthorityView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 2, Meta: model.Meta{Title: "用户管理", Icon: "coordinate"}, Name: "user", Path: "user", Component: "views/admin/UserView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 2, Meta: model.Meta{Title: "操作历史", Icon: "pie-chart"}, Name: "operation", Path: "operation", Component: "views/admin/OperationView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 		},
 	},
 	{

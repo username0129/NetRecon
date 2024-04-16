@@ -23,7 +23,7 @@ var (
 func init() {
 	startCmd.Flags().StringVarP(&configPath, "config", "c", "./config/config.yaml", "配置文件路径")
 	startCmd.Flags().StringVarP(&ip, "ip", "i", "0.0.0.0", "后端 IP 地址")
-	startCmd.Flags().StringVarP(&port, "port", "p", "8080", "后端监听地址")
+	startCmd.Flags().StringVarP(&port, "port", "p", "8081", "后端监听地址")
 }
 
 func start() {

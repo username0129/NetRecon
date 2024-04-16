@@ -10,4 +10,5 @@ var (
 	ErrTokenNotYetActive      = errors.New("令牌尚未激活")
 	ErrTokenMalformed         = errors.New("令牌格式错误")
 	ErrTokenInvalid           = errors.New("令牌无效")
+	ErrUserNotLogin           = errors.New("用户未登录")
 )

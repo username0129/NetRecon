@@ -49,20 +49,20 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 		if user, err = service.AuthServiceApp.Login(u); err != nil {
 			global.Logger.Error(fmt.Sprintf("用户 %v 登陆失败：%v", logonRequest.Username, err.Error()))
 			_ = global.Cache.Set(key, []byte(strconv.Itoa(count+1)))
-			response.Response(c, http.StatusInternalServerError, fmt.Sprintf("登陆失败：%v", err.Error()), nil)
+			response.Response(c, http.StatusInternalServerError, fmt.Sprintf("登陆失败: %v", err.Error()), nil)
 			return
 		}
 		ac.TokenNext(c, *user) // 用户登录成功，生成 Token
 		return
 	} else {
 		_ = global.Cache.Set(key, []byte(strconv.Itoa(count+1)))
-		response.Response(c, http.StatusUnauthorized, "登陆失败：验证码错误", nil)
+		response.Response(c, http.StatusUnauthorized, "登陆失败: 验证码错误", nil)
 		return
 	}
 }
 
 func (ac *AuthController) TokenNext(c *gin.Context, user model.User) {
-	token, err := util.GenerateJWT(util.CustomClaims{
+	token, err := util.GenerateJWT(model.CustomClaims{
 		UUID:        user.UUID,
 		ID:          user.ID,
 		Username:    user.Username,

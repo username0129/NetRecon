@@ -2,27 +2,18 @@ package util
 
 import (
 	"backend/internal/global"
+	"backend/internal/model"
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid/v5"
 	"github.com/golang-jwt/jwt/v5"
 	"net"
 	"time"
 )
 
-type CustomClaims struct {
-	UUID        uuid.UUID
-	ID          uint
-	Username    string
-	AuthorityId uint
-	BufferTime  int64
-	jwt.RegisteredClaims
-}
-
 var (
 	signingKey = []byte(global.Config.Jwt.SigningKey) // 签发 Token 密钥
 )
 
-func GenerateJWT(c CustomClaims) (string, error) {
+func GenerateJWT(c model.CustomClaims) (string, error) {
 	bf, _ := time.ParseDuration(global.Config.Jwt.BufferTime)
 	ep, _ := time.ParseDuration(global.Config.Jwt.ExpirationTime)
 
@@ -38,12 +29,12 @@ func GenerateJWT(c CustomClaims) (string, error) {
 	return t.SignedString(signingKey)
 }
 
-func ParseToken(tokenString string) (*CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+func ParseToken(tokenString string) (*model.CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &model.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return signingKey, nil
 	})
 
-	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*model.CustomClaims); ok && token.Valid {
 		return claims, nil
 	} else {
 		return nil, err

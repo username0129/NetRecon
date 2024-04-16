@@ -10,12 +10,12 @@ const constRoutes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/LoginView.vue')
+    component: () => import('@/views/login/IndexView.vue')
   },
   {
     path: '/init',
     name: 'Init',
-    component: () => import('@/views/InitView.vue')
+    component: () => import('@/views/init/IndexView.vue')
   }
 ]
 
