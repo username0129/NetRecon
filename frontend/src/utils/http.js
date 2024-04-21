@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // 创建Axios实例
 const http = axios.create({
-  baseURL: 'http://192.168.94.128:8081', // API 基础地址
+  baseURL: 'http://192.168.80.128:8081', // API 基础地址
   timeout: 10000 // 请求超时时间
 })
 

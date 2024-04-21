@@ -1,13 +1,15 @@
 import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import './assets/tailwind.css'
+import App from '@/App.vue'
+import router from '@/router'
+import '@/permission'
+import '@/assets/tailwind.css'
 
 import { setupStore } from './stores'
 import { setupElIcons } from './plugins/icons'
 
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import { ensureDynamicRoutes } from '@/permission.js'
 
 const app = createApp(App)
 
@@ -18,6 +20,7 @@ setupStore(app)
 // 注册 Element-plus 图标
 setupElIcons(app)
 
+await ensureDynamicRoutes()
 app.use(router)
 
 app.mount('#app')

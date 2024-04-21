@@ -22,3 +22,8 @@ export const start = () => {
 export const close = () => {
   NProgress.done()
 }
+
+// 关闭进度条
+export const remove = () => {
+  NProgress.remove()
+}

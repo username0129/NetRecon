@@ -3,7 +3,7 @@ import { captcha, login } from '@/apis/login.js'
 import { reactive, ref } from 'vue'
 import { ElLoading, ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/modules/user.js'
-import { useRouterStore } from '@/stores/modules/route.js'
+import { useRouteStore } from '@/stores/modules/route.js'
 import router from '@/router/index.js'
 import { checkInit } from '@/apis/init.js'
 
@@ -53,7 +53,7 @@ async function loginVerify() {
 loginVerify()
 
 const userStore = useUserStore()
-const routeStore = useRouterStore()
+const routeStore = useRouteStore()
 
 async function submitForm() {
   // 访问 Form 实例
@@ -78,12 +78,11 @@ async function submitForm() {
           userStore.setToken(response.data.token)
           userStore.setUserInfo(response.data.user)
           await routeStore.setRoutes()
-
           const routes = routeStore.routes
-          routes.forEach(route => {
+          routes.forEach((route) => {
             router.addRoute(route)
           })
-          await router.replace({ 'name': 'dashboard' })
+          await router.replace({ name: 'Dashboard' })
         } else {
           // 登录失败，例如：后端验证失败，密码错误等
           ElMessage({
@@ -220,7 +219,7 @@ async function check() {
               type="primary"
               size="large"
               @click="submitForm"
-            >登 录
+              >登 录
             </el-button>
           </el-form-item>
 
@@ -230,7 +229,7 @@ async function check() {
               type="primary"
               size="large"
               @click="check"
-            >检查系统初始化
+              >检查系统初始化
             </el-button>
           </el-form-item>
         </div>

@@ -1,31 +1,34 @@
-import {defineStore} from 'pinia'
-import {store} from '@/stores'
-import {ref} from 'vue'
+import { defineStore } from 'pinia'
+import { fetchUserInfo } from '@/apis/user.js'
 
 export const useUserStore = defineStore('user', {
-    state: () => ({
-        userInfo: ref(JSON.parse(localStorage.getItem('userInfo')) || {}),
-        token: ref(localStorage.getItem('token') || '')
-    }),
-    actions: {
-        setUserInfo(info) {
-            this.userInfo = info
-            localStorage.setItem('userInfo', JSON.stringify(info));
-        },
-        setToken(token) {
-            this.token = token
-            localStorage.setItem('token', token);
-        },
-        logout() {
-            this.userInfo = {};
-            this.token = '';
-            localStorage.removeItem('userInfo');
-            localStorage.removeItem('token');
-        }
+  state: () => ({
+    userInfo: {},
+    token: localStorage.getItem('token') || ''
+  }),
+  actions: {
+    setUserInfo(info) {
+      this.userInfo = info
     },
-    getters: {}
+    setToken(token) {
+      this.token = token
+      localStorage.setItem('token', token)
+    },
+    logout() {
+      this.userInfo = {}
+      this.token = ''
+      localStorage.removeItem('token')
+    },
+    async fetchUserInfo() {
+      try {
+        const response = await fetchUserInfo()
+        if (response.code == 200) {
+          this.setUserInfo(response.data)
+        }
+        return response
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
+      }
+    }
+  }
 })
-
-export function useUserStoreHook() {
-    return useUserStore(store)
-}

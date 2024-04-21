@@ -16,7 +16,7 @@ type RouteController struct {
 
 func (rc *RouteController) GetRoute(c *gin.Context) {
 	if routes, err := service.RouterServiceApp.GetRouteTree(util.GetClaims(c).AuthorityId); err != nil {
-		global.Logger.Error("获取失败路由失败: ", zap.Error(err))
+		global.Logger.Error("获取用户路由信息失败: ", zap.Error(err))
 		response.Response(c, http.StatusInternalServerError, "获取用户路由信息失败", nil)
 		return
 	} else {

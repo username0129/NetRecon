@@ -10,7 +10,9 @@ import (
 
 type CasbinService struct{}
 
-var CasbinServiceApp = new(CasbinService)
+var (
+	CasbinServiceApp = new(CasbinService)
+)
 
 var (
 	once     sync.Once
