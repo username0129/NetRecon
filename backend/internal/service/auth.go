@@ -22,7 +22,7 @@ func (as *AuthService) Login(u model.User) (userInter *model.User, err error) {
 	}
 
 	var user model.User
-	if err = global.DB.Model(&model.User{}).Where("username = ?", u.Username).Preload("Authorities").First(&user).Error; err != nil {
+	if err = global.DB.Model(&model.User{}).Where("username = ?", u.Username).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("账号或密码错误")
 		} else {

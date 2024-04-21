@@ -65,8 +65,8 @@ var initialDatas = []InitialData{
 	{
 		TableName: "sys_users",
 		Data: []interface{}{
-			&model.User{Username: "admin", Password: util.BcryptHash("123456"), Nickname: "系统管理员", AuthorityId: 1, Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
-			&model.User{Username: "guest", Password: util.BcryptHash("guest"), Nickname: "测试账户", AuthorityId: 2, Authorities: []model.Authority{{AuthorityName: "普通用户"}}},
+			&model.User{Username: "admin", Password: util.BcryptHash("123456"), Nickname: "系统管理员", AuthorityId: 1},
+			&model.User{Username: "guest", Password: util.BcryptHash("guest"), Nickname: "测试账户", AuthorityId: 2},
 		},
 	},
 }

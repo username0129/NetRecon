@@ -9,7 +9,6 @@ type Authority struct {
 	gorm.Model
 	AuthorityName string  `json:"authorityName" gorm:"comment:角色名称"`
 	Routes        []Route `json:"routes" gorm:"many2many:sys_authority_route;"`
-	Users         []User  `json:"users" gorm:"many2many:sys_user_authority;"`
 }
 
 func (*Authority) TableName() string {
@@ -18,7 +17,7 @@ func (*Authority) TableName() string {
 
 func (a *Authority) InsertData(db *gorm.DB) error {
 
-	err := db.Where(&Authority{AuthorityName: a.AuthorityName}).FirstOrCreate(a).Error // 使用FirstOrCreate来避免重复创建
+	err := db.Where(&Authority{AuthorityName: a.AuthorityName}).FirstOrCreate(a).Error // 使用 FirstOrCreate来避免重复创建
 	if err != nil {
 		return fmt.Errorf("插入或查找角色失败: %w", err)
 	}

@@ -15,7 +15,7 @@ var (
 // GetUserInfo
 // 根据 UUID 获取用户详细信息
 func (us *UserService) GetUserInfo(uuid uuid.UUID) (user model.User, err error) {
-	if err := global.DB.Model(&model.User{}).Where("uuid = ?", uuid).Preload("Authorities").First(&user).Error; err != nil {
+	if err := global.DB.Model(&model.User{}).Where("uuid = ?", uuid).First(&user).Error; err != nil {
 		return model.User{}, err
 	} else {
 		return user, nil
