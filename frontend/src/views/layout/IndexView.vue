@@ -1,54 +1,88 @@
 <script setup>
 import Aside from '@/views/layout/aside/AsideIndex.vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { fmtTitle } from '@/utils/fmtRouterTitle.js'
+
+defineOptions({
+  name: 'LayoutIndex'
+})
+
+const route = useRoute()
+
+const matched = computed(() => route.matched)
 </script>
 
 <template>
   <el-container class="layout-cont">
-    <el-container>
-      <el-aside class="main-cont my-aside" width="220px">
-        <div
-          class="min-h-[60px] text-center transition-all duration-300 flex items-center justify-center gap-2"
-          style="background: #191a23"
-        >
-          <div class="inline-flex font-bold text-2xl" style="color: #ffffff">NetRecon</div>
+    <el-aside class="main-cont my-aside" width="220px">
+      <div class="logo-container">
+        <div class="app-title">NetRecon</div>
+      </div>
+      <Aside />
+    </el-aside>
+
+    <!-- 分块滑动功能 -->
+    <el-main class="main-cont main-right">
+      <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
+        <div class="main-header">
+          <el-header>
+            <el-row>
+              <el-col>
+                <el-breadcrumb class="breadcrumb">
+                  <el-breadcrumb-item
+                    v-for="item in matched.slice(1, matched.length)"
+                    :key="item.path"
+                  >
+                    {{ fmtTitle(item.meta.title, route) }}
+                  </el-breadcrumb-item>
+                </el-breadcrumb>
+              </el-col>
+            </el-row>
+          </el-header>
         </div>
-        <Aside class="aside" />
-      </el-aside>
-
-      <el-container>
-        <el-header> </el-header>
-
-        <el-main> </el-main>
-      </el-container>
-    </el-container>
+      </transition>
+    </el-main>
   </el-container>
 </template>
 
-<style scoped>
-.layout-container-demo .el-header {
-  position: relative;
-  background-color: var(--el-color-primary-light-7);
-  color: var(--el-text-color-primary);
-}
-
-.layout-container-demo .el-aside {
-  color: var(--el-text-color-primary);
-  background: var(--el-color-primary-light-8);
-}
-
-.layout-container-demo .el-menu {
-  border-right: none;
-}
-
-.layout-container-demo .el-main {
-  padding: 0;
-}
-
-.layout-container-demo .toolbar {
-  display: inline-flex;
+<style lang="scss" scoped>
+.logo-container {
+  min-height: 60px;
+  text-align: center;
+  transition: all 0.3s;
+  display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  right: 20px;
+  background: #191a23;
+}
+
+.app-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.main-header {
+  width: calc(100% - 220px);
+  position: fixed;
+  top: 0;
+  z-index: 50;
+  box-sizing: border-box;
+}
+
+.button {
+  font-size: 12px;
+  color: #666;
+  background: rgb(250, 250, 250);
+  width: 25px;
+  padding: 4px 8px;
+  border: 1px solid #eaeaea;
+  margin-right: 4px;
+  border-radius: 4px;
+}
+
+:deep .el-overlay {
+  background-color: hsla(0, 0%, 100%, 0.9);
 }
 </style>
