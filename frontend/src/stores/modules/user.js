@@ -30,5 +30,6 @@ export const useUserStore = defineStore('user', {
         console.error('获取用户信息失败:', error)
       }
     }
-  }
+  },
+  getters: {}
 })

@@ -14,7 +14,12 @@ const constRoutes = [
     meta: { title: '初始化' },
     component: () => import('@/views/init/IndexView.vue')
   },
-  { path: '/404', name: '404', component: () => import('@/views/init/IndexView.vue') }
+  {
+    path: '/404',
+    name: '404',
+    meta: { title: '404' },
+    component: () => import('@/views/init/IndexView.vue')
+  }
 ]
 
 // 创建路由
