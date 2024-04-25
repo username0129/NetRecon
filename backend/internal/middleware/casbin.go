@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"backend/internal/model"
-	"backend/internal/model/response"
+	"backend/internal/model/common"
 	"backend/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -30,7 +30,7 @@ func CasbinHandler() gin.HandlerFunc {
 		if ok {
 			c.Next() // 请求成功
 		} else {
-			response.Response(c, http.StatusForbidden, "用户权限不足", nil)
+			common.Response(c, http.StatusForbidden, "用户权限不足", nil)
 			c.Abort() // 请求失败
 			return
 		}

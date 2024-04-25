@@ -31,11 +31,13 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/getuserinfo", V2: "GET"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postuserinfo", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/route/getroute", V2: "GET"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postportscan", V2: "POST"},
 
 			// 普通用户组
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/getuserinfo", V2: "GET"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/user/postuserinfo", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/route/getroute", V2: "GET"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postportscan", V2: "POST"},
 		},
 	},
 	{
@@ -44,12 +46,19 @@ var initialDatas = []InitialData{
 			// 顶级菜单
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "仪表盘", Icon: "odometer"}, Name: "Dashboard", Path: "dashboard", Component: "views/dashboard/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "管理面板", Icon: "user"}, Name: "Admin", Path: "admin", Component: "views/admin/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Title: "任务管理", Icon: "paperclip"}, Name: "Task", Path: "task", Component: "views/task/TaskView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "个人信息", Icon: "message"}, Name: "Person", Path: "person", Component: "views/person/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 
 			// 管理员菜单
 			&model.Route{ParentId: 2, Meta: model.Meta{Title: "角色管理", Icon: "avatar"}, Name: "Authority", Path: "authority", Component: "views/admin/AuthorityView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 			&model.Route{ParentId: 2, Meta: model.Meta{Title: "用户管理", Icon: "coordinate"}, Name: "User", Path: "user", Component: "views/admin/UserView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 			&model.Route{ParentId: 2, Meta: model.Meta{Title: "操作历史", Icon: "pie-chart"}, Name: "Operation", Path: "operation", Component: "views/admin/OperationView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+
+			// 任务管理
+			&model.Route{ParentId: 2, Meta: model.Meta{Title: "子域名收集", Icon: "avatar"}, Name: "Authority", Path: "authority", Component: "views/admin/AuthorityView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 2, Meta: model.Meta{Title: "IP 端口扫描", Icon: "avatar"}, Name: "Authority", Path: "authority", Component: "views/admin/AuthorityView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 2, Meta: model.Meta{Title: "FOFA 任务下发", Icon: "avatar"}, Name: "Authority", Path: "authority", Component: "views/admin/AuthorityView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 2, Meta: model.Meta{Title: "从企业名收集资产", Icon: "avatar"}, Name: "Authority", Path: "authority", Component: "views/admin/AuthorityView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 		},
 	},
 	{
@@ -68,6 +77,12 @@ var initialDatas = []InitialData{
 		Data: []interface{}{
 			&model.User{Username: "admin", Password: util.BcryptHash("123456"), Nickname: "系统管理员", AuthorityId: 1},
 			&model.User{Username: "guest", Password: util.BcryptHash("guest"), Nickname: "测试账户", AuthorityId: 2},
+		},
+	},
+	{
+		TableName: "sys_port_scan_result",
+		Data: []interface{}{
+			&model.PortScanResult{Open: false},
 		},
 	},
 }
@@ -91,7 +106,6 @@ func (c *CommonDBOperations) CreateTable() error {
 
 func (c *CommonDBOperations) InsertData() error {
 	tx := global.DB.Begin() // 回滚事务，避免出现只完成了部分插入的情况。
-
 	for _, initData := range initialDatas {
 		for _, data := range initData.Data {
 			if initializableData, ok := data.(model.Initializable); ok {

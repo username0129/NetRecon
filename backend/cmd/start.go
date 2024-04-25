@@ -4,6 +4,8 @@ import (
 	"backend/internal/core"
 	"backend/internal/global"
 	"backend/internal/logger"
+	"backend/internal/model"
+	"github.com/gofrs/uuid/v5"
 	"github.com/spf13/cobra"
 )
 
@@ -27,10 +29,11 @@ func init() {
 }
 
 func start() {
-	global.Viper = core.InitializeViper(configPath) // 初始化并加载 Viper
-	global.Logger = logger.InitializeLogger()       // 初始化 Zap 日志
-	global.Cache = core.InitializeCache()           // 初始化 BigCache
-	global.DB = core.InitializeDB()                 // 获取数据库连接
+	global.TaskManager = make(map[uuid.UUID]*model.Task) // 初始化任务管理器
+	global.Viper = core.InitializeViper(configPath)      // 初始化并加载 Viper
+	global.Logger = logger.InitializeLogger()            // 初始化 Zap 日志
+	global.Cache = core.InitializeCache()                // 初始化 BigCache
+	global.DB = core.InitializeDB()                      // 获取数据库连接
 	if global.DB != nil {
 		db, _ := global.DB.DB()
 		defer db.Close()

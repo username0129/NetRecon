@@ -3,7 +3,7 @@ package controller
 import (
 	"backend/internal/global"
 	"backend/internal/model"
-	"backend/internal/model/response"
+	"backend/internal/model/common"
 	"backend/internal/service"
 	"backend/internal/util"
 	"errors"
@@ -21,7 +21,7 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 	var logonRequest model.LoginRequest
 
 	if err := c.ShouldBindJSON(&logonRequest); err != nil {
-		response.Response(c, http.StatusInternalServerError, "参数解析错误！", nil)
+		common.Response(c, http.StatusBadRequest, "参数解析错误！", nil)
 		return
 	}
 
@@ -49,14 +49,14 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 		if user, err = service.AuthServiceApp.Login(u); err != nil {
 			global.Logger.Error(fmt.Sprintf("用户 %v 登陆失败：%v", logonRequest.Username, err.Error()))
 			_ = global.Cache.Set(key, []byte(strconv.Itoa(count+1)))
-			response.Response(c, http.StatusInternalServerError, fmt.Sprintf("登陆失败: %v", err.Error()), nil)
+			common.Response(c, http.StatusInternalServerError, fmt.Sprintf("登陆失败: %v", err.Error()), nil)
 			return
 		}
 		ac.TokenNext(c, *user) // 用户登录成功，生成 Token
 		return
 	} else {
 		_ = global.Cache.Set(key, []byte(strconv.Itoa(count+1)))
-		response.Response(c, http.StatusUnauthorized, "登陆失败: 验证码错误", nil)
+		common.Response(c, http.StatusUnauthorized, "登陆失败: 验证码错误", nil)
 		return
 	}
 }
@@ -70,10 +70,10 @@ func (ac *AuthController) TokenNext(c *gin.Context, user model.User) {
 	})
 	if err != nil {
 		global.Logger.Error(fmt.Sprintf("用户 %v 登陆失败：获取 token 失败！", user.Username), zap.Error(err))
-		response.Response(c, http.StatusUnauthorized, fmt.Sprintf("用户 %v 登陆失败：获取 token 失败！", user.Username), nil)
+		common.Response(c, http.StatusUnauthorized, fmt.Sprintf("用户 %v 登陆失败：获取 token 失败！", user.Username), nil)
 	} else {
 		global.Logger.Info(fmt.Sprintf("用户 %v 登陆成功！", user.Username))
-		response.Response(c, http.StatusOK, "登陆成功！", model.LoginResponse{
+		common.Response(c, http.StatusOK, "登陆成功！", model.LoginResponse{
 			User:  user,
 			Token: token,
 		})

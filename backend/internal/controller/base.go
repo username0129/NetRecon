@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"backend/internal/model/response"
+	"backend/internal/model/common"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -15,5 +15,5 @@ type BaseController struct{}
 //	@param c
 //	@Router: /base/health
 func (bc *BaseController) GetHealth(c *gin.Context) {
-	response.Response(c, http.StatusOK, "服务运行正常", nil)
+	common.Response(c, http.StatusOK, "服务运行正常", nil)
 }

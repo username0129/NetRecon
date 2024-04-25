@@ -1,19 +1,16 @@
 <script setup>
 import Aside from '@/views/layout/aside/AsideIndex.vue'
 import { computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { fmtTitle } from '@/utils/fmtRouterTitle.js'
-import { useRouteStore } from '@/stores/modules/route.js'
 import { useUserStore } from '@/stores/modules/user.js'
-import { ArrowDown, Setting } from '@element-plus/icons-vue'
+import { ArrowDown } from '@element-plus/icons-vue'
 
 defineOptions({
   name: 'LayoutIndex'
 })
 
 const route = useRoute()
-const router = useRouter()
-const routeStore = useRouteStore()
 const userStore = useUserStore()
 
 const matched = computed(() => route.matched)

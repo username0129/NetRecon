@@ -2,7 +2,9 @@ package global
 
 import (
 	"backend/internal/config"
+	"backend/internal/model"
 	"github.com/allegro/bigcache/v3"
+	"github.com/gofrs/uuid/v5"
 	"github.com/mojocn/base64Captcha"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -19,4 +21,5 @@ var (
 	DB           *gorm.DB                        // 全局数据库连接
 	Logger       *zap.Logger                     // Zap 日志记录器实例
 	Cache        *bigcache.BigCache              // Bigcache 缓存实例
+	TaskManager  map[uuid.UUID]*model.Task       // 任务管理器
 )

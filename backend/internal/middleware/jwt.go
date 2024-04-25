@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"backend/internal/model/response"
+	"backend/internal/model/common"
 	"backend/internal/util"
 	"errors"
 	"fmt"
@@ -14,7 +14,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString, err := util.GetToken(c)
 		if err != nil {
-			response.Response(c, http.StatusUnauthorized, fmt.Sprintf("Token 验证失败: %v", err.Error()), gin.H{"reload": true})
+			common.Response(c, http.StatusUnauthorized, fmt.Sprintf("Token 验证失败: %v", err.Error()), gin.H{"reload": true})
 			c.Abort()
 			return
 		}
@@ -26,7 +26,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			if errors.Is(err, jwt.ErrTokenExpired) {
 				errorMsg = "令牌已过期！"
 			}
-			response.Response(c, http.StatusUnauthorized, errorMsg, gin.H{"reload": true})
+			common.Response(c, http.StatusUnauthorized, errorMsg, gin.H{"reload": true})
 			c.Abort()
 			return
 		}
