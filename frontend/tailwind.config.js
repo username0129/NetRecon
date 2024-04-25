@@ -4,9 +4,12 @@ export default {
   theme: {
     extend: {
       backgroundImage: {
-        'login-pattern': "url('/assets/login.svg')",
+        'login-pattern': 'url(\'/assets/login.svg\')'
+      },
+      backgroundColor: {
+        'main': '#F5F5F5'
       }
-    },
+    }
   },
-  plugins: [],
+  plugins: []
 }

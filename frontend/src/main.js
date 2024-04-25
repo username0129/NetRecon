@@ -1,15 +1,15 @@
 import { createApp } from 'vue'
 import App from '@/App.vue'
 import router from '@/router'
-import '@/permission'
-import '@/assets/tailwind.css'
-
 import { setupStore } from './stores'
 import { setupElIcons } from './plugins/icons'
-
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
 import { ensureDynamicRoutes } from '@/permission.js'
+import ElementPlus from 'element-plus'
+
+import 'element-plus/dist/index.css'
+import '@/permission'
+import '@/assets/tailwind.css'
+import '@/style/element_visiable.scss'
 
 const app = createApp(App)
 

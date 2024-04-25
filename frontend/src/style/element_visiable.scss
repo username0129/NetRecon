@@ -45,6 +45,7 @@
 
 .admin-box {
   @apply min-h-[calc(100vh-200px)] px-3 py-4 mt-28 mb-4 mx-1;
+
   .el-table {
     th {
       @apply px-0 py-2;
@@ -52,12 +53,14 @@
         @apply leading-[40px] text-gray-700;
       }
     }
+
     td {
       @apply px-0 py-2;
       .cell {
         @apply leading-[40px] text-gray-600;
       }
     }
+
     .is-leaf {
       @apply border-b border-t-0 border-l-0 border-solid border-gray-50;
       border-right: var(--el-table-border);
@@ -75,6 +78,7 @@
   .btn-next {
     @apply border border-solid border-gray-300 rounded;
   }
+
   .el-pager {
     li {
       @apply border border-solid border-gray-300 rounded text-gray-600 text-sm mx-1;
@@ -87,15 +91,18 @@
   .el-container {
     @apply relative h-full w-full;
   }
+
   .el-container.mobile.openside {
     @apply fixed top-0;
   }
+
   .my-aside {
     @apply fixed top-0 left-0 z-[1001] overflow-hidden;
     .el-menu {
       @apply border-r-0;
     }
   }
+
   .aside {
     .el-menu--collapse {
       > .el-menu-item {
@@ -103,6 +110,7 @@
         justify-content: center;
       }
     }
+
     .el-sub-menu {
       .el-menu {
         .is-active {
@@ -111,6 +119,7 @@
             border: none;
           }
         }
+
         // 关闭三级菜单二级菜单样式
         .is-active.is-opened {
           ul {
@@ -120,6 +129,7 @@
       }
     }
   }
+
   .hideside {
     .aside {
       @apply w-[54px];
@@ -137,6 +147,7 @@
       @apply ml-[54px];
     }
   }
+
   .mobile {
     .main-cont.el-main {
       @apply ml-0;
@@ -162,6 +173,7 @@
           @apply text-gray-600;
         }
       }
+
       .el-breadcrumb__item:nth-last-child(1) {
         .el-breadcrumb__inner {
           @apply text-gray-600;
@@ -169,31 +181,17 @@
       }
     }
 
-    .router-history {
-      @apply bg-white p-0 border-t border-l-0 border-r-0 border-b-0 border-solid border-gray-100;
-      .el-tabs__header {
-        @apply m-0;
-        .el-tabs__item {
-          @apply border-solid border-r border-t-0 border-gray-100 border-b-0 border-l-0;
-        }
-        .el-tabs__item.is-active {
-          @apply bg-blue-500 bg-opacity-5;
-        }
-        .el-tabs__nav {
-          @apply border-0;
-        }
-      }
-    }
-
     .aside {
       @apply overflow-auto;
     }
+
     .el-menu-vertical {
       @apply h-[calc(100vh-60px)];
       &:not(.el-menu--collapse) {
         @apply w-[220px];
       }
     }
+
     .el-menu--collapse {
       @apply w-[54px];
       li {

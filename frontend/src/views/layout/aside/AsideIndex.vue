@@ -41,7 +41,6 @@ const selectMenuItem = (index) => {
 <template>
   <div class="aside-container">
     <el-scrollbar>
-      <!-- 实现填充效果 -->
       <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
         <el-menu
           class="el-menu-vertical"
@@ -65,9 +64,20 @@ const selectMenuItem = (index) => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .aside-container {
   background: #191a23;
   height: calc(100vh - 60px);
+}
+
+.el-sub-menu__title:hover,
+.el-menu-item:hover {
+  background: transparent;
+}
+
+.el-scrollbar {
+  .el-scrollbar__view {
+    height: 100%;
+  }
 }
 </style>

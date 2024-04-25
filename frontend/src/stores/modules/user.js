@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { fetchUserInfo } from '@/apis/user.js'
+import router from '@/router/index.js'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -18,6 +19,8 @@ export const useUserStore = defineStore('user', {
       this.userInfo = {}
       this.token = ''
       localStorage.removeItem('token')
+      router.push({ name: 'Login', replace: true })
+      window.location.reload()
     },
     async fetchUserInfo() {
       try {

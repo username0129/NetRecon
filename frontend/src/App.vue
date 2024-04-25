@@ -1,15 +1,30 @@
 <script setup>
-import { useAppStore } from '@/stores/modules/app'
-import { storeToRefs } from 'pinia'
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 
-const appStore = useAppStore()
-const { locale } = storeToRefs(appStore)
+defineOptions({
+  name: 'App'
+})
 </script>
 
 <template>
-  <el-config-provider :locale="locale">
-    <router-view />
-  </el-config-provider>
+  <div id="app">
+    <router-view v-slot="{ Component }">
+      <el-config-provider :locale="zhCn">
+        <component :is="Component" />
+      </el-config-provider>
+    </router-view>
+  </div>
 </template>
 
-<style scoped></style>
+<style lang="scss">
+#app {
+  background: #eee;
+  height: 100vh;
+  overflow: hidden;
+  font-weight: 400;
+}
+
+.el-button {
+  font-weight: 400;
+}
+</style>
