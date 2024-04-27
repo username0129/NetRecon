@@ -9,8 +9,8 @@ import (
 
 type Task struct {
 	gorm.Model
-	UUID     uuid.UUID          `json:"uuid" gorm:"comment:任务 UUID;"`
-	UserUUID uuid.UUID          `json:"userUUID"`
+	UUID     uuid.UUID          `json:"uuid" gorm:"comment:任务 UUID;"`               // 任务 UUID
+	UserUUID uuid.UUID          `json:"userUUID"`                                   // 任务创建者
 	Type     string             `json:"type" gorm:"comment:任务类型;"`                  // 例如端口扫描、子域名爆破等
 	Status   string             `json:"status" gorm:"default:Running;comment:任务状态"` // 任务状态：进行中、取消、完成
 	Cancel   context.CancelFunc `gorm:"-"`                                          // 不存储在数据库中，仅运行时使用
