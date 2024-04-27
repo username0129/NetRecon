@@ -2,9 +2,10 @@ package controller
 
 import (
 	"backend/internal/global"
-	"backend/internal/model"
 	"backend/internal/model/common"
 	"backend/internal/model/request"
+	"backend/internal/service"
+	"backend/internal/util"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -12,6 +13,22 @@ import (
 
 type TaskController struct {
 	JWTRequired bool
+}
+
+func (tc *TaskController) GetTaskList(c *gin.Context) {
+	tasks, err := service.TaskServiceApp.FetchAllTasks()
+	if err != nil {
+		global.Logger.Error("获取任务列表失败: ", zap.Error(err))
+		common.Response(c, http.StatusInternalServerError, "获取任务列表失败", nil)
+		return
+	}
+	if len(tasks) == 0 {
+		common.Response(c, http.StatusOK, "任务列表为空", nil)
+		return
+	} else {
+		common.Response(c, http.StatusOK, "获取任务列表成功", tasks)
+		return
+	}
 }
 
 func (tc *TaskController) PostCancelTask(c *gin.Context) {
@@ -23,27 +40,12 @@ func (tc *TaskController) PostCancelTask(c *gin.Context) {
 		return
 	}
 
-	if cancel, exists := global.TaskManager[cancelTaskRequest.UUID]; exists {
-		var task model.Task
-		if err := global.DB.Model(&model.Task{}).Where(&model.Task{UUID: cancelTaskRequest.UUID}).Updates(&task).Error; err != nil {
-			global.Logger.Error("未找到对应任务")
-			common.Response(c, http.StatusNotFound, "未找到对应任务", nil)
-			return
-		} else {
-			cancel()
-			// 取消任务
-			if err := task.UpdateStatus("已取消"); err != nil { // 更新任务状态
-				global.Logger.Error("更新任务状态失败", zap.String("UUID", cancelTaskRequest.UUID.String()), zap.Error(err))
-				common.Response(c, http.StatusInternalServerError, "更新任务状态失败", nil)
-				return
-			} else {
-				common.Response(c, http.StatusOK, "更新任务状态成功", nil)
-				return
-			}
-		}
+	if err := service.TaskServiceApp.CancelTask(cancelTaskRequest.UUID, util.GetUUID(c), util.GetAuthorityId(c)); err != nil {
+		global.Logger.Error("CancelTask 运行失败: ", zap.Error(err))
+		common.Response(c, http.StatusBadRequest, "CancelTask 运行失败", nil)
+		return
 	} else {
-		global.Logger.Error("未找到对应任务")
-		common.Response(c, http.StatusNotFound, "未找到对应任务", nil)
+		common.Response(c, http.StatusBadRequest, "目标任务取消成功", nil)
 		return
 	}
 }

@@ -8,8 +8,8 @@ import (
 
 type User struct {
 	gorm.Model
-	UUID        uuid.UUID `json:"uuid" gorm:"comment:用户 UUID;"`
-	Username    string    `json:"username" gorm:"index;comment:用户登录名;"`
+	UUID        uuid.UUID `json:"uuid" gorm:"uniqueIndex;comment:用户 UUID;"`
+	Username    string    `json:"username" gorm:"index;comment:用户登录名;unique"`
 	Password    string    `json:"-" gorm:"comment:用户登录密码;"`
 	Nickname    string    `json:"nickname" gorm:"comment:用户昵称;"`
 	Avatar      string    `json:"avatar" gorm:"comment:用户头像;"`

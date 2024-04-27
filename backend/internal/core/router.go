@@ -29,6 +29,7 @@ func getControllerList() []interface{} {
 		&controller.CaptchaController{},
 		&controller.RouteController{},
 		&controller.PortScanController{},
+		&controller.TaskController{},
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"backend/internal/e"
 	"backend/internal/model"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid/v5"
 	"strings"
 )
 
@@ -28,4 +29,14 @@ func GetClaims(c *gin.Context) *model.CustomClaims {
 	token, _ := GetToken(c)
 	claims, _ := ParseToken(token)
 	return claims
+}
+
+func GetUUID(c *gin.Context) uuid.UUID {
+	claims := GetClaims(c)
+	return claims.UUID
+}
+
+func GetAuthorityId(c *gin.Context) uint {
+	claims := GetClaims(c)
+	return claims.AuthorityId
 }

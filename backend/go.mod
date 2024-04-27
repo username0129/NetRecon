@@ -3,6 +3,7 @@ module backend
 go 1.21
 
 require (
+	github.com/Ullaakut/nmap/v3 v3.0.3
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/casbin/casbin/v2 v2.87.1
 	github.com/casbin/gorm-adapter/v3 v3.24.0
@@ -22,7 +23,6 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/Ullaakut/nmap/v3 v3.0.3 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/casbin/govaluate v1.1.1 // indirect
