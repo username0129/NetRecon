@@ -6,7 +6,6 @@ import (
 	"golang.org/x/net/ipv4"
 	"net"
 	"os"
-	"sync"
 	"time"
 )
 
@@ -67,33 +66,9 @@ func IcmpCheckAlive(target string, timeout int) (bool, error) {
 
 	// 检查是否是有效的 ICMP Echo 回复
 	if rm.Type == ipv4.ICMPTypeEchoReply {
-		fmt.Printf("目标 %v 存活\n", dst.String())
+		fmt.Printf("存活：%v\n", dst.String())
 		return true, nil
 	}
 
 	return false, nil
-}
-
-// checkAllTargetsAlive 检查一组目标的存活状态，限制并发数
-func checkAllTargetsAlive(targets []string, threads int, timeout int) {
-	semaphore := make(chan struct{}, threads) // 用于控制并发数
-	var wg sync.WaitGroup
-
-	for _, target := range targets {
-		wg.Add(1)
-		semaphore <- struct{}{}
-		go func(t string) {
-			defer wg.Done()
-			defer func() { <-semaphore }()
-			alive, err := IcmpCheckAlive(t, timeout)
-			if err != nil {
-				fmt.Printf("检查 %s 失败: %v\n", t, err)
-			} else if alive {
-				fmt.Printf("目标 %s 存活\n", t)
-			} else {
-				fmt.Printf("目标 %s 不存活\n", t)
-			}
-		}(target)
-	}
-	wg.Wait()
 }

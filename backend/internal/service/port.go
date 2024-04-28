@@ -7,12 +7,10 @@ import (
 	"backend/internal/util"
 	"context"
 	"errors"
-	"github.com/Ullaakut/nmap/v3"
 	"github.com/gofrs/uuid/v5"
 	"go.uber.org/zap"
 	"strconv"
 	"sync"
-	"time"
 )
 
 type PortService struct{}
@@ -53,7 +51,7 @@ func (ps *PortService) ExecutePortScan(portScanRequest request.PortScanRequest, 
 	}
 
 	// 异步执行端口扫描
-	go ps.performPortScan(task.Ctx, task, targetList, portList, threads, timeout, task.UUID)
+	go ps.performPortScan(task.Ctx, portScanRequest.CheckAlive, task, targetList, portList, threads, timeout, task.UUID)
 	return nil
 }
 
@@ -72,33 +70,15 @@ func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]
 }
 
 // performPortScan 执行针对指定目标和端口的端口扫描，使用 ICMP 和自定义的端口扫描逻辑。
-func (ps *PortService) performPortScan(ctx context.Context, task *model.Task, targets, ports []string, threads, timeout int, taskUUID uuid.UUID) {
-	var status string = "2" // "2" 表示正在扫描, "3" 表示已取消, "4" 表示错误
+func (ps *PortService) performPortScan(ctx context.Context, checkAlive string, task *model.Task, targets, ports []string, threads, timeout int, taskUUID uuid.UUID) {
+	status := "2" // "2" 表示正在扫描, "3" 表示已取消, "4" 表示错误
 	aliveTargets := make(map[string]bool)
+
 	var TargetsMutex sync.Mutex // 互斥锁，保护 Targets
 	var statusMutex sync.Mutex  // 互斥锁，保护 status
 
 	var wg sync.WaitGroup
 	semaphore := make(chan struct{}, threads) // 用于控制并发数量的信号量
-
-	// 首先检测所有目标是否存活
-	for _, target := range targets {
-		wg.Add(1)
-		semaphore <- struct{}{}
-		go func(t string) {
-			defer wg.Done()
-			defer func() { <-semaphore }()
-
-			if alive, _ := util.IcmpCheckAlive(t, 5); alive {
-				TargetsMutex.Lock()
-				aliveTargets[t] = true
-				TargetsMutex.Unlock()
-			}
-		}(target)
-	}
-	wg.Wait()
-
-	results := make(chan model.PortScanResult, len(ports)*len(aliveTargets)) // 存储扫描结果的通道
 
 	setStatus := func(s string) {
 		statusMutex.Lock()
@@ -111,6 +91,43 @@ func (ps *PortService) performPortScan(ctx context.Context, task *model.Task, ta
 		defer statusMutex.Unlock()
 		return status
 	}
+
+	// 首先检测所有目标是否存活
+	if checkAlive == "true" {
+		for _, target := range targets {
+			wg.Add(1)
+			semaphore <- struct{}{}
+			go func(t string) {
+				defer wg.Done()
+				defer func() { <-semaphore }()
+
+				if getStatus() != "2" {
+					return
+				}
+
+				if alive, err := util.CheckHostAlive(ctx, t, 20); err != nil {
+					if errors.Is(err, context.Canceled) {
+						setStatus("3") // 更新状态为已取消
+					} else {
+						setStatus("4") // 更新状态为出错
+						global.Logger.Error("检测主机存活失败", zap.String("target", t), zap.Error(err))
+					}
+				} else if alive {
+					TargetsMutex.Lock()
+					defer TargetsMutex.Unlock()
+					aliveTargets[t] = true
+				}
+			}(target)
+		}
+		wg.Wait()
+	} else {
+		// 如果不检查存活，假定所有目标都是活跃的
+		for _, target := range targets {
+			aliveTargets[target] = true
+		}
+	}
+
+	results := make(chan model.PortScanResult, len(ports)*len(aliveTargets)) // 存储扫描结果的通道
 
 	for target, alive := range aliveTargets {
 		if alive {
@@ -126,7 +143,7 @@ func (ps *PortService) performPortScan(ctx context.Context, task *model.Task, ta
 					}
 
 					//执行端口扫描
-					result, err := ps.PortScan(ctx, t, p, timeout, taskUUID)
+					result, err := util.PortScan(ctx, t, p, timeout, taskUUID)
 					if err != nil {
 						if errors.Is(err, context.Canceled) {
 							setStatus("3") // 更新状态为已取消
@@ -164,47 +181,4 @@ func (ps *PortService) processResults(results chan model.PortScanResult) {
 			}
 		}
 	}
-}
-
-// PortScan 扫描端口
-func (ps *PortService) PortScan(ctx context.Context, target string, port string, timeout int, taskUUID uuid.UUID) (*model.PortScanResult, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
-	defer cancel()
-
-	result := model.PortScanResult{
-		TaskUUID: taskUUID,
-	}
-
-	// 创建扫描器
-	scanner, err := nmap.NewScanner(
-		ctx,
-		nmap.WithTargets(target),     // 目标
-		nmap.WithPorts(port),         // 端口
-		nmap.WithServiceInfo(),       // 识别服务
-		nmap.WithSkipHostDiscovery(), // 跳过存活探测
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	scanResult, _, err := scanner.Run()
-	if err != nil {
-		return nil, err
-	}
-
-	if len(scanResult.Hosts) > 0 {
-		host := scanResult.Hosts[0]
-		if len(host.Ports) > 0 {
-			port := host.Ports[0]
-			result.IP = host.Addresses[0].String()
-			result.Port = port.ID
-			result.Protocol = port.Protocol
-			result.Open = port.State.State == "open"
-			result.Service = port.Service.Name
-			return &result, nil // 成功返回结果
-		}
-	}
-
-	return &result, nil // 扫描成功但没有找到开放的端口
 }
