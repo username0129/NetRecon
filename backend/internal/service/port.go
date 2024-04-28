@@ -71,13 +71,34 @@ func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]
 	return targetList, portList, nil
 }
 
+// performPortScan 执行针对指定目标和端口的端口扫描，使用 ICMP 和自定义的端口扫描逻辑。
 func (ps *PortService) performPortScan(ctx context.Context, task *model.Task, targets, ports []string, threads, timeout int, taskUUID uuid.UUID) {
-	var status string = "2"
-	var statusMutex sync.Mutex // 互斥锁保护 status
+	var status string = "2" // "2" 表示正在扫描, "3" 表示已取消, "4" 表示错误
+	aliveTargets := make(map[string]bool)
+	var TargetsMutex sync.Mutex // 互斥锁，保护 Targets
+	var statusMutex sync.Mutex  // 互斥锁，保护 status
 
-	semaphore := make(chan struct{}, threads)
-	results := make(chan model.PortScanResult, len(ports)*len(targets))
 	var wg sync.WaitGroup
+	semaphore := make(chan struct{}, threads) // 用于控制并发数量的信号量
+
+	// 首先检测所有目标是否存活
+	for _, target := range targets {
+		wg.Add(1)
+		semaphore <- struct{}{}
+		go func(t string) {
+			defer wg.Done()
+			defer func() { <-semaphore }()
+
+			if alive, _ := util.IcmpCheckAlive(t, 5); alive {
+				TargetsMutex.Lock()
+				aliveTargets[t] = true
+				TargetsMutex.Unlock()
+			}
+		}(target)
+	}
+	wg.Wait()
+
+	results := make(chan model.PortScanResult, len(ports)*len(aliveTargets)) // 存储扫描结果的通道
 
 	setStatus := func(s string) {
 		statusMutex.Lock()
@@ -91,21 +112,27 @@ func (ps *PortService) performPortScan(ctx context.Context, task *model.Task, ta
 		return status
 	}
 
-	for _, target := range targets {
-		for _, port := range ports {
-			if getStatus() == "2" {
+	for target, alive := range aliveTargets {
+		if alive {
+			for _, port := range ports {
 				wg.Add(1)
+				semaphore <- struct{}{}
 				go func(t, p string) {
 					defer wg.Done()
-					semaphore <- struct{}{}
 					defer func() { <-semaphore }()
+
+					if getStatus() != "2" {
+						return
+					}
+
+					//执行端口扫描
 					result, err := ps.PortScan(ctx, t, p, timeout, taskUUID)
 					if err != nil {
 						if errors.Is(err, context.Canceled) {
-							setStatus("3")
+							setStatus("3") // 更新状态为已取消
 						} else {
-							setStatus("4")
-							global.Logger.Error("端口扫描发生错误: ", zap.Error(err))
+							setStatus("4") // 更新状态为出错
+							global.Logger.Error("端口扫描错误", zap.String("target", t), zap.String("port", p), zap.Error(err))
 						}
 					}
 					if err == nil && result != nil {
