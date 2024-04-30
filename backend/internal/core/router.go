@@ -24,12 +24,12 @@ func getControllerList() []interface{} {
 		&controller.BaseController{},
 		&controller.UserController{},
 		&controller.AuthController{},
-		&controller.CasbinController{},
 		&controller.InitController{},
 		&controller.CaptchaController{},
 		&controller.RouteController{},
 		&controller.PortScanController{},
 		&controller.TaskController{},
+		&controller.SubDomainController{},
 	}
 }
 

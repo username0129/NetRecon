@@ -11,4 +11,7 @@ type Server struct {
 
 	// 数据库配置
 	Mysql Mysql `mapstructure:"mysql" yaml:"mysql" json:"mysql"` // mysql 配置
+
+	// 域名黑名单
+	BlackDomain []string `mapstructure:"black_domain" yaml:"black_domain" json:"black_domain"` // 域名黑名单
 }

@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"github.com/lionsoul2014/ip2region/binding/golang/xdb"
 	"net"
 	"strconv"
 	"strings"
@@ -85,4 +86,18 @@ func ParseMultipleIPAddresses(input string) ([]string, error) {
 	}
 	// 去重
 	return RemoveDuplicates[string](allIPs), nil
+}
+
+func Ip2region(ip string) (string, error) {
+	var dbPath = "./data/ip2region/ip2region.xdb"
+	searcher, err := xdb.NewWithFileOnly(dbPath)
+	if err != nil {
+		return "", err
+	}
+	defer searcher.Close()
+	region, err := searcher.SearchByStr(ip)
+	if err != nil {
+		return "", err
+	}
+	return region, nil
 }

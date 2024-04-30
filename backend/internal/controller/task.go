@@ -15,7 +15,8 @@ type TaskController struct {
 	JWTRequired bool
 }
 
-func (tc *TaskController) GetTaskList(c *gin.Context) {
+// GetAllTasks 获取所有任务列表
+func (tc *TaskController) GetAllTasks(c *gin.Context) {
 	tasks, err := service.TaskServiceApp.FetchAllTasks()
 	if err != nil {
 		global.Logger.Error("获取任务列表失败: ", zap.Error(err))
@@ -31,6 +32,7 @@ func (tc *TaskController) GetTaskList(c *gin.Context) {
 	}
 }
 
+// PostCancelTask 取消指定任务
 func (tc *TaskController) PostCancelTask(c *gin.Context) {
 	var cancelTaskRequest request.CancelTaskRequest
 

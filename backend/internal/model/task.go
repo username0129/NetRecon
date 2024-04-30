@@ -12,6 +12,7 @@ type Task struct {
 	gorm.Model
 	UUID        uuid.UUID          `json:"uuid" gorm:"uniqueIndex;comment:任务 UUID;"`
 	CreatorUUID uuid.UUID          `json:"creatorUUID" gorm:"index;comment:创建者 UUID;"` // 创建者 UUID
+	Targets     string             `json:"targets" gorm:"comment:'任务目标';"`
 	Title       string             `json:"title" gorm:"comment:任务标题;"`
 	Type        string             `json:"type" gorm:"comment:任务类型;"`                                                   // 任务类型，例如端口扫描、子域名爆破等
 	Status      string             `json:"status" gorm:"default:1;comment:任务状态，1 -> 进行中, 2 -> 已完成, 3 -> 已取消，4 -> 执行失败"` // 任务状态：1 -> 进行中, 2 -> 已完成, 3 -> 已取消，4 -> 执行失败

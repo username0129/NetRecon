@@ -32,16 +32,22 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postuserinfo", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/route/getroute", V2: "GET"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postportscan", V2: "POST"},
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/gettasklist", V2: "GET"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postbytaskuuid", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postbyip", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/getalltasks", V2: "GET"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postcanceltask", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postbrutesubdomains", V2: "POST"},
 
 			// 普通用户组
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/getuserinfo", V2: "GET"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/user/postuserinfo", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/route/getroute", V2: "GET"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postportscan", V2: "POST"},
-			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/gettasklist", V2: "GET"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postbytaskuuid", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postbyip", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/getalltasks", V2: "GET"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postcanceltask", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postbrutesubdomains", V2: "POST"},
 		},
 	},
 	{
@@ -93,6 +99,12 @@ var initialDatas = []InitialData{
 		TableName: "sys_port_scan_result",
 		Data: []interface{}{
 			&model.PortScanResult{},
+		},
+	},
+	{
+		TableName: "sys_subdomain_results",
+		Data: []interface{}{
+			&model.SubDomainResult{},
 		},
 	},
 }
