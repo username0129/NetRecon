@@ -4,6 +4,7 @@ import (
 	"backend/internal/global"
 	"backend/internal/model/common"
 	"backend/internal/model/request"
+	"backend/internal/model/response"
 	"backend/internal/service"
 	"backend/internal/util"
 	"github.com/gin-gonic/gin"
@@ -34,41 +35,31 @@ func (pc *PortScanController) PostPortScan(c *gin.Context) {
 	return
 }
 
-// PostByTaskUUID 执行端口扫描
-func (pc *PortScanController) PostByTaskUUID(c *gin.Context) {
-	var portScanResultByTaskUUIDRequest request.PortScanResultByTaskUUIDRequest
-
-	if err := c.ShouldBindJSON(&portScanResultByTaskUUIDRequest); err != nil {
-		global.Logger.Error("PostPortScan 参数解析错误: ", zap.Error(err))
+func (pc *PortScanController) PostFetchResult(c *gin.Context) {
+	var req request.FetchResultRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.Logger.Error("PostSearchPortScanResult 参数解析错误: ", zap.Error(err))
 		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
 		return
 	}
 
-	resultList, err := service.PortServiceApp.GetResultsByTaskUUID(global.DB, portScanResultByTaskUUIDRequest.TaskUUID)
+	result, total, err := service.PortServiceApp.FetchResult(global.DB, req.PortScanResult, req.PageInfo, req.OrderKey, req.Desc)
 	if err != nil {
-		common.Response(c, http.StatusInternalServerError, "获取扫描结果失败", nil)
-		return
-	}
-	common.Response(c, http.StatusOK, "获取扫描结果成功", resultList)
-	return
-}
-
-// PostByTaskUUID 执行端口扫描
-func (pc *PortScanController) PostByIP(c *gin.Context) {
-	var portScanResultByIPRequest request.PortScanResultByIPRequest
-
-	if err := c.ShouldBindJSON(&portScanResultByIPRequest); err != nil {
-		global.Logger.Error("PostPortScan 参数解析错误: ", zap.Error(err))
-		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		global.Logger.Error("查询数据失败: ", zap.Error(err))
+		common.Response(c, http.StatusInternalServerError, "查询数据失败", nil)
 		return
 	}
 
-	resultList, err := service.PortServiceApp.GetResultsByIP(global.DB, portScanResultByIPRequest.IP)
-	if err != nil {
-		global.Logger.Error("获取扫描结果失败", zap.Error(err))
-		common.Response(c, http.StatusInternalServerError, "获取扫描结果失败", nil)
+	if total == 0 {
+		common.Response(c, http.StatusNotFound, "未查询到符合条件的数据", nil)
+		return
+	} else {
+		common.Response(c, http.StatusOK, "查询数据成功", response.PageResult{
+			Data:     result,
+			Total:    total,
+			Page:     req.Page,
+			PageSize: req.PageSize,
+		})
 		return
 	}
-	common.Response(c, http.StatusOK, "获取扫描结果成功", resultList)
-	return
 }

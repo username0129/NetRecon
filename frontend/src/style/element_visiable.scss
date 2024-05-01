@@ -44,7 +44,8 @@
 }
 
 .admin-box {
-  @apply min-h-[calc(100vh-200px)] px-3 py-4 mt-28 mb-4 mx-1;
+  // 最小高度，水平，竖直，距离上，距离下，元素左右边距
+  @apply min-h-[calc(100vh-200px)] px-3 py-4 mt-16 mb-4 mx-1;
 
   .el-table {
     th {
@@ -127,30 +128,6 @@
           }
         }
       }
-    }
-  }
-
-  .hideside {
-    .aside {
-      @apply w-[54px];
-    }
-  }
-
-  .mobile {
-    .my-aside {
-      @apply w-[54px];
-    }
-  }
-
-  .hideside {
-    .main-cont.el-main {
-      @apply ml-[54px];
-    }
-  }
-
-  .mobile {
-    .main-cont.el-main {
-      @apply ml-0;
     }
   }
 }

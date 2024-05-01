@@ -1,0 +1,433 @@
+<script setup>
+import WarningBar from '@/components/warningBar/warningBar.vue'
+import { reactive, ref } from 'vue'
+import { FetchTasks } from '@/apis/task.js'
+import { ElLoading, ElMessage } from 'element-plus'
+import { QuestionFilled } from '@element-plus/icons-vue'
+import { SubmitPortScanTask } from '@/apis/portscan.js'
+import router from '@/router/index.js'
+
+defineOptions({
+  name: 'PortScanIndex'
+})
+
+const radio = ref(2)
+
+const page = ref(1)
+const total = ref(0)
+const pageSize = ref(10)
+const tableData = ref([])
+
+const handleCurrentChange = (val) => {
+  page.value = val
+  getTableData()
+}
+
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  getTableData()
+}
+
+const getTableData = async () => {
+  console.log('获取数据')
+  const response = await FetchTasks({ page: page.value, pageSize: pageSize.value, type: 'PortScan' })
+  if (response.code == 200) {
+    tableData.value = response.data.data
+    total.value = response.data.total
+    page.value = response.data.page
+    pageSize.value = response.data.pageSize
+  } else {
+    ElMessage({
+      type: 'error',
+      message: response.msg,
+      showClose: true
+    })
+  }
+}
+
+getTableData()
+
+
+const addTaskForm = ref(null)
+const addTaskFormData = ref({
+  title: '',
+  targets: '',
+  ports: '',
+  timeout: 30,
+  threads: 200,
+  checkAlive: true
+})
+const rules = reactive({
+  title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
+  targets: [{ required: true, message: '目标不能为空', trigger: 'blur' }],
+  ports: [{ required: true, message: '端口不能为空', trigger: 'blur' }],
+  checkAlive: [{ required: true, message: '', trigger: 'blur' }],
+  timeout: [
+    { required: true, message: '超时时间不能为空', trigger: 'blur' },
+    { pattern: /^[0-9]+$/, message: '超时时间必须为整数', trigger: 'blur' }
+  ],
+  threads: [
+    { required: true, message: '线程数不能为空', trigger: 'blur' },
+    { pattern: /^[0-9]+$/, message: '线程数必须为整数', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        const portNumber = parseInt(value, 10)
+        if (portNumber >= 1 && portNumber <= 2000) {
+          callback() // 如果通过校验，则不传递任何参数给callback
+        } else {
+          callback(new Error('线程数必须在 1 到 2000 之间')) // 如果校验失败，传递一个 Error 对象给 callback
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+})
+
+const initForm = () => {
+  Object.assign(addTaskFormData, {
+    title: '',
+    targets: '',
+    ports: '',
+    timeout: 30,
+    threads: 200,
+    checkAlive: true
+  })
+}
+
+const dialogFlag = ref('')
+const addTaskDialog = ref(false)
+const viewResultsDialog = ref(false)
+
+const showAddTaskDialog = () => {
+  updatePorts()
+  addTaskDialog.value = true
+}
+
+const closeAddTaskDialog = () => {
+  initForm()
+  addTaskDialog.value = false
+}
+
+async function submitAddTaskForm() {
+  // 访问 Form 实例
+  if (!addTaskForm.value) {
+    console.error('Form 实例未生效。')
+    return
+  }
+  // 使用 Element Plus 的 validate 方法进行表单验证
+  addTaskForm.value.validate(async (valid) => {
+    if (valid) {
+      let loadingInstance = ElLoading.service({
+        lock: true,
+        fullscreen: true,
+        text: '正在提交端口扫描任务，请稍候...',
+        spinner: 'loading'
+      })
+
+      try {
+        const response = await SubmitPortScanTask(addTaskFormData.value)
+        if (response.code === 200) {
+          ElMessage({
+            type: 'success',
+            message: '任务提交成功'
+          })
+          closeAddTaskDialog()
+        } else {
+          ElMessage({
+            type: 'error',
+            message: response.msg,
+            showClose: true
+          })
+        }
+      } catch (error) {
+        // 捕获登录过程中的异常错误
+        console.error('初始化过程中出现错误:', error)
+        ElMessage({
+          type: 'error',
+          message: '初始化过程中出现异常错误',
+          showClose: true
+        })
+      } finally {
+        loadingInstance.close()
+      }
+    } else {
+      // 表单验证失败，显示错误消息
+      ElMessage({
+        type: 'error',
+        message: '请正确填写数据配置信息',
+        showClose: true
+      })
+    }
+  })
+}
+
+const viewResults = () => {
+  dialogFlag.value = 'view'
+  viewResultsDialog.value = true
+}
+
+const deleteTask = async (row) => {
+  ElMessage.confirm('确定要删除吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    // const res = await deleteUser({ id: row.ID })
+    // if (res.code === 200) {
+    //   ElMessage.success('删除成功')
+    //   await getTableData()
+    // }
+  })
+}
+const cancelTask = async (row) => {
+  ElMessage.confirm('确定要取消吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    // const res = await deleteUser({ id: row.ID })
+    // if (res.code === 0) {
+    //   ElMessage.success('取消成功')
+    //   await getTableData()
+    // }
+  })
+}
+
+const options = [{
+  text: '数据库端口',
+  value: '1433,1521,3306,5432,6379,9200,11211,27017'
+},
+  {
+    text: '企业端口',
+    value: '21,22,80,81,135,139,443,445,1433,1521,3306,5432,6379,7001,8000,8080,8089,9000,9200,11211,27017,80,81,82,83,84,85,86,87,88,89,90,91,92,98,99,443,800,801,808,880,888,889,1000,1010,1080,1081,1082,1099,1118,1888,2008,2020,2100,2375,2379,3000,3008,3128,3505,5555,6080,6648,6868,7000,7001,7002,7003,7004,7005,7007,7008,7070,7071,7074,7078,7080,7088,7200,7680,7687,7688,7777,7890,8000,8001,8002,8003,8004,8006,8008,8009,8010,8011,8012,8016,8018,8020,8028,8030,8038,8042,8044,8046,8048,8053,8060,8069,8070,8080,8081,8082,8083,8084,8085,8086,8087,8088,8089,8090,8091,8092,8093,8094,8095,8096,8097,8098,8099,8100,8101,8108,8118,8161,8172,8180,8181,8200,8222,8244,8258,8280,8288,8300,8360,8443,8448,8484,8800,8834,8838,8848,8858,8868,8879,8880,8881,8888,8899,8983,8989,9000,9001,9002,9008,9010,9043,9060,9080,9081,9082,9083,9084,9085,9086,9087,9088,9089,9090,9091,9092,9093,9094,9095,9096,9097,9098,9099,9100,9200,9443,9448,9800,9981,9986,9988,9998,9999,10000,10001,10002,10004,10008,10010,10250,12018,12443,14000,16080,18000,18001,18002,18004,18008,18080,18082,18088,18090,18098,19001,20000,20720,21000,21501,21502,28018,20880'
+  },
+  {
+    text: '高危端口',
+    value: '21,22,23,53,80,443,8080,8000,139,445,3389,1521,3306,6379,7001,2375,27017,11211'
+  },
+  {
+    text: '全端口',
+    value: '1-65535'
+  },
+  {
+    text: '自定义',
+    value: ''
+  }
+]
+
+function updatePorts() {
+  const index = Number(radio.value) - 1
+  if (index >= 0 && index < options.length) {
+    addTaskFormData.value.ports = options[index].value
+  }
+}
+
+function formatStatus(row, column, value) {
+  switch (value) {
+    case '1':
+      return '进行中'
+    case '2':
+      return '已完成'
+    case '3':
+      return '已取消'
+    case '4':
+      return '执行失败'
+    default:
+      return '未知状态'
+  }
+}
+
+function redirectToDetailPage(row) {
+  // 跳转到任务详情页面
+  router.push({ path: `/task-detail/${row.task_uuid}` })
+}
+
+</script>
+
+<template>
+  <div>
+    <warning-bar title="注：没有注释" />
+    <div class="my-table-box">
+      <el-row :gutter="10">
+        <el-col :xs="24" :sm="3" :md="3" :lg="3" :xl="3">
+          <div class="my-btn-list">
+            <el-button type="primary" icon="plus" @click="showAddTaskDialog">
+              添加端口扫描任务
+            </el-button>
+          </div>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
+          <div class="my-btn-list">
+            <el-button type="primary" icon="plus" @click="viewResults">
+              搜索端口扫描结果
+            </el-button>
+          </div>
+        </el-col>
+      </el-row>
+
+      <el-table
+        :data="tableData"
+        row-key="ID"
+      >
+        <el-table-column
+          align="left"
+          label="任务标题"
+          min-width="100"
+          prop="title"
+        >
+          <template v-slot="scope">
+            <a href="#" @click="redirectToDetailPage(scope.row)"
+               style="color: #00c5dc; text-decoration: none;">
+              {{ scope.row.title }}
+            </a>
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="left"
+          label="任务目标"
+          min-width="200"
+          prop="targets"
+        />
+        <el-table-column
+          align="left"
+          label="执行状态"
+          min-width="150"
+          prop="status"
+          :formatter="formatStatus"
+        />
+        <el-table-column
+          align="left"
+          label="创建者"
+          min-width="180"
+          prop="creater"
+        />
+        <el-table-column
+          align="left"
+          label="创建时间"
+          min-width="180"
+          prop="CreatedAt"
+        />
+        <el-table-column
+          label="操作"
+          min-width="250"
+          fixed="right"
+        >
+          <template #default="scope">
+            <el-button
+              type="primary"
+              link
+              :disabled="scope.row.status!=='1'"
+              icon="delete"
+              @click="cancelTask(scope.row)"
+            >取消
+            </el-button>
+            <el-button
+              type="primary"
+              link
+              :disabled="scope.row.status==='1'"
+              icon="edit"
+              @click="deleteTask(scope.row)"
+            >删除
+            </el-button>
+          </template>
+
+        </el-table-column>
+
+      </el-table>
+      <div class="my-pagination">
+        <el-pagination
+          v-model:current-page="page"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 30, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </div>
+
+    <el-drawer
+      v-model="addTaskDialog"
+      size="40%"
+      :before-close="closeAddTaskDialog"
+      :show-close="false"
+      :close-on-press-escape="false"
+      :close-on-click-modal="false"
+    >
+
+      <template #header>
+        <div class="flex justify-between items-center">
+          <span class="text-lg">添加端口扫描任务</span>
+          <div>
+            <el-button @click="closeAddTaskDialog">取 消</el-button>
+            <el-button type="primary" @click="submitAddTaskForm">确 定</el-button>
+          </div>
+        </div>
+      </template>
+      <warning-bar title="新增端口扫描任务" />
+
+      <el-form
+        ref="addTaskForm"
+        :model="addTaskFormData"
+        :rules="rules"
+        label-width="auto"
+      >
+        <el-form-item label="任务标题" prop="title">
+          <el-input v-model="addTaskFormData.title" />
+        </el-form-item>
+
+        <el-form-item prop="targets">
+          <template #label>IP:
+            <el-tooltip placement="right-end">
+              <template #content>
+                目标支持换行分割,IP支持如下格式:<br />
+                192.168.1.1<br />
+                192.168.1.1/8<br />
+                192.168.1.1/16<br />
+                192.168.1.1/24<br />
+                192.168.1.1,192.168.1.2<br />
+                192.168.1.1-192.168.255.255<br />
+                192.168.1.1-255<br /><br />
+              </template>
+              <el-icon>
+                <QuestionFilled size="24" />
+              </el-icon>
+            </el-tooltip>
+          </template>
+          <el-input type="textarea" rows="3" v-model="addTaskFormData.targets" resize="none" />
+        </el-form-item>
+
+        <el-form-item label="预设端口:">
+          <el-radio-group v-model="radio" @change="updatePorts">
+            <el-radio :value="1">数据库端口</el-radio>
+            <el-radio :value="2">企业端口</el-radio>
+            <el-radio :value="3">高危端口</el-radio>
+            <el-radio :value="4">全端口</el-radio>
+            <el-radio :value="5">自定义</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="端口列表:" prop="ports">
+          <el-input type="textarea" rows="3" v-model="addTaskFormData.ports" resize="none" />
+        </el-form-item>
+
+        <el-form-item label="存活探测:" prop="checkAlive">
+          <el-checkbox v-model="addTaskFormData.checkAlive" />
+        </el-form-item>
+
+        <el-form-item label="线程数量:" prop="threads">
+          <el-input-number controls-position="right" v-model="addTaskFormData.threads" :min="1" :max="30000" />
+        </el-form-item>
+
+        <el-form-item label="超时时长(s):" prop="timeout">
+          <el-input-number controls-position="right" v-model="addTaskFormData.timeout" :min="1" />
+        </el-form-item>
+
+      </el-form>
+    </el-drawer>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+
+</style>

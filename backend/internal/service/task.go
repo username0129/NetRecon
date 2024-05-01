@@ -3,8 +3,11 @@ package service
 import (
 	"backend/internal/global"
 	"backend/internal/model"
+	"backend/internal/model/request"
 	"errors"
+	"fmt"
 	"github.com/gofrs/uuid/v5"
+	"gorm.io/gorm"
 )
 
 type TaskService struct{}
@@ -18,6 +21,67 @@ func (ts TaskService) FetchAllTasks() (tasks []model.Task, err error) {
 		return nil, err // 返回错误信息
 	}
 	return tasks, nil // 返回任务列表
+}
+
+func (ts TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.PageInfo, order string, desc bool) ([]model.Task, int64, error) {
+
+	limit := info.PageSize
+	offset := info.PageSize * (info.Page - 1)
+	db := cdb.Model(&model.Task{})
+
+	// 条件查询
+	if result.UUID != uuid.Nil {
+		db = db.Where("uuid LIKE ?", "%"+result.UUID.String()+"%")
+	}
+	if result.Targets != "" {
+		db = db.Where("targets LIKE ?", "%"+result.Targets+"%")
+	}
+	if result.Title != "" {
+		db = db.Where("title LIKE ?", "%"+result.Title+"%")
+	}
+	if result.Type != "" {
+		db = db.Where("type LIKE ?", "%"+result.Type+"%")
+	}
+	if result.Status != "" {
+		db = db.Where("status LIKE ?", "%"+result.Status+"%")
+	}
+
+	// 获取满足条件的条目总数
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if total == 0 {
+		return nil, 0, nil
+	}
+	// 根据有效列表进行排序处理
+	orderStr := "uuid desc" // 默认排序
+	if order != "" {
+		allowedOrders := map[string]bool{
+			"uuid":       true,
+			"title":      true,
+			"targets":    true,
+			"type":       true,
+			"status":     true,
+			"created_at": true,
+		}
+		if _, ok := allowedOrders[order]; !ok {
+			return nil, 0, fmt.Errorf("非法的排序字段: %v", order)
+		}
+		orderStr = order
+		if desc {
+			orderStr += " desc"
+		}
+	}
+
+	// 查询数据
+	var resultList []model.Task
+	if err := db.Limit(limit).Offset(offset).Order(orderStr).Find(&resultList).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return resultList, total, nil
 }
 
 func (ts TaskService) CancelTask(taskUUID, userUUID uuid.UUID, authorityId uint) (err error) {

@@ -7,10 +7,10 @@ import (
 	"backend/internal/util"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/gofrs/uuid/v5"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"strconv"
 	"sync"
 )
 
@@ -21,38 +21,24 @@ var (
 )
 
 // ExecutePortScan 执行端口扫描任务
-func (ps *PortService) ExecutePortScan(portScanRequest request.PortScanRequest, userUUID uuid.UUID) (err error) {
+func (ps *PortService) ExecutePortScan(req request.PortScanRequest, userUUID uuid.UUID) (err error) {
 	// 创建新任务
-	task, err := util.StartNewTask(portScanRequest.Title, portScanRequest.Targets, "PortScan", userUUID)
+	task, err := util.StartNewTask(req.Title, req.Targets, "PortScan", userUUID)
 	if err != nil {
 		global.Logger.Error("无法创建任务: ", zap.Error(err))
 		return errors.New("无法创建任务")
 	}
 
 	// 解析 IP 地址 和 端口
-	targetList, portList, err := ps.parseRequest(portScanRequest)
+	targetList, portList, err := ps.parseRequest(req)
 	if err != nil {
 		global.Logger.Error("请求解析失败", zap.Error(err))
 		task.UpdateStatus("4")
 		return err
 	}
 
-	threads, err := strconv.Atoi(portScanRequest.Threads)
-	if err != nil {
-		global.Logger.Error("请求解析失败", zap.Error(err))
-		task.UpdateStatus("4")
-		return errors.New("线程数必须是整数")
-	}
-
-	timeout, err := strconv.Atoi(portScanRequest.Timeout)
-	if err != nil {
-		global.Logger.Error("请求解析失败", zap.Error(err))
-		task.UpdateStatus("4")
-		return errors.New("超时时间必须是整数")
-	}
-
 	// 异步执行端口扫描
-	go ps.performPortScan(portScanRequest.CheckAlive, task, targetList, portList, threads, timeout)
+	go ps.performPortScan(req.CheckAlive, task, targetList, portList, req.Threads, req.Timeout)
 	return nil
 }
 
@@ -75,7 +61,7 @@ func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]
 }
 
 // performPortScan 执行针对指定目标和端口的端口扫描，使用 ICMP 和自定义的端口扫描逻辑。
-func (ps *PortService) performPortScan(checkAlive string, task *model.Task, targets, ports []string, threads, timeout int) {
+func (ps *PortService) performPortScan(checkAlive bool, task *model.Task, targets, ports []string, threads, timeout int) {
 	status := "2" // "2" 表示正在扫描, "3" 表示已取消, "4" 表示错误
 	aliveTargets := make(map[string]bool)
 
@@ -98,7 +84,7 @@ func (ps *PortService) performPortScan(checkAlive string, task *model.Task, targ
 	}
 
 	// 首先检测所有目标是否存活
-	if checkAlive == "true" {
+	if checkAlive {
 		for _, target := range targets {
 			wg.Add(1)
 			semaphore <- struct{}{}
@@ -190,20 +176,53 @@ func (ps *PortService) processResults(results chan model.PortScanResult) {
 	}
 }
 
-// GetResultsByTaskUUID 根据任务 UUID 获取端口扫描详情
-func (ps *PortService) GetResultsByTaskUUID(db *gorm.DB, taskUUID uuid.UUID) ([]model.PortScanResult, error) {
-	var results []model.PortScanResult
-	if err := db.Model(&model.PortScanResult{}).Where("task_uuid = ?", taskUUID).Find(&results).Error; err != nil {
-		return nil, err
-	}
-	return results, nil
-}
+func (ps *PortService) FetchResult(cdb *gorm.DB, result model.PortScanResult, info request.PageInfo, order string, desc bool) ([]model.PortScanResult, int64, error) {
+	limit := info.PageSize
+	offset := info.PageSize * (info.Page - 1)
+	db := cdb.Model(&model.PortScanResult{})
 
-// GetResultsByIP 根据扫描 IP 获取端口扫描详情
-func (ps *PortService) GetResultsByIP(db *gorm.DB, ip string) ([]model.PortScanResult, error) {
-	var results []model.PortScanResult
-	if err := db.Model(&model.PortScanResult{}).Where("ip = ?", ip).Find(&results).Error; err != nil {
-		return nil, err
+	// 条件查询
+	if result.TaskUUID != uuid.Nil {
+		db = db.Where("task_uuid LIKE ?", "%"+result.TaskUUID.String()+"%")
 	}
-	return results, nil
+	if result.IP != "" {
+		db = db.Where("ip LIKE ?", "%"+result.IP+"%")
+	}
+	if result.Service != "" {
+		db = db.Where("service LIKE ?", "%"+result.Service+"%")
+	}
+
+	// 获取满足条件的条目总数
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if total == 0 {
+		return nil, 0, nil
+	}
+	// 根据有效列表进行排序处理
+	orderStr := "uuid desc" // 默认排序
+	if order != "" {
+		allowedOrders := map[string]bool{
+			"task_uuid": true,
+			"ip":        true,
+			"service":   true,
+		}
+		if _, ok := allowedOrders[order]; !ok {
+			return nil, 0, fmt.Errorf("非法的排序字段: %v", order)
+		}
+		orderStr = order
+		if desc {
+			orderStr += " desc"
+		}
+	}
+
+	// 查询数据
+	var resultList []model.PortScanResult
+	if err := db.Limit(limit).Offset(offset).Order(orderStr).Find(&resultList).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return resultList, total, nil
 }
