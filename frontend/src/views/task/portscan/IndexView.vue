@@ -29,13 +29,18 @@ const handleSizeChange = (val) => {
 }
 
 const getTableData = async () => {
-  console.log('获取数据')
   const response = await FetchTasks({ page: page.value, pageSize: pageSize.value, type: 'PortScan' })
   if (response.code == 200) {
     tableData.value = response.data.data
     total.value = response.data.total
     page.value = response.data.page
     pageSize.value = response.data.pageSize
+  } else if (response.code === 404) {
+    ElMessage({
+      type: 'info',
+      message: response.msg,
+      showClose: true
+    })
   } else {
     ElMessage({
       type: 'error',
@@ -131,6 +136,7 @@ async function submitAddTaskForm() {
             type: 'success',
             message: '任务提交成功'
           })
+          await getTableData()
           closeAddTaskDialog()
         } else {
           ElMessage({
@@ -239,7 +245,12 @@ function formatStatus(row, column, value) {
 
 function redirectToDetailPage(row) {
   // 跳转到任务详情页面
-  router.push({ path: `/task-detail/${row.task_uuid}` })
+  router.push({
+    name: 'portscandetail',
+    query: {
+      uuid: row.uuid
+    }
+  })
 }
 
 </script>
@@ -271,17 +282,25 @@ function redirectToDetailPage(row) {
       >
         <el-table-column
           align="left"
-          label="任务标题"
-          min-width="100"
-          prop="title"
+          label="任务 UUID"
+          min-width="250"
+          prop="uuid"
         >
           <template v-slot="scope">
             <a href="#" @click="redirectToDetailPage(scope.row)"
                style="color: #00c5dc; text-decoration: none;">
-              {{ scope.row.title }}
+              {{ scope.row.uuid }}
             </a>
           </template>
         </el-table-column>
+
+        <el-table-column
+          align="left"
+          label="任务标题"
+          min-width="150"
+          prop="title"
+        />
+
         <el-table-column
           align="left"
           label="任务目标"

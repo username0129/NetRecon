@@ -32,12 +32,11 @@ watch(route, (newRoute) => {
 })
 
 const selectMenuItem = (index) => {
-  const query = {}
-  const params = {}
   if (index !== route.name) {
-    router.push({ name: index, query, params })
+    router.push({ name: index, replace: true })
   }
 }
+
 </script>
 
 <template>
@@ -54,7 +53,7 @@ const selectMenuItem = (index) => {
         >
           <template v-for="item in routeStore.routes[0].children">
             <aside-component
-              v-if="!item.hidden"
+              v-if="!item.meta.hidden"
               :key="item.name"
               :route-info="item"
               :my-theme="myTheme"

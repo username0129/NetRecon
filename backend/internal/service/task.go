@@ -56,7 +56,7 @@ func (ts TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.P
 		return nil, 0, nil
 	}
 	// 根据有效列表进行排序处理
-	orderStr := "uuid desc" // 默认排序
+	orderStr := "created_at desc" // 默认排序
 	if order != "" {
 		allowedOrders := map[string]bool{
 			"uuid":       true,

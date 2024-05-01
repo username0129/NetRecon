@@ -51,7 +51,7 @@ func (pc *PortScanController) PostFetchResult(c *gin.Context) {
 	}
 
 	if total == 0 {
-		common.Response(c, http.StatusNotFound, "未查询到符合条件的数据", nil)
+		common.Response(c, http.StatusNotFound, "未查询到有效数据", nil)
 		return
 	} else {
 		common.Response(c, http.StatusOK, "查询数据成功", response.PageResult{

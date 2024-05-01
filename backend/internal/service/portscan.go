@@ -22,19 +22,19 @@ var (
 
 // ExecutePortScan 执行端口扫描任务
 func (ps *PortService) ExecutePortScan(req request.PortScanRequest, userUUID uuid.UUID) (err error) {
-	// 创建新任务
-	task, err := util.StartNewTask(req.Title, req.Targets, "PortScan", userUUID)
-	if err != nil {
-		global.Logger.Error("无法创建任务: ", zap.Error(err))
-		return errors.New("无法创建任务")
-	}
 
 	// 解析 IP 地址 和 端口
 	targetList, portList, err := ps.parseRequest(req)
 	if err != nil {
 		global.Logger.Error("请求解析失败", zap.Error(err))
-		task.UpdateStatus("4")
 		return err
+	}
+
+	// 创建新任务
+	task, err := util.StartNewTask(req.Title, req.Targets, "PortScan", userUUID)
+	if err != nil {
+		global.Logger.Error("无法创建任务: ", zap.Error(err))
+		return errors.New("无法创建任务")
 	}
 
 	// 异步执行端口扫描
@@ -202,12 +202,13 @@ func (ps *PortService) FetchResult(cdb *gorm.DB, result model.PortScanResult, in
 		return nil, 0, nil
 	}
 	// 根据有效列表进行排序处理
-	orderStr := "uuid desc" // 默认排序
+	orderStr := "created_at desc" // 默认排序
 	if order != "" {
 		allowedOrders := map[string]bool{
-			"task_uuid": true,
-			"ip":        true,
-			"service":   true,
+			"task_uuid":  true,
+			"ip":         true,
+			"service":    true,
+			"created_at": true,
 		}
 		if _, ok := allowedOrders[order]; !ok {
 			return nil, 0, fmt.Errorf("非法的排序字段: %v", order)
