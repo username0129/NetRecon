@@ -98,13 +98,9 @@ func (ts TaskService) CancelTask(taskUUID, userUUID uuid.UUID, authorityId uint)
 			}
 			// 取消任务
 			cancel()
-			if err = task.UpdateStatus("3"); err != nil { // 更新任务状态
-				return err
-			} else {
-				return nil
-			}
+			return nil
 		}
 	} else {
-		return errors.New("任务不存在或已经完成")
+		return errors.New("任务不存在")
 	}
 }

@@ -16,12 +16,12 @@ func IcmpCheckAlive(target string, timeout int) (bool, error) {
 		return false, fmt.Errorf("IP 地址解析错误: %v\n", err)
 	}
 
-	// 监听 ICMP
-	c, err := icmp.ListenPacket("ip4:icmp", "0.0.0.0")
+	// 监听本地 ICMP
+	conn, err := icmp.ListenPacket("ip4:icmp", "0.0.0.0")
 	if err != nil {
 		return false, fmt.Errorf("ICMP 监听失败: %v\n", err)
 	}
-	defer c.Close()
+	defer conn.Close()
 
 	// 创建 ICMP Echo 请求消息
 	msg := icmp.Message{
@@ -39,18 +39,18 @@ func IcmpCheckAlive(target string, timeout int) (bool, error) {
 	}
 
 	// 发送 ICMP Echo 请求
-	if _, err := c.WriteTo(b, dst); err != nil {
+	if _, err := conn.WriteTo(b, dst); err != nil {
 		return false, fmt.Errorf("发送 ICMP 请求错误: %v\n", err)
 	}
 
 	// 设置超时
-	if err = c.SetReadDeadline(time.Now().Add(time.Duration(timeout) * time.Second)); err != nil {
+	if err = conn.SetReadDeadline(time.Now().Add(time.Duration(timeout) * time.Second)); err != nil {
 		return false, fmt.Errorf("设置读取超时错误: %v", err)
 	}
 
 	// 接收 ICMP Echo 回应
 	reply := make([]byte, 1500)
-	n, _, err := c.ReadFrom(reply)
+	n, _, err := conn.ReadFrom(reply)
 	if err != nil {
 		if ne, ok := err.(net.Error); ok && ne.Timeout() {
 			return false, nil // 超时错误，认为目标不存活

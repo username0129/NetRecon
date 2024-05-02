@@ -5,12 +5,14 @@ import (
 	"backend/internal/model"
 	"backend/internal/model/request"
 	"backend/internal/util"
-	"context"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
+	"github.com/lcvvvv/gonmap"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"strings"
 	"sync"
 )
 
@@ -21,8 +23,7 @@ var (
 )
 
 // ExecutePortScan 执行端口扫描任务
-func (ps *PortService) ExecutePortScan(req request.PortScanRequest, userUUID uuid.UUID) (err error) {
-
+func (ps *PortService) ExecutePortScan(c *gin.Context, req request.PortScanRequest, userUUID uuid.UUID) (err error) {
 	// 解析 IP 地址 和 端口
 	targetList, portList, err := ps.parseRequest(req)
 	if err != nil {
@@ -31,18 +32,18 @@ func (ps *PortService) ExecutePortScan(req request.PortScanRequest, userUUID uui
 	}
 
 	// 创建新任务
-	task, err := util.StartNewTask(req.Title, req.Targets, "PortScan", userUUID)
+	task, err := util.StartNewTask(req.Title, strings.Join(targetList, ","), "PortScan", userUUID)
 	if err != nil {
 		global.Logger.Error("无法创建任务: ", zap.Error(err))
 		return errors.New("无法创建任务")
 	}
 
 	// 异步执行端口扫描
-	go ps.performPortScan(req.CheckAlive, task, targetList, portList, req.Threads, req.Timeout)
+	go ps.performPortScan(c, req.CheckAlive, task, targetList, portList, req.Threads, req.Timeout)
 	return nil
 }
 
-func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]string, []string, error) {
+func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]string, []int, error) {
 	targetList, err := util.ParseMultipleIPAddresses(portScanRequest.Targets)
 	if err != nil {
 		return nil, nil, errors.New("IP 地址解析失败")
@@ -61,7 +62,7 @@ func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]
 }
 
 // performPortScan 执行针对指定目标和端口的端口扫描，使用 ICMP 和自定义的端口扫描逻辑。
-func (ps *PortService) performPortScan(checkAlive bool, task *model.Task, targets, ports []string, threads, timeout int) {
+func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *model.Task, targets []string, ports []int, threads, timeout int) {
 	status := "2" // "2" 表示正在扫描, "3" 表示已取消, "4" 表示错误
 	aliveTargets := make(map[string]bool)
 
@@ -89,28 +90,33 @@ func (ps *PortService) performPortScan(checkAlive bool, task *model.Task, target
 			wg.Add(1)
 			semaphore <- struct{}{}
 			go func(t string) {
-				defer wg.Done()
-				defer func() { <-semaphore }()
-
-				if getStatus() != "2" {
+				defer func() {
+					<-semaphore
+					wg.Done()
+				}()
+				// 任务取消（主动取消 / 执行失败），停止执行后续方法
+				if err := task.Ctx.Err(); err != nil {
 					return
 				}
-
-				if alive, err := util.CheckHostAlive(task.Ctx, t, 25); err != nil {
-					if errors.Is(err, context.Canceled) {
-						setStatus("3") // 更新状态为已取消
-					} else {
-						setStatus("4") // 更新状态为出错
-						global.Logger.Error("检测主机存活失败", zap.String("target", t), zap.Error(err))
-					}
+				if alive, err := util.IcmpCheckAlive(t, 10); err != nil {
+					setStatus("4") // 更新状态为执行失败
+					TaskServiceApp.CancelTask(task.UUID, util.GetUUID(c), util.GetAuthorityId(c))
+					task.UpdateStatus("4") // 更新任务状态
+					global.Logger.Error("检测主机存活失败", zap.String("target", t), zap.Error(err))
+					return
 				} else if alive {
 					TargetsMutex.Lock()
 					defer TargetsMutex.Unlock()
 					aliveTargets[t] = true
+					return
 				}
 			}(target)
 		}
 		wg.Wait()
+
+		if err := task.Ctx.Err(); err != nil {
+			return
+		}
 	} else {
 		// 如果不检查存活，假定所有目标都是活跃的
 		for _, target := range targets {
@@ -125,27 +131,18 @@ func (ps *PortService) performPortScan(checkAlive bool, task *model.Task, target
 			for _, port := range ports {
 				wg.Add(1)
 				semaphore <- struct{}{}
-				go func(t, p string) {
-					defer wg.Done()
-					defer func() { <-semaphore }()
-
-					if getStatus() != "2" {
+				go func(t string, p int) {
+					defer func() {
+						<-semaphore
+						wg.Done()
+					}()
+					// 任务取消（主动取消 / 执行失败），停止执行后续方法
+					if err := task.Ctx.Err(); err != nil {
 						return
 					}
-
 					//执行端口扫描
-					result, err := util.PortScan(task.Ctx, t, p, timeout, task.UUID)
-					if err != nil {
-						if errors.Is(err, context.Canceled) {
-							setStatus("3") // 更新状态为已取消
-						} else {
-							if !(err.Error() == "signal: killed") {
-								setStatus("4") // 更新状态为出错
-								global.Logger.Error("端口扫描错误: ", zap.String("target", t), zap.String("port", p), zap.Error(err))
-							}
-						}
-					}
-					if err == nil && result != nil {
+					result := ps.PortCheck(t, p, timeout, task.UUID)
+					if result != nil {
 						results <- *result
 					}
 				}(target, port)
@@ -174,6 +171,28 @@ func (ps *PortService) processResults(results chan model.PortScanResult) {
 			}
 		}
 	}
+}
+
+func (ps *PortService) PortCheck(target string, port int, timeout int, taskUUID uuid.UUID) *model.PortScanResult {
+	scanner := gonmap.New()
+	status, response := scanner.Scan(target, port)
+	switch status {
+	case gonmap.Closed:
+		fmt.Printf("%v:%v %v", target, port, "closed")
+	// filter 未知状态
+	case gonmap.Unknown:
+		fmt.Printf("%v:%v %v", target, port, "unknown")
+	default:
+		fmt.Printf("%v:%v %v ", target, port, "open")
+	}
+	if response != nil {
+		if response.FingerPrint.Service != "" {
+			fmt.Printf("Service: %v\n", response.FingerPrint.Service)
+		} else {
+			fmt.Printf("Service: unknown\n")
+		}
+	}
+	return nil
 }
 
 func (ps *PortService) FetchResult(cdb *gorm.DB, result model.PortScanResult, info request.PageInfo, order string, desc bool) ([]model.PortScanResult, int64, error) {

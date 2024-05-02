@@ -9,7 +9,7 @@ import (
 func TestIcmp(t *testing.T) {
 	aliveTargets := make(map[string]bool)
 	var TargetsMutex sync.Mutex // 互斥锁，保护 Targets
-	targets := []string{"192.168.80.2"}
+	targets := []string{"121.37.217.132"}
 	var wg sync.WaitGroup
 	semaphore := make(chan struct{}, 10) // 用于控制并发数量的信号量
 

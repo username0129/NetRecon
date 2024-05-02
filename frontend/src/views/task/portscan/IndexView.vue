@@ -300,7 +300,6 @@ function redirectToDetailPage(row) {
           min-width="150"
           prop="title"
         />
-
         <el-table-column
           align="left"
           label="任务目标"

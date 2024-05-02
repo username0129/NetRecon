@@ -6,7 +6,7 @@ import (
 )
 
 // ParsePort 解析表示端口号的字符串，支持单个端口、逗号分隔的端口列表和连字符表示的端口范围。
-func ParsePort(ports string) (portList []string) {
+func ParsePort(ports string) (portList []int) {
 	if ports == "" {
 		return nil
 	}
@@ -32,14 +32,14 @@ func ParsePort(ports string) (portList []string) {
 
 			// 将范围内的所有端口加入到列表中
 			for i := startPort; i <= endPort; i++ {
-				portList = append(portList, strconv.Itoa(i))
+				portList = append(portList, i)
 			}
 		} else { // 单个端口
 			if portNum, err := strconv.Atoi(port); err == nil && portNum >= 1 && portNum <= 65535 {
-				portList = append(portList, port)
+				portList = append(portList, portNum)
 			}
 		}
 	}
 
-	return RemoveDuplicates[string](portList) // 移除重复的端口号并返回结果
+	return RemoveDuplicates[int](portList) // 移除重复的端口号并返回结果
 }
