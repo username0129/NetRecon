@@ -11,8 +11,7 @@ type PortScanResult struct {
 	UUID     uuid.UUID `json:"uuid" gorm:"index;comment:'UUID';"`
 	TaskUUID uuid.UUID `json:"taskUUID" gorm:"index;comment:'所属任务 UUID';"` // 外键
 	IP       string    `json:"ip" gorm:"comment:'目标 IP';"`                 // IP 地址
-	Port     uint16    `json:"port" gorm:"comment:'端口';"`                  // 端口l
-	Protocol string    `json:"protocol" gorm:"comment:'协议';"`              // 端口协议
+	Port     int       `json:"port" gorm:"comment:'端口';"`                  // 端口
 	Service  string    `json:"service" gorm:"comment:'服务';"`               // 端口是否开启
 	Open     bool      `json:"open" gorm:"comment:'端口开启状态';"`              // 端口是否开启
 }

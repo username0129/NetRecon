@@ -18,20 +18,20 @@ type TaskController struct {
 
 // PostCancelTask 取消指定任务
 func (tc *TaskController) PostCancelTask(c *gin.Context) {
-	var cancelTaskRequest request.CancelTaskRequest
+	var req request.CancelTaskRequest
 
-	if err := c.ShouldBindJSON(&cancelTaskRequest); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostCancelTask 参数解析错误: ", zap.Error(err))
 		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
 		return
 	}
 
-	if err := service.TaskServiceApp.CancelTask(cancelTaskRequest.UUID, util.GetUUID(c), util.GetAuthorityId(c)); err != nil {
+	if err := service.TaskServiceApp.CancelTask(req.UUID, util.GetUUID(c), util.GetAuthorityId(c)); err != nil {
 		global.Logger.Error("CancelTask 运行失败: ", zap.Error(err))
-		common.Response(c, http.StatusBadRequest, "CancelTask 运行失败", nil)
+		common.Response(c, http.StatusInternalServerError, "CancelTask 运行失败", nil)
 		return
 	} else {
-		common.Response(c, http.StatusBadRequest, "目标任务取消成功", nil)
+		common.Response(c, http.StatusOK, "目标任务取消成功", nil)
 		return
 	}
 }
@@ -62,6 +62,26 @@ func (tc *TaskController) PostFetchTasks(c *gin.Context) {
 			Page:     req.Page,
 			PageSize: req.PageSize,
 		})
+		return
+	}
+}
+
+// PostDeleteTask 删除指定任务及其结果
+func (tc *TaskController) PostDeleteTask(c *gin.Context) {
+	var req request.DeleteTaskRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.Logger.Error("PostCancelTask 参数解析错误: ", zap.Error(err))
+		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		return
+	}
+
+	if err := service.TaskServiceApp.DeleteTask(req.UUID, util.GetUUID(c), util.GetAuthorityId(c)); err != nil {
+		global.Logger.Error("PostDeleteTask 运行失败: ", zap.Error(err))
+		common.Response(c, http.StatusInternalServerError, "删除任务失败", nil)
+		return
+	} else {
+		common.Response(c, http.StatusOK, "目标任务及结果删除成功", nil)
 		return
 	}
 }

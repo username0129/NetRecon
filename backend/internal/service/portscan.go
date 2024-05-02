@@ -12,8 +12,9 @@ import (
 	"github.com/lcvvvv/gonmap"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"strings"
+	"strconv"
 	"sync"
+	"time"
 )
 
 type PortService struct{}
@@ -32,7 +33,7 @@ func (ps *PortService) ExecutePortScan(c *gin.Context, req request.PortScanReque
 	}
 
 	// 创建新任务
-	task, err := util.StartNewTask(req.Title, strings.Join(targetList, ","), "PortScan", userUUID)
+	task, err := util.StartNewTask(req.Title, req.Targets, "PortScan", userUUID)
 	if err != nil {
 		global.Logger.Error("无法创建任务: ", zap.Error(err))
 		return errors.New("无法创建任务")
@@ -63,11 +64,11 @@ func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]
 
 // performPortScan 执行针对指定目标和端口的端口扫描，使用 ICMP 和自定义的端口扫描逻辑。
 func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *model.Task, targets []string, ports []int, threads, timeout int) {
-	status := "2" // "2" 表示正在扫描, "3" 表示已取消, "4" 表示错误
+	status := "1" // "1" 表示正在扫描, "2" 表示扫描完成, "3" 表示已取消, "4" 表示错误
 	aliveTargets := make(map[string]bool)
 
-	var TargetsMutex sync.Mutex // 互斥锁，保护 Targets
-	var statusMutex sync.Mutex  // 互斥锁，保护 status
+	var statusMutex sync.Mutex // 互斥锁，保护 status
+	var TargetMutex sync.Mutex // 互斥锁，保护 aliveTargets
 
 	var wg sync.WaitGroup
 	semaphore := make(chan struct{}, threads) // 用于控制并发数量的信号量
@@ -88,14 +89,13 @@ func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *mo
 	if checkAlive {
 		for _, target := range targets {
 			wg.Add(1)
-			semaphore <- struct{}{}
 			go func(t string) {
-				defer func() {
-					<-semaphore
-					wg.Done()
-				}()
-				// 任务取消（主动取消 / 执行失败），停止执行后续方法
+				defer wg.Done()
+				defer func() { <-semaphore }()
+				semaphore <- struct{}{}
+				// 检测任务是否被取消（手动取消 / 执行失败），取消后续代码执行
 				if err := task.Ctx.Err(); err != nil {
+					setStatus("3") // 更新状态为取消
 					return
 				}
 				if alive, err := util.IcmpCheckAlive(t, 10); err != nil {
@@ -103,25 +103,23 @@ func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *mo
 					TaskServiceApp.CancelTask(task.UUID, util.GetUUID(c), util.GetAuthorityId(c))
 					task.UpdateStatus("4") // 更新任务状态
 					global.Logger.Error("检测主机存活失败", zap.String("target", t), zap.Error(err))
-					return
 				} else if alive {
-					TargetsMutex.Lock()
-					defer TargetsMutex.Unlock()
+					TargetMutex.Lock()
+					defer TargetMutex.Unlock()
 					aliveTargets[t] = true
-					return
 				}
 			}(target)
 		}
 		wg.Wait()
-
-		if err := task.Ctx.Err(); err != nil {
-			return
-		}
 	} else {
 		// 如果不检查存活，假定所有目标都是活跃的
 		for _, target := range targets {
 			aliveTargets[target] = true
 		}
+	}
+
+	if getStatus() != "1" {
+		return
 	}
 
 	results := make(chan model.PortScanResult, len(ports)*len(aliveTargets)) // 存储扫描结果的通道
@@ -130,16 +128,16 @@ func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *mo
 		if alive {
 			for _, port := range ports {
 				wg.Add(1)
-				semaphore <- struct{}{}
 				go func(t string, p int) {
-					defer func() {
-						<-semaphore
-						wg.Done()
-					}()
-					// 任务取消（主动取消 / 执行失败），停止执行后续方法
-					if err := task.Ctx.Err(); err != nil {
+					defer wg.Done()
+					defer func() { <-semaphore }()
+					semaphore <- struct{}{}
+
+					if task.Ctx.Err() != nil {
+						setStatus("3")
 						return
 					}
+
 					//执行端口扫描
 					result := ps.PortCheck(t, p, timeout, task.UUID)
 					if result != nil {
@@ -155,8 +153,8 @@ func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *mo
 		wg.Wait()
 		close(results)
 		finalStatus := getStatus()
-		task.UpdateStatus(finalStatus)
-		if status == "2" { // 扫描正常完成的情况下，收集并处理数据
+		if finalStatus == "1" { // 扫描正常完成的情况下，收集并处理数据
+			task.UpdateStatus("2")
 			ps.processResults(results)
 		}
 	}()
@@ -174,38 +172,47 @@ func (ps *PortService) processResults(results chan model.PortScanResult) {
 }
 
 func (ps *PortService) PortCheck(target string, port int, timeout int, taskUUID uuid.UUID) *model.PortScanResult {
+	result := model.PortScanResult{
+		UUID:     uuid.Must(uuid.NewV4()),
+		TaskUUID: taskUUID,
+		IP:       target,
+		Port:     port,
+	}
 	scanner := gonmap.New()
+	scanner.SetTimeout(time.Duration(timeout) * time.Second)
 	status, response := scanner.Scan(target, port)
 	switch status {
 	case gonmap.Closed:
-		fmt.Printf("%v:%v %v", target, port, "closed")
-	// filter 未知状态
+		result.Open = false
 	case gonmap.Unknown:
-		fmt.Printf("%v:%v %v", target, port, "unknown")
+		result.Open = true
+		result.Service = "filter" // filter 未知状态
 	default:
-		fmt.Printf("%v:%v %v ", target, port, "open")
+		result.Open = true
 	}
 	if response != nil {
 		if response.FingerPrint.Service != "" {
-			fmt.Printf("Service: %v\n", response.FingerPrint.Service)
+			result.Service = response.FingerPrint.Service
 		} else {
-			fmt.Printf("Service: unknown\n")
+			result.Service = "unknown"
 		}
 	}
-	return nil
+	return &result
 }
 
 func (ps *PortService) FetchResult(cdb *gorm.DB, result model.PortScanResult, info request.PageInfo, order string, desc bool) ([]model.PortScanResult, int64, error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db := cdb.Model(&model.PortScanResult{})
-
 	// 条件查询
 	if result.TaskUUID != uuid.Nil {
 		db = db.Where("task_uuid LIKE ?", "%"+result.TaskUUID.String()+"%")
 	}
 	if result.IP != "" {
 		db = db.Where("ip LIKE ?", "%"+result.IP+"%")
+	}
+	if result.Port != 0 {
+		db = db.Where("port LIKE ?", "%"+strconv.Itoa(result.Port)+"%")
 	}
 	if result.Service != "" {
 		db = db.Where("service LIKE ?", "%"+result.Service+"%")
@@ -221,13 +228,12 @@ func (ps *PortService) FetchResult(cdb *gorm.DB, result model.PortScanResult, in
 		return nil, 0, nil
 	}
 	// 根据有效列表进行排序处理
-	orderStr := "created_at desc" // 默认排序
+	orderStr := "ip desc" // 默认排序
 	if order != "" {
 		allowedOrders := map[string]bool{
-			"task_uuid":  true,
-			"ip":         true,
-			"service":    true,
-			"created_at": true,
+			"ip":      true,
+			"port":    true,
+			"service": true,
 		}
 		if _, ok := allowedOrders[order]; !ok {
 			return nil, 0, fmt.Errorf("非法的排序字段: %v", order)
@@ -245,4 +251,29 @@ func (ps *PortService) FetchResult(cdb *gorm.DB, result model.PortScanResult, in
 	}
 
 	return resultList, total, nil
+}
+
+// DeleteResult 删除端口扫描结果
+func (ps *PortService) DeleteResult(uuid uuid.UUID) (err error) {
+	var result model.PortScanResult
+
+	// 首先获取任务信息，确保任务存在
+	if err := global.DB.Model(&model.PortScanResult{}).Where("uuid = ?", uuid).First(&result).Error; err != nil {
+		return err // 可能是因为没有找到任务
+	}
+
+	// 开启事务
+	tx := global.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	// 删除任务本身
+	if err := tx.Model(&model.PortScanResult{}).Where("uuid = ?", uuid).Delete(&model.PortScanResult{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// 提交事务
+	return tx.Commit().Error
 }

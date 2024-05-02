@@ -3,7 +3,7 @@ module backend
 go 1.21
 
 require (
-	github.com/Ullaakut/nmap/v3 v3.0.3
+	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/casbin/casbin/v2 v2.88.0
 	github.com/casbin/gorm-adapter/v3 v3.24.0
@@ -12,6 +12,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/gofrs/uuid/v5 v5.1.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/lcvvvv/gonmap v1.3.4
 	github.com/lionsoul2014/ip2region/binding/golang v0.0.0-20240419130813-d2b12ef0c81c
 	github.com/miekg/dns v1.1.59
 	github.com/mojocn/base64Captcha v1.3.6
@@ -27,7 +28,6 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/PuerkitoBio/goquery v1.9.2 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
@@ -57,17 +57,15 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
-	github.com/lcvvvv/gonmap v1.3.4 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/microsoft/go-mssqldb v1.7.1 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.1 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect

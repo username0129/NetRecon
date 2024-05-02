@@ -10,6 +10,7 @@ import (
 )
 
 func IcmpCheckAlive(target string, timeout int) (bool, error) {
+
 	// 目标地址解析
 	dst, err := net.ResolveIPAddr("ip4", target)
 	if err != nil {
@@ -66,7 +67,6 @@ func IcmpCheckAlive(target string, timeout int) (bool, error) {
 
 	// 检查是否是有效的 ICMP Echo 回复
 	if rm.Type == ipv4.ICMPTypeEchoReply {
-		fmt.Printf("存活：%v\n", dst.String())
 		return true, nil
 	}
 

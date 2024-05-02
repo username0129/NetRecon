@@ -1,58 +1,24 @@
 <script setup>
 import WarningBar from '@/components/warningBar/warningBar.vue'
 import { reactive, ref } from 'vue'
-import { FetchTasks } from '@/apis/task.js'
-import { ElLoading, ElMessage } from 'element-plus'
+import { CancelTask, DeleteTask, FetchTasks } from '@/apis/task.js'
+import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { SubmitPortScanTask } from '@/apis/portscan.js'
 import router from '@/router/index.js'
+import { toSQLLine } from '@/utils/stringFun.js'
 
 defineOptions({
   name: 'PortScanIndex'
 })
 
-const radio = ref(2)
 
+const radio = ref(2)
 const page = ref(1)
 const total = ref(0)
 const pageSize = ref(10)
 const tableData = ref([])
-
-const handleCurrentChange = (val) => {
-  page.value = val
-  getTableData()
-}
-
-const handleSizeChange = (val) => {
-  pageSize.value = val
-  getTableData()
-}
-
-const getTableData = async () => {
-  const response = await FetchTasks({ page: page.value, pageSize: pageSize.value, type: 'PortScan' })
-  if (response.code == 200) {
-    tableData.value = response.data.data
-    total.value = response.data.total
-    page.value = response.data.page
-    pageSize.value = response.data.pageSize
-  } else if (response.code === 404) {
-    ElMessage({
-      type: 'info',
-      message: response.msg,
-      showClose: true
-    })
-  } else {
-    ElMessage({
-      type: 'error',
-      message: response.msg,
-      showClose: true
-    })
-  }
-}
-
-getTableData()
-
-
+const searchInfo = ref({})
 const addTaskForm = ref(null)
 const addTaskFormData = ref({
   title: '',
@@ -62,6 +28,7 @@ const addTaskFormData = ref({
   threads: 200,
   checkAlive: true
 })
+
 const rules = reactive({
   title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
   targets: [{ required: true, message: '目标不能为空', trigger: 'blur' }],
@@ -88,27 +55,93 @@ const rules = reactive({
   ]
 })
 
-const initForm = () => {
-  Object.assign(addTaskFormData, {
+// 重置
+async function onReset() {
+  searchInfo.value = {}
+  page.value = 1
+  pageSize.value = 10
+  await getTableData()
+}
+
+// 搜索
+async function onSubmit() {
+  page.value = 1
+  pageSize.value = 10
+  await getTableData()
+}
+
+async function handleCurrentChange(val) {
+  page.value = val
+  await getTableData()
+}
+
+async function handleSizeChange(val) {
+  pageSize.value = val
+  await getTableData()
+}
+
+async function getTableData() {
+  try {
+    const response = await FetchTasks({
+      page: page.value,
+      pageSize: pageSize.value,
+      type: 'PortScan',
+      ...searchInfo.value
+    })
+    if (response.code === 200) {
+      tableData.value = response.data.data
+      total.value = response.data.total
+      page.value = response.data.page
+      pageSize.value = response.data.pageSize
+    } else if (response.code === 404) {
+      tableData.value = []
+      total.value = 0
+      page.value = 0
+      pageSize.value = 0
+      ElMessage({
+        type: 'info',
+        message: response.msg,
+        showClose: true
+      })
+    } else {
+      ElMessage({
+        type: 'error',
+        message: response.msg,
+        showClose: true
+      })
+    }
+  } catch (error) {
+    ElMessage({
+      type: 'error',
+      message: '网络错误或数据处理异常',
+      showClose: true
+    })
+  }
+}
+
+// 页面加载时获取数据
+getTableData()
+
+
+function initForm() {
+  addTaskFormData.value = {
     title: '',
     targets: '',
     ports: '',
     timeout: 30,
     threads: 200,
     checkAlive: true
-  })
+  }
 }
 
-const dialogFlag = ref('')
 const addTaskDialog = ref(false)
-const viewResultsDialog = ref(false)
 
-const showAddTaskDialog = () => {
+function showAddTaskDialog() {
   updatePorts()
   addTaskDialog.value = true
 }
 
-const closeAddTaskDialog = () => {
+function closeAddTaskDialog() {
   initForm()
   addTaskDialog.value = false
 }
@@ -119,85 +152,80 @@ async function submitAddTaskForm() {
     console.error('Form 实例未生效。')
     return
   }
-  // 使用 Element Plus 的 validate 方法进行表单验证
-  addTaskForm.value.validate(async (valid) => {
-    if (valid) {
-      let loadingInstance = ElLoading.service({
-        lock: true,
-        fullscreen: true,
-        text: '正在提交端口扫描任务，请稍候...',
-        spinner: 'loading'
-      })
 
-      try {
-        const response = await SubmitPortScanTask(addTaskFormData.value)
-        if (response.code === 200) {
-          ElMessage({
-            type: 'success',
-            message: '任务提交成功'
-          })
-          await getTableData()
-          closeAddTaskDialog()
-        } else {
-          ElMessage({
-            type: 'error',
-            message: response.msg,
-            showClose: true
-          })
-        }
-      } catch (error) {
-        // 捕获登录过程中的异常错误
-        console.error('初始化过程中出现错误:', error)
+  // 使用 Element Plus 的 validate 方法进行表单验证
+  const valid = await addTaskForm.value.validate()
+  if (valid) {
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      fullscreen: true,
+      text: '正在提交端口扫描任务，请稍候...',
+      spinner: 'loading'
+    })
+
+    try {
+      const response = await SubmitPortScanTask(addTaskFormData.value)
+      if (response.code === 200) {
+        ElMessage({
+          type: 'success',
+          message: '任务提交成功'
+        })
+        await getTableData()
+        closeAddTaskDialog()
+      } else {
         ElMessage({
           type: 'error',
-          message: '初始化过程中出现异常错误',
+          message: response.msg,
           showClose: true
         })
-      } finally {
-        loadingInstance.close()
       }
-    } else {
-      // 表单验证失败，显示错误消息
+    } catch (error) {
       ElMessage({
         type: 'error',
-        message: '请正确填写数据配置信息',
+        message: '网络错误或数据处理异常',
         showClose: true
       })
+    } finally {
+      loadingInstance.close()
+    }
+  } else {
+    // 表单验证失败，显示错误消息
+    ElMessage({
+      type: 'error',
+      message: '请正确填写表单信息',
+      showClose: true
+    })
+  }
+}
+
+async function deleteTask(row) {
+  ElMessageBox.confirm('确定要删除吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    const response = await DeleteTask({ uuid: row.uuid })
+    if (response.code === 200) {
+      ElMessage.success('删除成功')
+      await getTableData()
     }
   })
 }
 
-const viewResults = () => {
-  dialogFlag.value = 'view'
-  viewResultsDialog.value = true
+async function cancelTask(row) {
+  ElMessageBox.confirm('确定要取消吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    const response = await CancelTask({ uuid: row.uuid })
+    if (response.code === 200) {
+      ElMessage.success('取消成功')
+      await getTableData()
+    }
+  })
 }
 
-const deleteTask = async (row) => {
-  ElMessage.confirm('确定要删除吗?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(async () => {
-    // const res = await deleteUser({ id: row.ID })
-    // if (res.code === 200) {
-    //   ElMessage.success('删除成功')
-    //   await getTableData()
-    // }
-  })
-}
-const cancelTask = async (row) => {
-  ElMessage.confirm('确定要取消吗?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(async () => {
-    // const res = await deleteUser({ id: row.ID })
-    // if (res.code === 0) {
-    //   ElMessage.success('取消成功')
-    //   await getTableData()
-    // }
-  })
-}
 
 const options = [{
   text: '数据库端口',
@@ -221,6 +249,7 @@ const options = [{
   }
 ]
 
+// 更新端口输入框内容
 function updatePorts() {
   const index = Number(radio.value) - 1
   if (index >= 0 && index < options.length) {
@@ -228,7 +257,7 @@ function updatePorts() {
   }
 }
 
-function formatStatus(row, column, value) {
+function formatStatus(value) {
   switch (value) {
     case '1':
       return '进行中'
@@ -243,6 +272,11 @@ function formatStatus(row, column, value) {
   }
 }
 
+function formatDate(value) {
+  const date = new Date(value)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
+}
+
 function redirectToDetailPage(row) {
   // 跳转到任务详情页面
   router.push({
@@ -253,39 +287,69 @@ function redirectToDetailPage(row) {
   })
 }
 
+// 获取标签类型
+function getTagType(status) {
+  switch (status) {
+    case '1':
+      return 'info'
+    case '2':
+      return 'success'
+    case '3':
+      return 'warning'
+    case '4':
+      return 'danger'
+    default:
+      return ''
+  }
+}
+
+async function handleSortChange({ prop, order }) {
+  if (prop) {
+    searchInfo.value.orderKey = toSQLLine(prop)
+    searchInfo.value.desc = order === 'descending'
+  }
+  await getTableData()
+}
 </script>
 
 <template>
   <div>
     <warning-bar title="注：没有注释" />
+    <div class="my-search-box">
+      <el-form
+        ref="searchForm"
+        :inline="true"
+        :model="searchInfo"
+      >
+        <el-form-item label="任务 UUID">
+          <el-input v-model="searchInfo.uuid" placeholder="任务 UUID" />
+        </el-form-item>
+        <el-form-item label="任务标题">
+          <el-input v-model="searchInfo.title" placeholder="任务标题" />
+        </el-form-item>
+        <el-form-item label="任务目标">
+          <el-input v-model="searchInfo.targets" placeholder="任务目标" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
+          <el-button icon="refresh" @click="onReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
     <div class="my-table-box">
-      <el-row :gutter="10">
-        <el-col :xs="24" :sm="3" :md="3" :lg="3" :xl="3">
-          <div class="my-btn-list">
-            <el-button type="primary" icon="plus" @click="showAddTaskDialog">
-              添加端口扫描任务
-            </el-button>
-          </div>
-        </el-col>
-        <el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
-          <div class="my-btn-list">
-            <el-button type="primary" icon="plus" @click="viewResults">
-              搜索端口扫描结果
-            </el-button>
-          </div>
-        </el-col>
-      </el-row>
+      <div class="my-btn-list">
+        <el-button type="primary" icon="plus" @click="showAddTaskDialog">
+          添加端口扫描任务
+        </el-button>
+      </div>
 
       <el-table
         :data="tableData"
-        row-key="ID"
+        @sort-change="handleSortChange"
+        :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
       >
-        <el-table-column
-          align="left"
-          label="任务 UUID"
-          min-width="250"
-          prop="uuid"
-        >
+        <el-table-column fixed label="任务 UUID" min-width="250" sortable="custom" prop="uuid">
           <template v-slot="scope">
             <a href="#" @click="redirectToDetailPage(scope.row)"
                style="color: #00c5dc; text-decoration: none;">
@@ -293,64 +357,40 @@ function redirectToDetailPage(row) {
             </a>
           </template>
         </el-table-column>
-
-        <el-table-column
-          align="left"
-          label="任务标题"
-          min-width="150"
-          prop="title"
-        />
-        <el-table-column
-          align="left"
-          label="任务目标"
-          min-width="200"
-          prop="targets"
-        />
-        <el-table-column
-          align="left"
-          label="执行状态"
-          min-width="150"
-          prop="status"
-          :formatter="formatStatus"
-        />
-        <el-table-column
-          align="left"
-          label="创建者"
-          min-width="180"
-          prop="creater"
-        />
-        <el-table-column
-          align="left"
-          label="创建时间"
-          min-width="180"
-          prop="CreatedAt"
-        />
-        <el-table-column
-          label="操作"
-          min-width="250"
-          fixed="right"
-        >
+        <el-table-column label="任务标题" min-width="200" sortable="custom" prop="title" />
+        <el-table-column label="任务目标" min-width="200" sortable="custom" prop="targets" />
+        <el-table-column label="执行状态" min-width="100" sortable="custom" prop="status">
+          <template #default="scope">
+            <el-tag
+              :type="getTagType(scope.row.status)"
+              disable-transitions
+            >
+              {{ formatStatus(scope.row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="创建时间" min-width="180" sortable="custom" prop="CreatedAt">
+          <template #default="scope">
+            {{ formatDate(scope.row.CreatedAt) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" min-width="250" fixed="right">
           <template #default="scope">
             <el-button
-              type="primary"
-              link
               :disabled="scope.row.status!=='1'"
-              icon="delete"
+              icon="Close"
               @click="cancelTask(scope.row)"
             >取消
             </el-button>
             <el-button
-              type="primary"
-              link
+              type="danger"
               :disabled="scope.row.status==='1'"
-              icon="edit"
+              icon="Delete"
               @click="deleteTask(scope.row)"
             >删除
             </el-button>
           </template>
-
         </el-table-column>
-
       </el-table>
       <div class="my-pagination">
         <el-pagination
@@ -370,10 +410,7 @@ function redirectToDetailPage(row) {
       size="40%"
       :before-close="closeAddTaskDialog"
       :show-close="false"
-      :close-on-press-escape="false"
-      :close-on-click-modal="false"
     >
-
       <template #header>
         <div class="flex justify-between items-center">
           <span class="text-lg">添加端口扫描任务</span>
@@ -384,7 +421,6 @@ function redirectToDetailPage(row) {
         </div>
       </template>
       <warning-bar title="新增端口扫描任务" />
-
       <el-form
         ref="addTaskForm"
         :model="addTaskFormData"
@@ -428,19 +464,15 @@ function redirectToDetailPage(row) {
         <el-form-item label="端口列表:" prop="ports">
           <el-input type="textarea" rows="3" v-model="addTaskFormData.ports" resize="none" />
         </el-form-item>
-
         <el-form-item label="存活探测:" prop="checkAlive">
           <el-checkbox v-model="addTaskFormData.checkAlive" />
         </el-form-item>
-
         <el-form-item label="线程数量:" prop="threads">
           <el-input-number controls-position="right" v-model="addTaskFormData.threads" :min="1" :max="30000" />
         </el-form-item>
-
         <el-form-item label="超时时长(s):" prop="timeout">
           <el-input-number controls-position="right" v-model="addTaskFormData.timeout" :min="1" />
         </el-form-item>
-
       </el-form>
     </el-drawer>
   </div>

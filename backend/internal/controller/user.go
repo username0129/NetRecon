@@ -15,7 +15,7 @@ type UserController struct {
 }
 
 func (uc *UserController) GetUserInfo(c *gin.Context) {
-	uuid := util.GetClaims(c).UUID
+	uuid := util.GetUUID(c)
 	if user, err := service.UserServiceApp.GetUserInfo(uuid); err != nil {
 		global.Logger.Error("获取用户信息失败: ", zap.Error(err))
 		common.Response(c, http.StatusInternalServerError, "获取用户信息失败", nil)

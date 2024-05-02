@@ -27,7 +27,13 @@ var initialDatas = []InitialData{
 	{
 		TableName: "casbin_role",
 		Data: []interface{}{
+			// 测试模块
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/base/gethealth", V2: "GET"}, // 检查路由
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/base/gethealth", V2: "GET"}, //
+
 			// 管理员模块
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postdeleteuserinfo", V2: "POST"}, // 删除用户信息
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postadduserinfo", V2: "POST"},    // 添加用户信息
 
 			// 路由模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/route/getroute", V2: "GET"}, // 根据当前用户角色获取路由信息
@@ -36,24 +42,36 @@ var initialDatas = []InitialData{
 			// 用户信息模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/getuserinfo", V2: "GET"}, // 根据 Token 获取当前用户信息
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/user/getuserinfo", V2: "GET"},
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postuserinfo", V2: "POST"}, // 修改个人信息
-			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/user/postuserinfo", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postupdateuserinfo", V2: "POST"}, // 更新个人信息
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/user/postupdateuserinfo", V2: "POST"},
 
 			// 端口扫描模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postportscan", V2: "POST"}, // 提交端口扫描任务
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postportscan", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postfetchresult", V2: "POST"}, // 查询结果
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postfetchresult", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postdeleteresult", V2: "POST"}, // 删除扫描结果
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postdeleteresult", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postaddresult", V2: "POST"}, // 咱家扫描结果
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postaddresult", V2: "POST"},
 
 			// 任务管理模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postcanceltask", V2: "POST"}, // 根据任务 UUID 取消任务
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postcanceltask", V2: "POST"},
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postfetchtasks", V2: "POST"}, // 根据
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postfetchtasks", V2: "POST"}, // 根据任务 UUID 获取数据
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postfetchtasks", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postdeletetask", V2: "POST"}, // 根据任务 UUID 删除任务
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postdeletetask", V2: "POST"},
 
 			// 子域名爆破模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postbrutesubdomains", V2: "POST"}, // 提交子域名扫描任务
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postbrutesubdomains", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postfetchresult", V2: "POST"}, // 查询结果
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postfetchresult", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postdeleteresult", V2: "POST"}, // 删除扫描结果
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postdeleteresult", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postaddresult", V2: "POST"}, // 咱家扫描结果
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postaddresult", V2: "POST"},
 		},
 	},
 	{

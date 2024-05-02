@@ -9,6 +9,10 @@ type CancelTaskRequest struct {
 	UUID uuid.UUID `json:"uuid"`
 }
 
+type DeleteTaskRequest struct {
+	UUID uuid.UUID `json:"uuid"`
+}
+
 type FetchTasksRequest struct {
 	PageInfo
 	model.Task
