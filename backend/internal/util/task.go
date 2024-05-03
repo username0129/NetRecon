@@ -8,7 +8,7 @@ import (
 )
 
 // StartNewTask StartNew 初始化新任务并保存到数据库
-func StartNewTask(title, targets, taskType string, userUUID uuid.UUID) (*model.Task, error) {
+func StartNewTask(title, targets, taskType, dictType string, userUUID uuid.UUID) (*model.Task, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	task := &model.Task{
 		Title:       title,
@@ -16,6 +16,7 @@ func StartNewTask(title, targets, taskType string, userUUID uuid.UUID) (*model.T
 		Targets:     targets,
 		CreatorUUID: userUUID,
 		Type:        taskType,
+		DictType:    dictType,
 		Status:      "1",
 		Cancel:      cancel,
 		Ctx:         ctx,

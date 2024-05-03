@@ -16,10 +16,12 @@ var (
 	TaskServiceApp = new(TaskService)
 )
 
-func (ts *TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.PageInfo, order string, desc bool) ([]model.Task, int64, error) {
+func (ts *TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.PageInfo, order string, desc bool, userUUID uuid.UUID) ([]model.Task, int64, error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db := cdb.Model(&model.Task{})
+
+	db = db.Where("creator_uuid LIKE ?", "%"+userUUID.String()+"%")
 
 	// 条件查询
 	if result.UUID != uuid.Nil {
@@ -57,6 +59,7 @@ func (ts *TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.
 			"type":       true,
 			"status":     true,
 			"created_at": true,
+			"dict_type":  true,
 		}
 		if _, ok := allowedOrders[order]; !ok {
 			return nil, 0, fmt.Errorf("非法的排序字段: %v", order)

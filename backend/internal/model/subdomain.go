@@ -13,6 +13,7 @@ type SubDomainResult struct {
 	Title     string    `json:"title" gorm:"comment:'网站标题'"`
 	Cname     string    `json:"cname" gorm:"comment:'CNAME 解析'"`
 	Ips       string    `json:"ips" gorm:"comment:'A 解析'"`
+	Code      int       `json:"code" gorm:"comment:'响应码'"`
 	Notes     string    `json:"notes" gorm:"comment:'备注'"`
 }
 

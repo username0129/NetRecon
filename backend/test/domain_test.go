@@ -22,3 +22,12 @@ func TestDomainV(t *testing.T) {
 	}
 	fmt.Printf("domains: %v\n", domains)
 }
+
+func TestDomainAlive(t *testing.T) {
+	domain := "example.com"
+	if util.IsDomainAlive(domain) {
+		fmt.Println(domain, "is alive")
+	} else {
+		fmt.Println(domain, "is not alive")
+	}
+}

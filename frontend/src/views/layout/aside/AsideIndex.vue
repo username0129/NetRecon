@@ -36,7 +36,6 @@ const selectMenuItem = (index) => {
     router.push({ name: index, replace: true })
   }
 }
-
 </script>
 
 <template>

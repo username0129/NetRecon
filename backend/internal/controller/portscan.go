@@ -36,7 +36,7 @@ func (pc *PortScanController) PostPortScan(c *gin.Context) {
 }
 
 func (pc *PortScanController) PostFetchResult(c *gin.Context) {
-	var req request.FetchResultRequest
+	var req request.FetchPortScanResultRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostFetchResult 参数解析错误: ", zap.Error(err))
 		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)

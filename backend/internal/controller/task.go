@@ -45,7 +45,7 @@ func (tc *TaskController) PostFetchTasks(c *gin.Context) {
 		return
 	}
 
-	result, total, err := service.TaskServiceApp.FetchTasks(global.DB, req.Task, req.PageInfo, req.OrderKey, req.Desc)
+	result, total, err := service.TaskServiceApp.FetchTasks(global.DB, req.Task, req.PageInfo, req.OrderKey, req.Desc, util.GetUUID(c))
 	if err != nil {
 		global.Logger.Error("查询数据失败: ", zap.Error(err))
 		common.Response(c, http.StatusInternalServerError, "查询数据失败", nil)

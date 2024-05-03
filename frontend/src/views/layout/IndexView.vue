@@ -86,7 +86,9 @@ function getRoleName() {
                           <div class="flex justify-center items-center h-full w-full">
                             <span class="cursor-pointer flex justify-center items-center">
                               <!--                              <CustomPic />-->
-                              <span style="margin-left: 5px">{{ userStore.userInfo.nickname }}</span>
+                              <span style="margin-left: 5px">{{
+                                userStore.userInfo.nickname
+                              }}</span>
                               <el-icon>
                                 <arrow-down />
                               </el-icon>
@@ -98,7 +100,7 @@ function getRoleName() {
                                 <span class="font-bold">当前角色：{{ getRoleName() }}</span>
                               </el-dropdown-item>
                               <el-dropdown-item icon="reading-lamp" @click="userStore.logout"
-                              >登 出
+                                >登 出
                               </el-dropdown-item>
                             </el-dropdown-menu>
                           </template>
@@ -113,7 +115,6 @@ function getRoleName() {
         </transition>
 
         <router-view class="admin-box"></router-view>
-
       </el-main>
     </el-container>
   </el-container>

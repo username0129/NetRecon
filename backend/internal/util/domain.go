@@ -2,9 +2,15 @@ package util
 
 import (
 	"fmt"
+	"net"
 	"regexp"
 	"strings"
 )
+
+func IsDomainAlive(domain string) bool {
+	_, err := net.LookupHost(domain)
+	return err == nil
+}
 
 // ParseMultipleDomains 解析域名
 func ParseMultipleDomains(input string, blackDomain []string) (allDomains []string, err error) {
@@ -37,7 +43,7 @@ func isValidDomain(domain string, blackDomain []string) (bool, error) {
 
 	// 检查域名是否在黑名单中
 	for _, b := range blackDomain {
-		if strings.EqualFold(domain, b) {
+		if strings.HasSuffix(domain, b) {
 			return false, fmt.Errorf("域名 %v 在黑名单中", domain)
 		}
 	}

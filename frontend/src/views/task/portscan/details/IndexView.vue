@@ -140,9 +140,7 @@ async function deleteSelectedItems() {
   })
 }
 
-function exportData() {
-
-}
+function exportData() {}
 </script>
 
 <template>
@@ -150,11 +148,7 @@ function exportData() {
     <warning-bar title="注：没有注释" />
 
     <div class="my-search-box">
-      <el-form
-        ref="searchForm"
-        :inline="true"
-        :model="searchInfo"
-      >
+      <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="IP 地址">
           <el-input clearable v-model="searchInfo.ip" placeholder="IP 地址" />
         </el-form-item>
@@ -173,12 +167,10 @@ function exportData() {
 
     <div class="my-table-box">
       <div class="my-btn-list">
-        <el-button icon="Delete" :disabled="selectedRows.length===0" @click="deleteSelectedItems">
+        <el-button icon="Delete" :disabled="selectedRows.length === 0" @click="deleteSelectedItems">
           批量删除
         </el-button>
-        <el-button icon="Share" @click="exportData">
-          导出所有数据
-        </el-button>
+        <el-button icon="Share" @click="exportData"> 导出所有数据 </el-button>
       </div>
 
       <el-table
@@ -189,10 +181,26 @@ function exportData() {
       >
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="IP 地址" min-width="150" sortable="custom" prop="ip" />
-        <el-table-column align="left" label="端口" min-width="200" sortable="custom" prop="port" />
-        <el-table-column align="left" label="开放服务" min-width="150" sortable="custom" prop="service" />
+        <el-table-column align="left" label="端口" min-width="100" sortable="custom" prop="port" />
         <el-table-column align="left" label="开放状态" min-width="150" prop="open">
           <el-tag type="success" disable-transitions>Open</el-tag>
+        </el-table-column>
+        <el-table-column
+          align="left"
+          label="开放服务"
+          min-width="150"
+          sortable="custom"
+          prop="service"
+        />
+        <el-table-column align="left" label="链接" min-width="150">
+          <template v-slot="scope">
+            <a
+              :href="`${scope.row.service}://${scope.row.ip}:${scope.row.port}`"
+              style="color: #00c5dc; text-decoration: none"
+            >
+              {{ scope.row.service }}://{{ scope.row.ip }}:{{ scope.row.port }}
+            </a>
+          </template>
         </el-table-column>
       </el-table>
 
@@ -211,6 +219,4 @@ function exportData() {
   </div>
 </template>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

@@ -15,6 +15,7 @@ type Task struct {
 	Targets     string             `json:"targets" gorm:"comment:'任务目标';"`
 	Title       string             `json:"title" gorm:"comment:任务标题;"`
 	Type        string             `json:"type" gorm:"comment:任务类型;"`                                                   // 任务类型，例如端口扫描、子域名爆破等
+	DictType    string             `json:"dictType" gorm:"comment:字典类型"`                                                // 字典类型
 	Status      string             `json:"status" gorm:"default:1;comment:任务状态，1 -> 进行中, 2 -> 已完成, 3 -> 已取消，4 -> 执行失败"` // 任务状态：1 -> 进行中, 2 -> 已完成, 3 -> 已取消，4 -> 执行失败
 	Cancel      context.CancelFunc `json:"-" gorm:"-"`                                                                  // 不存储在数据库中，仅运行时使用
 	Ctx         context.Context    `json:"-" gorm:"-"`                                                                  // 同上

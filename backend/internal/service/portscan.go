@@ -33,7 +33,7 @@ func (ps *PortService) ExecutePortScan(c *gin.Context, req request.PortScanReque
 	}
 
 	// 创建新任务
-	task, err := util.StartNewTask(req.Title, req.Targets, "PortScan", userUUID)
+	task, err := util.StartNewTask(req.Title, req.Targets, "PortScan", req.DictType, userUUID)
 	if err != nil {
 		global.Logger.Error("无法创建任务: ", zap.Error(err))
 		return errors.New("无法创建任务")

@@ -18,7 +18,6 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-
 		// 解析 Token
 		claims, err := util.ParseToken(tokenString)
 		if err != nil {
@@ -30,7 +29,6 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-
 		// Token 验证通过，将 claims 保存到请求上下文中
 		c.Set("claims", claims)
 		c.Next()

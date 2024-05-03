@@ -28,7 +28,12 @@ const menuComponent = computed(() => {
 </script>
 
 <template>
-  <component v-if="!props.routeInfo.meta.hidden" :is="menuComponent" :my-theme="myTheme" :route-info="routeInfo">
+  <component
+    v-if="!props.routeInfo.meta.hidden"
+    :is="menuComponent"
+    :my-theme="myTheme"
+    :route-info="routeInfo"
+  >
     <template v-if="hasChildren">
       <AsideComponent
         v-for="item in visibleChildren"
