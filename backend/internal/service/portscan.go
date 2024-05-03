@@ -40,7 +40,7 @@ func (ps *PortService) ExecutePortScan(c *gin.Context, req request.PortScanReque
 	}
 
 	// 异步执行端口扫描
-	go ps.performPortScan(c, req.CheckAlive, task, targetList, portList, req.Threads, req.Timeout)
+	go ps.performPortScan(c, req.CheckAlive, task, targetList, portList, req.Threads, req.Timeout, userUUID)
 	return nil
 }
 
@@ -63,7 +63,7 @@ func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]
 }
 
 // performPortScan 执行针对指定目标和端口的端口扫描，使用 ICMP 和自定义的端口扫描逻辑。
-func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *model.Task, targets []string, ports []int, threads, timeout int) {
+func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *model.Task, targets []string, ports []int, threads, timeout int, userUUID uuid.UUID) {
 	status := "1" // "1" 表示正在扫描, "2" 表示扫描完成, "3" 表示已取消, "4" 表示错误
 	aliveTargets := make(map[string]bool)
 
@@ -155,18 +155,57 @@ func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *mo
 		finalStatus := getStatus()
 		if finalStatus == "1" { // 扫描正常完成的情况下，收集并处理数据
 			task.UpdateStatus("2")
-			ps.processResults(results)
+			ps.processResults(results, userUUID, task)
 		}
 	}()
 }
 
-func (ps *PortService) processResults(results chan model.PortScanResult) {
+func (ps *PortService) processResults(results chan model.PortScanResult, userUUID uuid.UUID, task *model.Task) {
+	count := 0
 	for result := range results {
 		if result.Open {
 			err := result.InsertData(global.DB)
 			if err != nil {
 				global.Logger.Error("插入扫描结果失败: ", zap.Error(err))
+			} else {
+				count++
 			}
+		}
+	}
+
+	userMail, err := UserServiceApp.GetUserMailByUUID(userUUID)
+	if err != nil {
+		global.Logger.Error("获取用户邮箱失败: ", zap.Error(err))
+	} else {
+		timeCompleted := time.Now().Format("2006-01-02 15:04:05")
+		body := fmt.Sprintf(`
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Arial', sans-serif; line-height: 1.6; }
+    h1 { color: #333; }
+	p { margin: 10px 0; }
+    .footer { color: grey; font-size: 0.9em; }
+    hr { border: 0; height: 1px; background-color: #ddd; }
+  </style>
+</head>
+<body>
+  <h1>任务执行完成通知</h1>
+  <p><strong>任务标题：</strong>%s</p>
+  <p><strong>目标：</strong>%s</p>
+  <p><strong>完成时间：</strong>%s</p>
+  <p><strong>获得有效数据：</strong>%d 条</p>
+  <hr>
+  <p class="footer">此邮件为系统自动发送，请勿直接回复。</p>
+</body>
+</html>
+`, task.Title, task.Targets, timeCompleted, count)
+		subject := fmt.Sprintf("端口扫描任务完成通知 - UUID %s", task.UUID)
+		mail := global.Config.Mail
+		err := util.SendMail(mail.SmtpServer, mail.SmtpPort, mail.SmtpFrom, mail.SmtpPassword, userMail, subject, body)
+		if err != nil {
+			global.Logger.Error("发送邮箱失败: ", zap.Error(err))
 		}
 	}
 }

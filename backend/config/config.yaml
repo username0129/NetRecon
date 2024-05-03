@@ -43,3 +43,10 @@ zap:
 black_domain:
   - "gov.cn"
   - "edu.cn"
+
+# 邮件配置
+mail:
+  smtp_server: "smtp.qq.com" # 邮件服务器
+  smtp_port: "587" # 邮件服务器 端口
+  smtp_from: "784288604@qq.com" # 邮件发送用户
+  smtp_password: "wbmdmermwwftbeaf" # 密码

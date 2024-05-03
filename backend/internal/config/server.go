@@ -8,6 +8,7 @@ type Server struct {
 	System  System  `mapstructure:"system" yaml:"system" json:"system"`    // 系统配置
 	Zap     Zap     `mapstructure:"zap" yaml:"zap" json:"zap"`             // zap 日志配置
 	Captcha Captcha `mapstructure:"captcha" json:"captcha" yaml:"captcha"` // 验证码配置
+	Mail    Mail    `mapstructure:"mail" json:"mail" yaml:"mail"`          // 邮件服务配置
 
 	// 数据库配置
 	Mysql Mysql `mapstructure:"mysql" yaml:"mysql" json:"mysql"` // mysql 配置

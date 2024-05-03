@@ -111,8 +111,8 @@ var initialDatas = []InitialData{
 	{
 		TableName: "sys_users",
 		Data: []interface{}{
-			&model.User{Username: "admin", Password: util.BcryptHash("123456"), Nickname: "系统管理员", AuthorityId: 1},
-			&model.User{Username: "guest", Password: util.BcryptHash("guest"), Nickname: "测试账户", AuthorityId: 2},
+			&model.User{Username: "admin", Password: util.BcryptHash("123456"), Nickname: "系统管理员", AuthorityId: 1, Mail: "q.nah@outlook.com"},
+			&model.User{Username: "guest", Password: util.BcryptHash("guest"), Nickname: "测试账户", AuthorityId: 2, Mail: "q.nah@outlook.com"},
 		},
 	},
 	{

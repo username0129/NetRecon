@@ -65,12 +65,12 @@ func (ss *SubDomainService) BruteSubdomains(req request.SubDomainRequest, userUU
 		return errors.New("无法创建任务")
 	}
 
-	go ss.executeBruteSubdomain(task, targetList, req, dict, cdnList)
+	go ss.executeBruteSubdomain(task, targetList, req, dict, cdnList, userUUID)
 
 	return nil
 }
 
-func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []string, req request.SubDomainRequest, dict []string, cdnList map[string][]string) {
+func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []string, req request.SubDomainRequest, dict []string, cdnList map[string][]string, userUUID uuid.UUID) {
 	status := "1"              // "2" 表示正在扫描, "3" 表示已取消, "4" 表示错误
 	var statusMutex sync.Mutex // 互斥锁，保护 status
 	var wg sync.WaitGroup
@@ -128,7 +128,7 @@ func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []st
 		finalStatus := getStatus()
 		if finalStatus == "1" { // 扫描正常完成的情况下，收集并处理数据
 			task.UpdateStatus("2") // 更新任务状态为 2 -> 扫描完成
-			ss.processResults(results)
+			ss.processResults(results, userUUID, task)
 		}
 	}()
 
@@ -261,13 +261,53 @@ func (ss *SubDomainService) LookupHost(ctx context.Context, domain string, timeo
 	return ipv4s, nil
 }
 
-func (ss *SubDomainService) processResults(results chan model.SubDomainResult) {
+func (ss *SubDomainService) processResults(results chan model.SubDomainResult, userUUID uuid.UUID, task *model.Task) {
+	count := 0
 	for result := range results {
 		err := result.InsertData(global.DB)
 		if err != nil {
 			global.Logger.Error("插入扫描结果失败: ", zap.Error(err))
+		} else {
+			count++
 		}
 	}
+
+	userMail, err := UserServiceApp.GetUserMailByUUID(userUUID)
+	if err != nil {
+		global.Logger.Error("获取用户邮箱失败: ", zap.Error(err))
+	} else {
+		timeCompleted := time.Now().Format("2006-01-02 15:04:05")
+		body := fmt.Sprintf(`
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Arial', sans-serif; line-height: 1.6; }
+    h1 { color: #333; }
+	p { margin: 10px 0; }
+    .footer { color: grey; font-size: 0.9em; }
+    hr { border: 0; height: 1px; background-color: #ddd; }
+  </style>
+</head>
+<body>
+  <h1>任务执行完成通知</h1>
+  <p><strong>任务标题：</strong>%s</p>
+  <p><strong>目标：</strong>%s</p>
+  <p><strong>完成时间：</strong>%s</p>
+  <p><strong>获得有效数据：</strong>%d 条</p>
+  <hr>
+  <p class="footer">此邮件为系统自动发送，请勿直接回复。</p>
+</body>
+</html>
+`, task.Title, task.Targets, timeCompleted, count)
+		subject := fmt.Sprintf("子域名扫描任务完成通知 - UUID %s", task.UUID)
+		mail := global.Config.Mail
+		err := util.SendMail(mail.SmtpServer, mail.SmtpPort, mail.SmtpFrom, mail.SmtpPassword, userMail, subject, body)
+		if err != nil {
+			global.Logger.Error("发送邮箱失败: ", zap.Error(err))
+		}
+	}
+
 }
 
 // FetchTitle 发送 HTTP GET 请求到指定的 URL 并解析 HTML 文档以提取网页标题。

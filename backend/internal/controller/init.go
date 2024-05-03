@@ -5,8 +5,10 @@ import (
 	"backend/internal/model"
 	"backend/internal/model/common"
 	"backend/internal/service"
+	"backend/internal/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -53,5 +55,39 @@ func (ic *InitController) PostInit(c *gin.Context) {
 		return
 	}
 	common.Response(c, http.StatusOK, "数据库初始化成功", nil)
+
+	administratorMail, err := service.UserServiceApp.GetAdministratorMail()
+	if err != nil {
+		global.Logger.Error("获取管理员邮箱失败: ", zap.Error(err))
+	} else {
+		body := `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Arial', sans-serif; line-height: 1.6; }
+    h1 { color: #333; }
+	p { margin: 10px 0; }
+    .footer { color: grey; font-size: 0.9em; }
+    hr { border: 0; height: 1px; background-color: #ddd; }
+  </style>
+</head>
+<body>
+  <h1>邮件系统测试</h1>
+  <p>这是一封测试邮件，目的是验证邮件服务器配置是否成功。</p>
+  <p>如果你能看到这封邮件，那么恭喜！你的邮件服务已经配置正确。</p>
+  <hr>
+  <p class="footer">请勿回复此邮件，此邮件为系统自动生成。</p>
+</body>
+</html>
+`
+		subject := "邮件服务配置测试"
+		mail := global.Config.Mail
+		err := util.SendMail(mail.SmtpServer, mail.SmtpPort, mail.SmtpFrom, mail.SmtpPassword, administratorMail, subject, body)
+		if err != nil {
+			global.Logger.Error("发送邮箱失败: ", zap.Error(err))
+		}
+	}
+
 	return
 }
