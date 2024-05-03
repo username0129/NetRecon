@@ -25,7 +25,7 @@ export const useUserStore = defineStore('user', {
     async fetchUserInfo() {
       try {
         const response = await fetchUserInfo()
-        if (response.code == 200) {
+        if (response.code === 200) {
           this.setUserInfo(response.data)
         }
         return response

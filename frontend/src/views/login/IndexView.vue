@@ -74,7 +74,7 @@ async function submitForm() {
 
       try {
         const response = await login(loginFormData)
-        if (response.code == 200) {
+        if (response.code === 200) {
           userStore.setToken(response.data.token)
           userStore.setUserInfo(response.data.user)
           await routeStore.setRoutes()
@@ -125,7 +125,7 @@ async function check() {
   try {
     const response = await checkInit()
     // 系统初始化成功
-    if (response.code == 200) {
+    if (response.code === 200) {
       ElMessage({
         type: 'info',
         message: '系统已初始化成功',
