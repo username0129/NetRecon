@@ -307,7 +307,7 @@ func (ps *PortService) DeleteResult(uuid uuid.UUID) (err error) {
 		return tx.Error
 	}
 
-	// 删除任务本身
+	// 删除结果本身
 	if err := tx.Model(&model.PortScanResult{}).Where("uuid = ?", uuid).Delete(&model.PortScanResult{}).Error; err != nil {
 		tx.Rollback()
 		return err

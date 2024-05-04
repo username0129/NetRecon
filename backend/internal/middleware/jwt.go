@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"backend/internal/model/common"
+	"backend/internal/service"
 	"backend/internal/util"
 	"errors"
 	"fmt"
@@ -18,6 +19,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
 		// 解析 Token
 		claims, err := util.ParseToken(tokenString)
 		if err != nil {
@@ -29,6 +31,14 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+		// 判断 Token 所属用户是否存在
+		if _, err = service.UserServiceApp.FetchUserByUUID(claims.UUID); err != nil {
+			common.Response(c, http.StatusUnauthorized, fmt.Sprintf("用户信息被删除或不存在: %v", err.Error()), gin.H{"reload": true})
+			c.Abort()
+			return
+		}
+
 		// Token 验证通过，将 claims 保存到请求上下文中
 		c.Set("claims", claims)
 		c.Next()

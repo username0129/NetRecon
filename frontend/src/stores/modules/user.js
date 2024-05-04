@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { fetchUserInfo } from '@/apis/user.js'
+import { FetchCurrentUserInfo } from '@/apis/user.js'
 import router from '@/router/index.js'
 
 export const useUserStore = defineStore('user', {
@@ -22,9 +22,9 @@ export const useUserStore = defineStore('user', {
       router.push({ name: 'Login', replace: true })
       window.location.reload()
     },
-    async fetchUserInfo() {
+    async FetchCurrentUserInfo() {
       try {
-        const response = await fetchUserInfo()
+        const response = await FetchCurrentUserInfo()
         if (response.code === 200) {
           this.setUserInfo(response.data)
         }

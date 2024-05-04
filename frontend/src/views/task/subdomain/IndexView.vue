@@ -11,6 +11,7 @@ defineOptions({
   name: 'BruteSubdomainIndex'
 })
 
+const selectedRows = ref([])
 const radio = ref(1)
 const page = ref(1)
 const total = ref(0)
@@ -254,7 +255,7 @@ function formatDate(value) {
 function redirectToDetailPage(row) {
   // 跳转到任务详情页面
   router.push({
-    name: 'subdomaindetail',
+    name: 'SubdomainDetail',
     query: {
       uuid: row.uuid
     }
@@ -288,6 +289,14 @@ async function handleSortChange({ prop, order }) {
   }
   await getTableData()
 }
+
+
+// 监听选择项的变化
+async function handleSelectionChange(selection) {
+  selectedRows.value = selection
+}
+
+
 </script>
 
 <template>
@@ -321,8 +330,10 @@ async function handleSortChange({ prop, order }) {
       <el-table
         :data="tableData"
         @sort-change="handleSortChange"
+        @selection-change="handleSelectionChange"
         :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
       >
+        <el-table-column type="selection" width="55" />
         <el-table-column fixed label="任务 UUID" min-width="250" sortable="custom" prop="uuid">
           <template v-slot="scope">
             <a
@@ -334,9 +345,9 @@ async function handleSortChange({ prop, order }) {
             </a>
           </template>
         </el-table-column>
-        <el-table-column label="任务标题" min-width="200" sortable="custom" prop="title" />
-        <el-table-column label="任务目标" min-width="200" sortable="custom" prop="targets" />
-        <el-table-column label="字典类型" min-width="150" sortable="custom" prop="dictType">
+        <el-table-column label="任务标题" min-width="150" sortable="custom" prop="title" />
+        <el-table-column label="任务目标" min-width="150" sortable="custom" prop="targets" />
+        <el-table-column label="字典类型" min-width="120" sortable="custom" prop="dictType">
           <template #default="scope">
             {{ formatDictType(scope.row.dictType) }}
           </template>
@@ -348,12 +359,13 @@ async function handleSortChange({ prop, order }) {
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" min-width="180" sortable="custom" prop="CreatedAt">
+        <el-table-column label="创建者" min-width="150" sortable="custom" prop="creator.username" />
+        <el-table-column label="创建时间" min-width="150" sortable="custom" prop="CreatedAt">
           <template #default="scope">
             {{ formatDate(scope.row.CreatedAt) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="250" fixed="right">
+        <el-table-column label="操作" min-width="200" fixed="right">
           <template #default="scope">
             <el-button
               :disabled="scope.row.status !== '1'"

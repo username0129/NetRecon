@@ -11,7 +11,7 @@ var (
 	RouterServiceApp = new(RouteService)
 )
 
-func (rs *RouteService) GetRouteTree(authorityId uint) (baseRoute []model.Route, err error) {
+func (rs *RouteService) GetRouteTree(authorityId string) (baseRoute []model.Route, err error) {
 	var routes []model.Route
 
 	var authorityRoutes []model.AuthorityRoute
@@ -19,7 +19,7 @@ func (rs *RouteService) GetRouteTree(authorityId uint) (baseRoute []model.Route,
 		return nil, err
 	}
 
-	var routeIds []uint
+	var routeIds []int
 	for _, item := range authorityRoutes {
 		routeIds = append(routeIds, item.RouteId)
 	}

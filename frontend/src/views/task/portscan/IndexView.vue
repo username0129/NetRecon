@@ -7,11 +7,14 @@ import { QuestionFilled } from '@element-plus/icons-vue'
 import { SubmitPortScanTask } from '@/apis/portscan.js'
 import router from '@/router/index.js'
 import { toSQLLine } from '@/utils/stringFun.js'
+import { FormatDate } from '@/utils/format.js'
+
 
 defineOptions({
   name: 'PortScanIndex'
 })
 
+const selectedRows = ref([])
 const radio = ref(1)
 const page = ref(1)
 const total = ref(0)
@@ -290,15 +293,11 @@ function formatDictType(value) {
   }
 }
 
-function formatDate(value) {
-  const date = new Date(value)
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
-}
 
 function redirectToDetailPage(row) {
   // 跳转到任务详情页面
   router.push({
-    name: 'portscandetail',
+    name: 'PortscanDetail',
     query: {
       uuid: row.uuid
     }
@@ -347,6 +346,13 @@ const statusOptions = [
     label: '执行失败'
   }
 ]
+
+// 监听选择项的变化
+async function handleSelectionChange(selection) {
+  selectedRows.value = selection
+}
+
+
 </script>
 
 <template>
@@ -390,8 +396,10 @@ const statusOptions = [
       <el-table
         :data="tableData"
         @sort-change="handleSortChange"
+        @selection-change="handleSelectionChange"
         :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
       >
+        <el-table-column type="selection" width="55" />
         <el-table-column fixed label="任务 UUID" min-width="250" sortable="custom" prop="uuid">
           <template v-slot="scope">
             <a
@@ -403,9 +411,9 @@ const statusOptions = [
             </a>
           </template>
         </el-table-column>
-        <el-table-column label="任务标题" min-width="200" sortable="custom" prop="title" />
-        <el-table-column label="任务目标" min-width="200" sortable="custom" prop="targets" />
-        <el-table-column label="字典类型" min-width="150" sortable="custom" prop="dictType">
+        <el-table-column label="任务标题" min-width="150" sortable="custom" prop="title" />
+        <el-table-column label="任务目标" min-width="150" sortable="custom" prop="targets" />
+        <el-table-column label="字典类型" min-width="120" sortable="custom" prop="dictType">
           <template #default="scope">
             {{ formatDictType(scope.row.dictType) }}
           </template>
@@ -417,25 +425,26 @@ const statusOptions = [
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" min-width="180" sortable="custom" prop="CreatedAt">
+        <el-table-column label="创建者" min-width="150" sortable="custom" prop="creator.username" />
+        <el-table-column label="创建时间" min-width="150" sortable="custom" prop="CreatedAt">
           <template #default="scope">
-            {{ formatDate(scope.row.CreatedAt) }}
+            {{ FormatDate(scope.row.CreatedAt) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="250" fixed="right">
+        <el-table-column label="操作" min-width="200" fixed="right">
           <template #default="scope">
             <el-button
               :disabled="scope.row.status !== '1'"
               icon="Close"
               @click="cancelTask(scope.row)"
-              >取消
+            >取消
             </el-button>
             <el-button
               type="danger"
               :disabled="scope.row.status === '1'"
               icon="Delete"
               @click="deleteTask(scope.row)"
-              >删除
+            >删除
             </el-button>
           </template>
         </el-table-column>
@@ -476,7 +485,7 @@ const statusOptions = [
 
         <el-form-item prop="targets">
           <template #label
-            >IP:
+          >IP:
             <el-tooltip placement="right-end">
               <template #content>
                 目标支持换行分割,IP支持如下格式:<br />

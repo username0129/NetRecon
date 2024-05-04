@@ -45,7 +45,7 @@ func (tc *TaskController) PostFetchTasks(c *gin.Context) {
 		return
 	}
 
-	result, total, err := service.TaskServiceApp.FetchTasks(global.DB, req.Task, req.PageInfo, req.OrderKey, req.Desc, util.GetUUID(c))
+	result, total, err := service.TaskServiceApp.FetchTasks(global.DB, req.Task, req.PageInfo, req.OrderKey, req.Desc, util.GetUUID(c), util.GetAuthorityId(c))
 	if err != nil {
 		global.Logger.Error("查询数据失败: ", zap.Error(err))
 		common.Response(c, http.StatusInternalServerError, "查询数据失败", nil)
@@ -76,7 +76,7 @@ func (tc *TaskController) PostDeleteTask(c *gin.Context) {
 		return
 	}
 
-	if err := service.TaskServiceApp.DeleteTask(req.UUID, util.GetUUID(c), util.GetAuthorityId(c)); err != nil {
+	if err := service.TaskServiceApp.DeleteTask(global.DB, req.UUID, util.GetUUID(c), util.GetAuthorityId(c)); err != nil {
 		global.Logger.Error("PostDeleteTask 运行失败: ", zap.Error(err))
 		common.Response(c, http.StatusInternalServerError, "删除任务失败", nil)
 		return

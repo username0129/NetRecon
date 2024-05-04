@@ -2,8 +2,8 @@ package controller
 
 import (
 	"backend/internal/global"
-	"backend/internal/model"
 	"backend/internal/model/common"
+	"backend/internal/model/request"
 	"backend/internal/service"
 	"backend/internal/util"
 	"fmt"
@@ -42,7 +42,7 @@ func (ic *InitController) PostInit(c *gin.Context) {
 		return
 	}
 
-	var req model.InitRequest
+	var req request.InitRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error(fmt.Sprintf("参数解析错误 %v", err.Error()))
 		common.Response(c, http.StatusInternalServerError, "参数解析错误", nil)

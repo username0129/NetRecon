@@ -8,7 +8,9 @@ import (
 
 type SubDomainResult struct {
 	gorm.Model
+	UUID      uuid.UUID `json:"uuid" gorm:"index;comment:'UUID';"`
 	TaskUUID  uuid.UUID `json:"taskUUID" gorm:"comment:'所属任务 UUID'"`
+	Task      Task      `json:"task" gorm:"foreignKey:TaskUUID;references:UUID"` // 创建者详细信息
 	SubDomain string    `json:"subDomain" gorm:"comment:'子域名'"`
 	Title     string    `json:"title" gorm:"comment:'网站标题'"`
 	Cname     string    `json:"cname" gorm:"comment:'CNAME 解析'"`

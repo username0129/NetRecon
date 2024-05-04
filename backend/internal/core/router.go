@@ -30,6 +30,7 @@ func getControllerList() []interface{} {
 		&controller.PortScanController{},
 		&controller.TaskController{},
 		&controller.SubDomainController{},
+		&controller.AssetController{},
 	}
 }
 

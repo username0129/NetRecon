@@ -30,7 +30,6 @@ var (
 
 // BruteSubdomains 爆破子域名
 func (ss *SubDomainService) BruteSubdomains(req request.SubDomainRequest, userUUID uuid.UUID) (err error) {
-
 	// 解析域名列表，黑名单校验
 	targetList, err := util.ParseMultipleDomains(req.Targets, global.Config.BlackDomain)
 	if err != nil {
@@ -115,7 +114,6 @@ func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []st
 				}
 				if err == nil && result != nil {
 					results <- *result
-					fmt.Printf("域名: %v, CNAME: %v, IPS: %v\n", (*result).SubDomain, (*result).Cname, (*result).Ips)
 				}
 			}(target, sub)
 		}
@@ -169,6 +167,7 @@ func (ss *SubDomainService) Resolution(ctx context.Context, domain string, timeo
 	}
 
 	subDomainResult = &model.SubDomainResult{
+		UUID:      uuid.Must(uuid.NewV4()),
 		TaskUUID:  taskUUID,
 		SubDomain: domain,
 		Title:     strings.TrimSpace(title),

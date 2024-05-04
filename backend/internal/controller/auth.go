@@ -64,7 +64,6 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 func (ac *AuthController) TokenNext(c *gin.Context, user model.User) {
 	token, err := util.GenerateJWT(model.CustomClaims{
 		UUID:        user.UUID,
-		ID:          user.ID,
 		Username:    user.Username,
 		AuthorityId: user.AuthorityId,
 	})

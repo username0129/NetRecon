@@ -4,7 +4,7 @@ import (
 	"backend/internal/config"
 	"backend/internal/db/dbutil"
 	"backend/internal/global"
-	"backend/internal/model"
+	"backend/internal/model/request"
 	"backend/internal/util"
 	"context"
 	"fmt"
@@ -20,7 +20,7 @@ func NewMySQLInitializer() *MySQLInitializer {
 	return &MySQLInitializer{}
 }
 
-func (mi *MySQLInitializer) CreateDatabase(c context.Context, req model.InitRequest) (context.Context, error) {
+func (mi *MySQLInitializer) CreateDatabase(c context.Context, req request.InitRequest) (context.Context, error) {
 	cfg := req.ToMySQLConfig()
 	c = context.WithValue(c, "config", cfg)
 	if err := cfg.Check(); err != nil {

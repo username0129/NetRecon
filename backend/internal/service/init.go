@@ -3,7 +3,7 @@ package service
 import (
 	"backend/internal/db"
 	"backend/internal/global"
-	"backend/internal/model"
+	"backend/internal/model/request"
 	"context"
 	"gorm.io/gorm"
 )
@@ -12,7 +12,7 @@ import (
 
 // IDatabaseInitializer 定义数据库初始化器接口
 type IDatabaseInitializer interface {
-	CreateDatabase(ctx context.Context, req model.InitRequest) (context.Context, error)
+	CreateDatabase(ctx context.Context, req request.InitRequest) (context.Context, error)
 	CreateTable() error
 	InsertData() error
 	WriteConfig(ctx context.Context) error
@@ -24,7 +24,7 @@ var (
 	InitServiceApp = new(InitService)
 )
 
-func (is *InitService) Init(req model.InitRequest) (err error) {
+func (is *InitService) Init(req request.InitRequest) (err error) {
 	c := context.TODO()
 
 	var dbInitializer IDatabaseInitializer

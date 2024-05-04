@@ -33,7 +33,7 @@ func (as *AuthService) Login(u model.User) (userInter *model.User, err error) {
 		if ok := util.BcryptCheck(u.Password, user.Password); !ok {
 			return nil, errors.New("账号或密码错误")
 		} else {
-			if user.Enable != 1 {
+			if user.Enable != "1" {
 				return nil, errors.New("账号被冻结")
 			}
 			return &user, nil

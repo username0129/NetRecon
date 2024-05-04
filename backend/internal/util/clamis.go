@@ -36,7 +36,7 @@ func GetUUID(c *gin.Context) uuid.UUID {
 	return claims.UUID
 }
 
-func GetAuthorityId(c *gin.Context) uint {
+func GetAuthorityId(c *gin.Context) string {
 	claims := GetClaims(c)
 	return claims.AuthorityId
 }

@@ -13,7 +13,7 @@ export async function ensureDynamicRoutes() {
 
   if (userStore.token) {
     try {
-      await userStore.fetchUserInfo()
+      await userStore.FetchCurrentUserInfo()
       await routeStore.setRoutes() // 确保动态路由加载逻辑正确
       routeStore.routes.forEach((route) => {
         if (!router.hasRoute(route.name)) {

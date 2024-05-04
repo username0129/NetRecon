@@ -6,7 +6,6 @@ import (
 	"backend/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 var casbinService = service.CasbinServiceApp
@@ -21,7 +20,7 @@ func CasbinHandler() gin.HandlerFunc {
 		// 获取请求主体（身份 id）
 		claims, _ := c.Get("claims")
 		typedClaims, _ := claims.(*model.CustomClaims)
-		sub := strconv.Itoa(int(typedClaims.AuthorityId))
+		sub := typedClaims.AuthorityId
 
 		// 判断是否存在对应的 ACL
 		casbin := casbinService.GetCasbin()

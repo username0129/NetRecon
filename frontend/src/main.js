@@ -17,6 +17,7 @@ app.use(ElementPlus)
 
 // 注册 pinia
 setupStore(app)
+
 // 注册 Element-plus 图标
 setupElIcons(app)
 
