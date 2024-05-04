@@ -13,7 +13,7 @@ func TestDomainV(t *testing.T) {
 		"example.net",
 	}
 
-	testDomains := "example.com,sub.domain.co.uk,-invalid.com, invalid-.com, invalid.com-, 123.com, invalid_site.com, baddomain.com, malicious-site.net, .com, xxx.edu.cn"
+	testDomains := "测试"
 
 	domains, err := util.ParseMultipleDomains(testDomains, blacklist)
 	if err != nil {

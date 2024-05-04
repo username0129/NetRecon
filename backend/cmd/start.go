@@ -33,6 +33,7 @@ func start() {
 	global.Viper = core.InitializeViper(configPath)             // 初始化并加载 Viper
 	global.Logger = logger.InitializeLogger()                   // 初始化 Zap 日志
 	global.Cache = core.InitializeCache()                       // 初始化 BigCache
+	global.CronManager = core.NewTaskManager()                  // 初始化 BigCache
 	global.DB = core.InitializeDB()                             // 获取数据库连接
 	if global.DB != nil {
 		db, _ := global.DB.DB()

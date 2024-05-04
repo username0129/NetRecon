@@ -393,12 +393,13 @@ func (ss *SubDomainService) FetchResult(cdb *gorm.DB, result model.SubDomainResu
 	orderStr := "sub_domain desc" // 默认排序
 	if order != "" {
 		allowedOrders := map[string]bool{
-			"task_uuid":  true,
-			"sub_domain": true,
-			"title":      true,
-			"ips":        true,
-			"code":       true,
-			"created_at": true,
+			"task_uuid":    true,
+			"sub_domain":   true,
+			"title":        true,
+			"ips":          true,
+			"code":         true,
+			"creator_uuid": true,
+			"created_at":   true,
 		}
 		if _, ok := allowedOrders[order]; !ok {
 			return nil, 0, fmt.Errorf("非法的排序字段: %v", order)

@@ -67,11 +67,11 @@ func (uc *UserController) PostUpdateUserInfo(c *gin.Context) {
 
 	err := service.UserServiceApp.UpdateUserInfo(global.DB, user)
 	if err != nil {
-		global.Logger.Error("添加用户失败: ", zap.Error(err))
-		common.Response(c, http.StatusInternalServerError, fmt.Sprintf("添加用户失败: %v", err), nil)
+		global.Logger.Error("更新用户失败: ", zap.Error(err))
+		common.Response(c, http.StatusInternalServerError, fmt.Sprintf("更新用户失败: %v", err), nil)
 		return
 	}
-	common.Response(c, http.StatusOK, "添加用户成功", nil)
+	common.Response(c, http.StatusOK, "更新用户成功", nil)
 	return
 }
 

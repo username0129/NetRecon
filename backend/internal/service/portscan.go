@@ -270,9 +270,10 @@ func (ps *PortService) FetchResult(cdb *gorm.DB, result model.PortScanResult, in
 	orderStr := "ip desc" // 默认排序
 	if order != "" {
 		allowedOrders := map[string]bool{
-			"ip":      true,
-			"port":    true,
-			"service": true,
+			"ip":           true,
+			"port":         true,
+			"creator_uuid": true,
+			"service":      true,
 		}
 		if _, ok := allowedOrders[order]; !ok {
 			return nil, 0, fmt.Errorf("非法的排序字段: %v", order)

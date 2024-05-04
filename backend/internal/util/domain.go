@@ -14,6 +14,9 @@ func IsDomainAlive(domain string) bool {
 
 // ParseMultipleDomains 解析域名
 func ParseMultipleDomains(input string, blackDomain []string) (allDomains []string, err error) {
+	if len(blackDomain) == 0 {
+		return nil, nil
+	}
 	parts := strings.Split(input, ",")
 	for _, part := range parts {
 		domain := strings.TrimSpace(part)

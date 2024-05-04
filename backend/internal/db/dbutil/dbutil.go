@@ -98,6 +98,7 @@ var initialDatas = []InitialData{
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "仪表盘", Icon: "odometer"}, Name: "Dashboard", Path: "dashboard", Component: "views/dashboard/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "管理面板", Icon: "user"}, Name: "Admin", Path: "admin", Component: "views/admin/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "任务管理", Icon: "paperclip"}, Name: "Task", Path: "task", Component: "views/task/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Title: "资产管理", Icon: "paperclip"}, Name: "Asset", Path: "asset", Component: "views/asset/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "计划任务", Icon: "paperclip"}, Name: "Cron", Path: "cron", Component: "views/cron/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Hidden: true, Title: "个人信息", Icon: "message"}, Name: "Person", Path: "person", Component: "views/person/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 
