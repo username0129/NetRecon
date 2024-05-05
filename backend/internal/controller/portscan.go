@@ -26,7 +26,7 @@ func (pc *PortScanController) PostPortScan(c *gin.Context) {
 		return
 	}
 
-	err := service.PortServiceApp.ExecutePortScan(c, portScanRequest, util.GetUUID(c))
+	err := service.PortServiceApp.ExecutePortScan(portScanRequest, util.GetUUID(c), util.GetAuthorityId(c), "PortScan")
 	if err != nil {
 		common.Response(c, http.StatusInternalServerError, err.Error(), nil)
 		return

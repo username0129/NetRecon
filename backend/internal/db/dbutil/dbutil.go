@@ -89,6 +89,10 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/asset/postfetchassetipdetail", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/asset/postfetchassetdomaindetail", V2: "POST"}, // 获取资产域名详情
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/asset/postfetchassetdomaindetail", V2: "POST"},
+
+			// 计划任务模块
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/cron/postaddtask", V2: "POST"}, // 添加计划任务
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/cron/postaddtask", V2: "POST"},
 		},
 	},
 	{

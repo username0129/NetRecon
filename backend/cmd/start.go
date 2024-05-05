@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"backend/internal/config"
 	"backend/internal/core"
 	"backend/internal/global"
 	"backend/internal/logger"
@@ -33,8 +34,10 @@ func start() {
 	global.Viper = core.InitializeViper(configPath)             // 初始化并加载 Viper
 	global.Logger = logger.InitializeLogger()                   // 初始化 Zap 日志
 	global.Cache = core.InitializeCache()                       // 初始化 BigCache
-	global.CronManager = core.NewTaskManager()                  // 初始化 BigCache
+	global.CronManager = config.NewCronManager()                // 初始化 BigCache
+	global.CronManager.Start()                                  // 启动计划任务管理器
 	global.DB = core.InitializeDB()                             // 获取数据库连接
+
 	if global.DB != nil {
 		db, _ := global.DB.DB()
 		defer db.Close()

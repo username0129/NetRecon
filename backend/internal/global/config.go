@@ -2,7 +2,6 @@ package global
 
 import (
 	"backend/internal/config"
-	"backend/internal/core"
 	"context"
 	"github.com/allegro/bigcache/v3"
 	"github.com/gofrs/uuid/v5"
@@ -23,5 +22,5 @@ var (
 	Logger       *zap.Logger                      // Zap 日志记录器实例
 	Cache        *bigcache.BigCache               // Bigcache 缓存实例
 	TaskManager  map[uuid.UUID]context.CancelFunc // 任务管理器
-	CronManager  *core.CronManager                // 计划任务管理器
+	CronManager  *config.CronManager              // 计划任务管理器
 )

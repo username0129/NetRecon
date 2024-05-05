@@ -1,4 +1,4 @@
-package core
+package config
 
 import (
 	"fmt"
@@ -14,8 +14,8 @@ type CronManager struct {
 	tasksLock sync.Mutex
 }
 
-// NewTaskManager 创建一个新的任务管理器
-func NewTaskManager() *CronManager {
+// NewCronManager 创建一个新的任务管理器
+func NewCronManager() *CronManager {
 	return &CronManager{
 		cron:  cron.New(cron.WithSeconds()), // 使用秒级精度的 cron
 		tasks: make(map[cron.EntryID]string),

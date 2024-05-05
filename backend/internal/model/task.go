@@ -11,12 +11,15 @@ import (
 type Task struct {
 	gorm.Model
 	UUID        uuid.UUID          `json:"uuid" gorm:"uniqueIndex;comment:任务 UUID;"`
+	CronID      int                `json:"cronID" gorm:"index;comment:计划任务 ID;"`
 	CreatorUUID uuid.UUID          `json:"creatorUUID" gorm:"index;comment:创建者 UUID;"`            // 创建者 UUID
 	Creator     User               `json:"creator" gorm:"foreignKey:CreatorUUID;references:UUID"` // 创建者详细信息
 	Targets     string             `json:"targets" gorm:"comment:任务目标;"`
 	Title       string             `json:"title" gorm:"comment:任务标题;"`
 	Type        string             `json:"type" gorm:"comment:任务类型;"`                                                      // 任务类型，例如端口扫描、子域名爆破等
 	DictType    string             `json:"dictType" gorm:"comment:字典类型"`                                                   // 字典类型
+	LastTime    string             `json:"lastTime" gorm:"comment:'上一次运行时间'"`                                              // 下一次运行时间
+	NextTime    string             `json:"nextTime" gorm:"comment:'下一次运行时间'"`                                              // 下一次运行时间
 	Status      string             `json:"status" gorm:"default:1;comment:'任务状态，1 -> 进行中, 2 -> 已完成, 3 -> 已取消，4 -> 执行失败''"` // 任务状态：1 -> 进行中, 2 -> 已完成, 3 -> 已取消，4 -> 执行失败
 	Cancel      context.CancelFunc `json:"-" gorm:"-"`                                                                     // 不存储在数据库中，仅运行时使用
 	Ctx         context.Context    `json:"-" gorm:"-"`                                                                     // 同上

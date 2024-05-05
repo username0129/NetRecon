@@ -24,7 +24,7 @@ func (sc *SubDomainController) PostBruteSubdomains(c *gin.Context) {
 		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
 		return
 	}
-	err := service.SubDomainServiceApp.BruteSubdomains(req, util.GetUUID(c))
+	err := service.SubDomainServiceApp.BruteSubdomains(req, util.GetUUID(c), "BruteSubdomain")
 	if err != nil {
 		common.Response(c, http.StatusInternalServerError, err.Error(), nil)
 		return

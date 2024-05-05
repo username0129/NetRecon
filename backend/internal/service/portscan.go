@@ -1,5 +1,6 @@
 package service
 
+import "C"
 import (
 	"backend/internal/global"
 	"backend/internal/model"
@@ -7,7 +8,6 @@ import (
 	"backend/internal/util"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
 	"github.com/lcvvvv/gonmap"
 	"go.uber.org/zap"
@@ -24,7 +24,7 @@ var (
 )
 
 // ExecutePortScan 执行端口扫描任务
-func (ps *PortService) ExecutePortScan(c *gin.Context, req request.PortScanRequest, userUUID uuid.UUID) (err error) {
+func (ps *PortService) ExecutePortScan(req request.PortScanRequest, userUUID uuid.UUID, authorityId string, TaskType string) (err error) {
 	// 解析 IP 地址 和 端口
 	targetList, portList, err := ps.parseRequest(req)
 	if err != nil {
@@ -33,19 +33,19 @@ func (ps *PortService) ExecutePortScan(c *gin.Context, req request.PortScanReque
 	}
 
 	// 创建新任务
-	task, err := util.StartNewTask(req.Title, req.Targets, "PortScan", req.DictType, userUUID)
+	task, err := util.StartNewTask(req.Title, req.Targets, TaskType, req.DictType, userUUID)
 	if err != nil {
 		global.Logger.Error("无法创建任务: ", zap.Error(err))
 		return errors.New("无法创建任务")
 	}
 
 	// 异步执行端口扫描
-	go ps.performPortScan(c, req.CheckAlive, task, targetList, portList, req.Threads, req.Timeout, userUUID)
+	go ps.PerformPortScan(req.CheckAlive, task, targetList, portList, req.Threads, req.Timeout, userUUID, authorityId)
 	return nil
 }
 
-func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]string, []int, error) {
-	targetList, err := util.ParseMultipleIPAddresses(portScanRequest.Targets)
+func (ps *PortService) parseRequest(req request.PortScanRequest) ([]string, []int, error) {
+	targetList, err := util.ParseMultipleIPAddresses(req.Targets)
 	if err != nil {
 		return nil, nil, errors.New("IP 地址解析失败")
 	}
@@ -54,7 +54,7 @@ func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]
 		return nil, nil, errors.New("有效 IP 地址为空")
 	}
 
-	portList := util.ParsePort(portScanRequest.Ports)
+	portList := util.ParsePort(req.Ports)
 	if len(portList) == 0 {
 		return nil, nil, errors.New("端口解析失败")
 	}
@@ -62,8 +62,8 @@ func (ps *PortService) parseRequest(portScanRequest request.PortScanRequest) ([]
 	return targetList, portList, nil
 }
 
-// performPortScan 执行针对指定目标和端口的端口扫描，使用 ICMP 和自定义的端口扫描逻辑。
-func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *model.Task, targets []string, ports []int, threads, timeout int, userUUID uuid.UUID) {
+// PerformPortScan 执行针对指定目标和端口的端口扫描，使用 ICMP 和自定义的端口扫描逻辑。
+func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, targets []string, ports []int, threads, timeout int, userUUID uuid.UUID, authorityId string) {
 	status := "1" // "1" 表示正在扫描, "2" 表示扫描完成, "3" 表示已取消, "4" 表示错误
 	aliveTargets := make(map[string]bool)
 
@@ -100,7 +100,7 @@ func (ps *PortService) performPortScan(c *gin.Context, checkAlive bool, task *mo
 				}
 				if alive, err := util.IcmpCheckAlive(t, 10); err != nil {
 					setStatus("4") // 更新状态为执行失败
-					TaskServiceApp.CancelTask(task.UUID, util.GetUUID(c), util.GetAuthorityId(c))
+					TaskServiceApp.CancelTask(task.UUID, userUUID, authorityId)
 					task.UpdateStatus("4") // 更新任务状态
 					global.Logger.Error("检测主机存活失败", zap.String("target", t), zap.Error(err))
 				} else if alive {

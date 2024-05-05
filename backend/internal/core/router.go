@@ -31,6 +31,7 @@ func getControllerList() []interface{} {
 		&controller.TaskController{},
 		&controller.SubDomainController{},
 		&controller.AssetController{},
+		&controller.CronController{},
 	}
 }
 

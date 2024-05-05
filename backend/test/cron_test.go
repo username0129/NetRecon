@@ -1,22 +1,27 @@
 package test
 
 import (
+	"backend/internal/config"
+	"backend/internal/util"
 	"fmt"
-	"github.com/robfig/cron/v3"
+	"github.com/casbin/casbin/v2/log"
 	"testing"
 	"time"
 )
 
 func TestCron(t *testing.T) {
-	c := cron.New(cron.WithSeconds()) // 支持到秒的精度
-
-	// 每天上午10:15执行
-	c.AddFunc("0 15 10 * * *", func() {
-		fmt.Println("Task is executed.", time.Now())
+	manager := config.NewCronManager()
+	manager.Start()
+	spec := util.TimeToCronSpec(time.Now().Add(1 * time.Minute)) // 3 秒钟之后执行
+	fmt.Println(spec)
+	// 添加任务
+	taskID, err := manager.AddTask(spec, func() {
+		fmt.Println("Task executed at", time.Now(), "with spec", spec)
 	})
-
-	c.Start()
-
-	// 让程序持续运行
-	select {}
+	if err != nil {
+		log.LogError(err)
+		return
+	}
+	fmt.Println(taskID)
+	time.Sleep(10 * time.Minute)
 }
