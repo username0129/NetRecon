@@ -14,6 +14,8 @@ type Task struct {
 	CronID      int                `json:"cronID" gorm:"index;comment:计划任务 ID;"`
 	CreatorUUID uuid.UUID          `json:"creatorUUID" gorm:"index;comment:创建者 UUID;"`            // 创建者 UUID
 	Creator     User               `json:"creator" gorm:"foreignKey:CreatorUUID;references:UUID"` // 创建者详细信息
+	AssetUUID   uuid.UUID          `json:"assetUUID" gorm:"index;comment:所属资产 UUID;"`             // 创建者 UUID
+	Asset       Asset              `json:"asset" gorm:"foreignKey:AssetUUID;references:UUID"`     // 创建者 UUID
 	Targets     string             `json:"targets" gorm:"comment:任务目标;"`
 	Title       string             `json:"title" gorm:"comment:任务标题;"`
 	Type        string             `json:"type" gorm:"comment:任务类型;"`                                                      // 任务类型，例如端口扫描、子域名爆破等

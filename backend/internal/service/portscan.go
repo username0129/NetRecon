@@ -1,6 +1,5 @@
 package service
 
-import "C"
 import (
 	"backend/internal/global"
 	"backend/internal/model"
@@ -33,7 +32,7 @@ func (ps *PortService) ExecutePortScan(req request.PortScanRequest, userUUID uui
 	}
 
 	// 创建新任务
-	task, err := util.StartNewTask(req.Title, req.Targets, TaskType, req.DictType, userUUID)
+	task, err := util.StartNewTask(req.Title, req.Targets, TaskType, req.DictType, userUUID, uuid.Nil)
 	if err != nil {
 		global.Logger.Error("无法创建任务: ", zap.Error(err))
 		return errors.New("无法创建任务")

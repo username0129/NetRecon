@@ -33,6 +33,7 @@ const addAssetFormData = ref({
 const addPortScanDialog = ref(false)
 const addPortScanForm = ref(null)
 const addPortScanFormData = ref({
+  assetUUID: '',
   title: '',
   targets: '',
   dictType: '',
@@ -45,6 +46,7 @@ const addPortScanFormData = ref({
 const addSubdomainDialog = ref(false)
 const addSubdomainForm = ref(null)
 const addSubdomainFormData = ref({
+  assetUUID: '',
   title: '',
   targets: '',
   dictType: '1',
@@ -153,6 +155,7 @@ function initForm() {
 
 function initPortScanForm() {
   addPortScanForm.value = {
+    assetUUID: '',
     title: '',
     targets: '',
     dictType: '',
@@ -181,12 +184,14 @@ function showAddAssetDialog() {
 
 function showAddPortScanDialog(row) {
   updatePorts()
+  addPortScanFormData.value.assetUUID = row.uuid
   addPortScanFormData.value.targets = row.ips
   addPortScanFormData.value.title = '资产 ' + row.title + ' IP 监控任务'
   addPortScanDialog.value = true
 }
 
 function showAddSubdomainDialog(row) {
+  addSubdomainFormData.value.assetUUID = row.uuid
   addSubdomainFormData.value.targets = row.domains
   addSubdomainFormData.value.title = '资产 ' + row.title + ' 站点监控任务'
   addSubdomainDialog.value = true

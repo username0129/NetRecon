@@ -57,7 +57,7 @@ func (ss *SubDomainService) BruteSubdomains(req request.SubDomainRequest, userUU
 	}
 
 	// 创建新任务
-	task, err := util.StartNewTask(req.Title, req.Targets, TaskType, req.DictType, userUUID)
+	task, err := util.StartNewTask(req.Title, req.Targets, TaskType, req.DictType, userUUID, uuid.Nil)
 
 	if err != nil {
 		global.Logger.Error("无法创建任务: ", zap.String("title", req.Title), zap.Error(err))

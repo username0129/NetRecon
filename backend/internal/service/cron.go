@@ -60,7 +60,7 @@ func (cs *CronService) AddTask(manager *config.CronManager, req request.CronAddT
 		}
 
 		// 创建新任务
-		task, err := util.StartNewTask(req.Title, req.Targets, "Cron/PortScan", req.DictType, userUUID)
+		task, err := util.StartNewTask(req.Title, req.Targets, "Cron/Port", req.DictType, userUUID, req.AssetUUID)
 		if err != nil {
 			global.Logger.Error("无法创建任务: ", zap.Error(err))
 			return taskID, errors.New("无法创建任务")
@@ -72,8 +72,6 @@ func (cs *CronService) AddTask(manager *config.CronManager, req request.CronAddT
 			return taskID, fmt.Errorf("添加计划任务失败")
 		}
 		task.CronID = int(taskID)
-		task.LastTime = runtime.Add(30 * time.Second).Format("2006-01-02 15:04:05")
-		task.NextTime = runtime.Add(24 * time.Hour).Format("2006-01-02 15:04:05")
 		task.CreateOrUpdate()
 	} else if req.TaskType == "BruteSubdomain" {
 		subdomainRequest := request.SubDomainRequest{
@@ -95,6 +93,10 @@ func (cs *CronService) AddTask(manager *config.CronManager, req request.CronAddT
 
 func createPortScanTaskFunc(checkAlive bool, task *model.Task, targets []string, ports []int, threads, timeout int, userUUID uuid.UUID, authorityId string) func() {
 	return func() {
+		now := time.Now()
+		task.LastTime = now.Format("2006-01-02 15:04:05")
+		task.NextTime = now.Add(24 * time.Hour).Format("2006-01-02 15:04:05")
+		task.CreateOrUpdate()
 		PortServiceApp.PerformPortScan(checkAlive, task, targets, ports, threads, timeout, userUUID, authorityId)
 	}
 }
