@@ -64,16 +64,16 @@ func (ss *SubDomainService) BruteSubdomains(req request.SubDomainRequest, userUU
 		return errors.New("无法创建任务")
 	}
 
-	go ss.executeBruteSubdomain(task, targetList, req, dict, cdnList, userUUID)
+	go ss.executeBruteSubdomain(task, targetList, req.Threads, req.Timeout, dict, cdnList, userUUID)
 
 	return nil
 }
 
-func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []string, req request.SubDomainRequest, dict []string, cdnList map[string][]string, userUUID uuid.UUID) {
+func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []string, threads, timeout int, dict []string, cdnList map[string][]string, userUUID uuid.UUID) {
 	status := "1"              // "2" 表示正在扫描, "3" 表示已取消, "4" 表示错误
 	var statusMutex sync.Mutex // 互斥锁，保护 status
 	var wg sync.WaitGroup
-	semaphore := make(chan struct{}, req.Threads) // 用于控制并发数量的信号量
+	semaphore := make(chan struct{}, threads) // 用于控制并发数量的信号量
 
 	setStatus := func(s string) {
 		statusMutex.Lock()
@@ -99,9 +99,13 @@ func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []st
 				if getStatus() != "1" {
 					return
 				}
+				if task.Status == "3" {
+					setStatus("3") // 更新状态为取消
+					return
+				}
 				subdomain := sub + "." + t
 				// 解析域名 CNAME 和 IP
-				result, err := ss.Resolution(task.Ctx, subdomain, req.Timeout, task.UUID, cdnList)
+				result, err := ss.Resolution(task.Ctx, subdomain, timeout, task.UUID, cdnList)
 				if err != nil {
 					if errors.Is(err, context.Canceled) || strings.Contains(err.Error(), "operation was canceled") {
 						setStatus("3") // 更新状态为已取消

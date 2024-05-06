@@ -10,11 +10,11 @@ import (
 func LoadSubDomainDict(path, dictType string) (dict []string, err error) {
 	var filepath string
 	switch dictType {
-	case "small":
+	case "1":
 		filepath = path + "/subdomains-5000.txt"
-	case "medium":
+	case "2":
 		filepath = path + "/subdomains-20000.txt"
-	case "large":
+	case "3":
 		filepath = path + "/subdomains-110000.txt"
 	default:
 		filepath = path + "/subdomains-5000.txt"

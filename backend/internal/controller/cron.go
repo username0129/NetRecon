@@ -23,7 +23,7 @@ func (cc *CronController) PostAddTask(c *gin.Context) {
 		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
 		return
 	}
-	_, err := service.CronServiceApp.AddTask(global.CronManager, req, util.GetUUID(c), util.GetAuthorityId(c))
+	err := service.CronServiceApp.AddTask(global.CronManager, req, util.GetUUID(c), util.GetAuthorityId(c))
 	if err != nil {
 		common.Response(c, http.StatusInternalServerError, "添加计划任务失败", nil)
 		return

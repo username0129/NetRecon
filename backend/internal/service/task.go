@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofrs/uuid/v5"
+	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
@@ -29,6 +30,9 @@ func (ts *TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.
 	// 条件查询
 	if result.UUID != uuid.Nil {
 		db = db.Where("uuid LIKE ?", "%"+result.UUID.String()+"%")
+	}
+	if result.AssetUUID != uuid.Nil {
+		db = db.Where("asset_uuid LIKE ?", "%"+result.AssetUUID.String()+"%")
 	}
 	if result.Targets != "" {
 		db = db.Where("targets LIKE ?", "%"+result.Targets+"%")
@@ -63,6 +67,7 @@ func (ts *TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.
 			"status":     true,
 			"created_at": true,
 			"dict_type":  true,
+			"asset_uuid": true,
 		}
 		if _, ok := allowedOrders[order]; !ok {
 			return nil, 0, fmt.Errorf("非法的排序字段: %v", order)
@@ -85,20 +90,28 @@ func (ts *TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.
 func (ts *TaskService) CancelTask(taskUUID, userUUID uuid.UUID, authorityId string) (err error) {
 	if cancel, exists := global.TaskManager[taskUUID]; exists { // 任务在管理器中存在
 		var task model.Task
+		// 首先从数据库中读取任务数据
 		if err := global.DB.Model(&task).Where("uuid = ?", taskUUID).First(&task).Error; err != nil { // 查询失败
 			return err
-		} else {
-			if task.Status != "1" { // 任务不正在进行中
-				return errors.New("任务不在运行状态")
-			}
-			if task.CreatorUUID != userUUID && authorityId != "1" { // 任务的发起者不是当前用户 或者 不是管理员
-				return errors.New("没有权限取消任务")
-			}
-			// 取消任务
-			cancel()
-			task.UpdateStatus("3") // 更新任务状态为取消
-			return nil
 		}
+
+		if task.Status != "1" { // 任务不正在进行中
+			return errors.New("任务不在运行状态")
+		}
+		if task.CreatorUUID != userUUID && authorityId != "1" { // 任务的发起者不是当前用户 或者 不是管理员
+			return errors.New("没有权限取消任务")
+		}
+
+		// 取消任务
+		cancel()
+		task.UpdateStatus("3") // 更新任务状态为取消
+
+		// 如果任务属于资产监控
+		if task.AssetUUID != uuid.Nil {
+			// 删除定时任务
+			global.CronManager.RemoveTask(cron.EntryID(task.CronID))
+		}
+		return nil
 	} else {
 		return errors.New("任务不存在")
 	}
@@ -120,12 +133,12 @@ func (ts *TaskService) DeleteTask(db *gorm.DB, taskUUID, userUUID uuid.UUID, aut
 
 	// 根据任务类型执行不同的删除策略
 	switch task.Type {
-	case "PortScan":
+	case "PortScan", "Corn/Port":
 		// 删除 PortScan 任务相关的数据
 		if err := db.Model(&model.PortScanResult{}).Where("task_uuid = ?", taskUUID).Delete(&model.PortScanResult{}).Error; err != nil {
 			return fmt.Errorf("删除 PortScan 结果失败: %w", err)
 		}
-	case "Subdomain":
+	case "Subdomain", "Cron/Domain":
 		// 删除 Subdomain 任务相关的数据
 		if err := db.Model(&model.SubDomainResult{}).Where("task_uuid = ?", taskUUID).Delete(&model.SubDomainResult{}).Error; err != nil {
 			return fmt.Errorf("删除 Subdomain 结果失败: %w", err)

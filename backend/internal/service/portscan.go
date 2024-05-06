@@ -93,7 +93,7 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 				defer func() { <-semaphore }()
 				semaphore <- struct{}{}
 				// 检测任务是否被取消（手动取消 / 执行失败），取消后续代码执行
-				if err := task.Ctx.Err(); err != nil {
+				if task.Status == "3" {
 					setStatus("3") // 更新状态为取消
 					return
 				}
@@ -131,12 +131,10 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 					defer wg.Done()
 					defer func() { <-semaphore }()
 					semaphore <- struct{}{}
-
-					if task.Ctx.Err() != nil {
-						setStatus("3")
+					if task.Status == "3" {
+						setStatus("3") // 更新状态为取消
 						return
 					}
-
 					//执行端口扫描
 					result := ps.PortCheck(t, p, timeout, task.UUID)
 					if result != nil {
