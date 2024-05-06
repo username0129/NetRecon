@@ -546,7 +546,7 @@ function updateDictType() {
         <el-table-column label="资产标题" min-width="150" sortable="custom" prop="title" />
         <el-table-column label="域名列表" min-width="200" sortable="custom" prop="domains" />
         <el-table-column label="IP 列表" min-width="200" sortable="custom" prop="ips" />
-        <el-table-column label="创建者" min-width="150" sortable="custom" prop="creator.username" />
+        <el-table-column label="创建者" min-width="150" prop="creator.username" />
         <el-table-column label="创建时间" min-width="200" sortable="custom" prop="CreatedAt">
           <template #default="scope">
             {{ FormatDate(scope.row.CreatedAt) }}

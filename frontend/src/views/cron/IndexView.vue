@@ -149,10 +149,20 @@ function formatDictType(value) {
 }
 
 
-function redirectToDetailPage(row) {
+function redirectToPortDetailPage(row) {
   // 跳转到任务详情页面
   router.push({
     name: 'PortscanDetail',
+    query: {
+      uuid: row.uuid
+    }
+  })
+}
+
+function redirectToDomainDetailPage(row) {
+  // 跳转到任务详情页面
+  router.push({
+    name: 'SubdomainDetail',
     query: {
       uuid: row.uuid
     }
@@ -217,7 +227,7 @@ async function handleSelectionChange(selection) {
           <el-input v-model="searchInfo.uuid" placeholder="任务 UUID" />
         </el-form-item>
         <el-form-item label="资产 UUID">
-          <el-input v-model="searchInfo.assetuuid" placeholder="任务 UUID" />
+          <el-input v-model="searchInfo.assetUUID" placeholder="任务 UUID" />
         </el-form-item>
         <el-form-item label="任务标题">
           <el-input v-model="searchInfo.title" placeholder="任务标题" />
@@ -255,15 +265,24 @@ async function handleSelectionChange(selection) {
         <el-table-column fixed label="任务 UUID" min-width="300" sortable="custom" prop="uuid">
           <template v-slot="scope">
             <a
+              v-if="scope.row.type === 'Cron/Port'"
               href="#"
-              @click="redirectToDetailPage(scope.row)"
+              @click="redirectToPortDetailPage(scope.row)"
+              style="color: #00c5dc; text-decoration: none"
+            >
+              {{ scope.row.uuid }}
+            </a>
+            <a
+              v-if="scope.row.type === 'Cron/Domain'"
+              href="#"
+              @click="redirectToDomainDetailPage(scope.row)"
               style="color: #00c5dc; text-decoration: none"
             >
               {{ scope.row.uuid }}
             </a>
           </template>
         </el-table-column>
-        <el-table-column fixed label="所属资产" min-width="300" sortable="custom" prop="assetUUID">
+        <el-table-column label="所属资产" min-width="300" sortable="custom" prop="assetUUID">
           <template v-slot="scope">
             <a
               href="#"
@@ -288,7 +307,7 @@ async function handleSelectionChange(selection) {
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="创建者" min-width="150" sortable="custom" prop="creator.username" />
+        <el-table-column label="创建者" min-width="150" prop="creator.username" />
         <el-table-column label="上一次运行日期" min-width="200" sortable="custom" prop="lastTime" />
         <el-table-column label="下一次运行日期" min-width="200" sortable="custom" prop="nextTime" />
         <el-table-column label="创建时间" min-width="200" sortable="custom" prop="CreatedAt">
