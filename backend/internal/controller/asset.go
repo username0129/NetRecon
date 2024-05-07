@@ -23,6 +23,7 @@ func (ac *AssetController) PostAddAsset(c *gin.Context) {
 		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
 		return
 	}
+
 	if err := service.AssetServiceApp.AddAsset(global.DB, req, util.GetUUID(c)); err != nil {
 		global.Logger.Error("添加资产错误: ", zap.Error(err))
 		common.Response(c, http.StatusInternalServerError, fmt.Sprintf("添加资产错误：%v", err.Error()), nil)
@@ -41,7 +42,7 @@ func (ac *AssetController) PostDeleteAsset(c *gin.Context) {
 		return
 	}
 
-	err := service.AssetServiceApp.DeleteAsset(global.DB, req.UUID)
+	err := service.AssetServiceApp.DeleteAsset(global.DB, req.UUID, util.GetUUID(c), util.GetAuthorityId(c))
 	if err != nil {
 		global.Logger.Error("删除资产失败: ", zap.Error(err))
 		common.Response(c, http.StatusInternalServerError, fmt.Sprintf("删除资产失败: %v", err), nil)

@@ -102,10 +102,30 @@ func (as *AssetService) UpdateAsset(db *gorm.DB, req request.UpdateAssetRequest)
 }
 
 // DeleteAsset  删除资产
-func (as *AssetService) DeleteAsset(db *gorm.DB, userUUID uuid.UUID) (err error) {
+func (as *AssetService) DeleteAsset(db *gorm.DB, assetUUID, userUUID uuid.UUID, authorityId string) (err error) {
+	// 获取资产的任务
+	var taskList []model.Task
+	if err = db.Model(&model.Task{}).Where("asset_uuid = ?", assetUUID).Find(&taskList).Error; err != nil {
+		return errors.New("资产任务查询失败")
+	}
 
-	// 删除指定 UUID 的用户
-	result := db.Model(&model.Asset{}).Where("uuid = ?", userUUID).Delete(&model.Asset{})
+	// 删除资产的任务
+	for _, task := range taskList {
+		if task.Status == "1" {
+			return errors.New("存在正在运行中的任务")
+		}
+	}
+
+	// 删除资产的任务
+	for _, task := range taskList {
+		err := TaskServiceApp.DeleteTask(db, task.UUID, userUUID, authorityId)
+		if err != nil {
+			return err
+		}
+	}
+
+	// 删除指定 UUID 的资产
+	result := db.Model(&model.Asset{}).Where("uuid = ?", assetUUID).Delete(&model.Asset{})
 
 	// 检查错误
 	if result.Error != nil {

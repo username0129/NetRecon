@@ -61,3 +61,23 @@ func (sc *SubDomainController) PostFetchResult(c *gin.Context) {
 		return
 	}
 }
+
+// PostDeleteResult 删除指定结果
+func (sc *SubDomainController) PostDeleteResult(c *gin.Context) {
+	var req request.DeleteSubDomainResultRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.Logger.Error("PostDeleteResult 参数解析错误: ", zap.Error(err))
+		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		return
+	}
+
+	if err := service.PortServiceApp.DeleteResult(req.UUID); err != nil {
+		global.Logger.Error("PostDeleteResult 运行失败: ", zap.Error(err))
+		common.Response(c, http.StatusInternalServerError, "目标结果删除失败", nil)
+		return
+	} else {
+		common.Response(c, http.StatusOK, "目标结果删除成功", nil)
+		return
+	}
+
+}

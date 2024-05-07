@@ -291,24 +291,23 @@ func (ps *PortService) FetchResult(cdb *gorm.DB, result model.PortScanResult, in
 }
 
 // DeleteResult 删除端口扫描结果
-func (ps *PortService) DeleteResult(uuid uuid.UUID) (err error) {
-	var result model.PortScanResult
-
-	// 首先获取任务信息，确保任务存在
-	if err := global.DB.Model(&model.PortScanResult{}).Where("uuid = ?", uuid).First(&result).Error; err != nil {
-		return err // 可能是因为没有找到任务
-	}
-
+func (ps *PortService) DeleteResult(uuid uuid.UUID) error {
 	// 开启事务
 	tx := global.DB.Begin()
 	if tx.Error != nil {
 		return tx.Error
 	}
 
-	// 删除结果本身
-	if err := tx.Model(&model.PortScanResult{}).Where("uuid = ?", uuid).Delete(&model.PortScanResult{}).Error; err != nil {
-		tx.Rollback()
-		return err
+	// 直接尝试删除记录
+	result := tx.Where("uuid = ?", uuid).Delete(&model.PortScanResult{})
+	if result.Error != nil {
+		tx.Rollback() // 如果删除操作出错，回滚事务
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		tx.Rollback() // 如果没有删除任何记录，回滚事务
+		return errors.New("没有找到记录")
 	}
 
 	// 提交事务
