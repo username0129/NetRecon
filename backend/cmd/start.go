@@ -37,7 +37,7 @@ func start() {
 	global.CronManager = config.NewCronManager()                // 初始化 BigCache
 	global.CronManager.Start()                                  // 启动计划任务管理器
 	global.DB = core.InitializeDB()                             // 获取数据库连接
-
+	global.RestartSignal = make(chan bool, 1)
 	if global.DB != nil {
 		db, _ := global.DB.DB()
 		defer db.Close()

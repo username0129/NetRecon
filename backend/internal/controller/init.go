@@ -54,7 +54,7 @@ func (ic *InitController) PostInit(c *gin.Context) {
 		common.Response(c, http.StatusInternalServerError, "数据库初始化错误，详情请查看后端。", nil)
 		return
 	}
-	common.Response(c, http.StatusOK, "数据库初始化成功", nil)
+	common.Response(c, http.StatusOK, "数据库初始化成功，请等待服务器重启... ", nil)
 
 	administratorMail, err := service.UserServiceApp.GetAdministratorMail()
 	if err != nil {
@@ -88,6 +88,10 @@ func (ic *InitController) PostInit(c *gin.Context) {
 			global.Logger.Error("发送邮箱失败: ", zap.Error(err))
 		}
 	}
+	// 触发服务器重启
+	go func() {
+		global.RestartSignal <- true
+	}()
 
 	return
 }
