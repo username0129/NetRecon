@@ -71,6 +71,7 @@ func (cs *CronService) AddTask(manager *config.CronManager, req request.CronAddT
 			return fmt.Errorf("添加计划任务失败")
 		}
 		task.CronID = int(taskID)
+		task.NextTime = runtime.Add(30 * time.Second).Format("2006-01-02 15:04:05")
 		task.CreateOrUpdate()
 	} else if req.TaskType == "Subdomain" {
 

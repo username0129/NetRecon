@@ -6,14 +6,15 @@ import router from '@/router/index.js'
 import { toSQLLine } from '@/utils/stringFun.js'
 import { FormatDate } from '@/utils/format.js'
 import { AddAsset, DeleteAsset, FetchAsset, UpdateAsset } from '@/apis/asset.js'
-import { SubmitSubdomainTask } from '@/apis/subdomain.js'
 import { AddCron } from '@/apis/cron.js'
-import { DeleteTask } from '@/apis/task.js'
+import { useRoute } from 'vue-router'
+
 
 defineOptions({
   name: 'PortScanIndex'
 })
 
+const route = useRoute()
 const radio = ref(1)
 const dialogFlag = ref('add')
 const selectedRows = ref([])
@@ -21,7 +22,9 @@ const page = ref(1)
 const total = ref(0)
 const pageSize = ref(10)
 const tableData = ref([])
-const searchInfo = ref({})
+const searchInfo = ref({
+  uuid: ref(route.query.uuid || null)
+})
 
 const addAssetDialog = ref(false)
 const addAssetForm = ref(null)
@@ -303,7 +306,7 @@ async function submitAddPortScanForm() {
           type: 'success',
           message: '任务提交成功'
         })
-        closeSubdomainDialog()
+        closePortScanDialog()
       } else {
         ElMessage({
           type: 'error',
@@ -385,9 +388,10 @@ async function submitAddSubdomainForm() {
 }
 
 function redirectToDetailPage(row) {
+  console.log(row)
   // 跳转到任务详情页面
   router.push({
-    name: 'AssetDetail',
+    name: 'Cron',
     query: {
       uuid: row.uuid
     }
@@ -484,7 +488,6 @@ function updatePorts() {
 function updateDictType() {
   addSubdomainFormData.value.dictType = String(radio.value)
 }
-
 </script>
 
 <template>
