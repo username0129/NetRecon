@@ -153,3 +153,23 @@ func (uc *UserController) PostDeleteUserInfo(c *gin.Context) {
 	common.Response(c, http.StatusOK, "删除用户成功", nil)
 	return
 }
+
+// PostUpdatePassword 更新用户密码
+func (uc *UserController) PostUpdatePassword(c *gin.Context) {
+	var req request.UpdatePasswordRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.Logger.Error("PostUpdatePassword 参数解析错误: ", zap.Error(err))
+		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		return
+	}
+
+	err := service.UserServiceApp.UpdatePasswordInfo(global.DB, req, util.GetUUID(c))
+	if err != nil {
+		global.Logger.Error("更新用户密码失败: ", zap.Error(err))
+		common.Response(c, http.StatusInternalServerError, fmt.Sprintf("更新用户密码失败: %v", err), nil)
+		return
+	}
+	common.Response(c, http.StatusOK, "删除用户成功", nil)
+	return
+}

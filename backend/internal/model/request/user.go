@@ -34,6 +34,11 @@ type DeleteUserRequest struct {
 	UUID uuid.UUID `json:"uuid"`
 }
 
+type UpdatePasswordRequest struct {
+	Password    string `json:"password"`
+	NewPassword string `json:"newPassword"`
+}
+
 type ResetPasswordRequest struct {
 	UUID uuid.UUID `json:"uuid"`
 }

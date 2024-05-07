@@ -5,6 +5,7 @@ import (
 	"backend/internal/model"
 	"backend/internal/model/request"
 	"backend/internal/util"
+	"errors"
 	"fmt"
 	"github.com/gofrs/uuid/v5"
 	"go.uber.org/zap"
@@ -45,14 +46,36 @@ func (us *UserService) UpdateUserInfo(db *gorm.DB, user model.User) (err error) 
 	return nil
 }
 
-// ResetPassword  重置用户密码为 123456
+// UpdatePasswordInfo  更新用户密码
+func (us *UserService) UpdatePasswordInfo(db *gorm.DB, req request.UpdatePasswordRequest, userUUID uuid.UUID) (err error) {
+	var user model.User
+	if err = global.DB.Model(&model.User{}).Where("uuid = ?", userUUID).First(&user).Error; err != nil {
+		return errors.New("查询用户失败")
+	}
+
+	if ok := util.BcryptCheck(req.Password, user.Password); !ok {
+		return errors.New("旧密码错误")
+	}
+	user.Password = util.BcryptHash(req.NewPassword)
+	// 更新用户信息
+	result := db.Model(&model.User{}).Where("uuid = ?", user.UUID).Updates(&user)
+	if result.Error != nil {
+		return fmt.Errorf("更新用户密码失败: %v", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("没有找到要更新的用户")
+	}
+	return nil
+}
+
+// ResetPassword  重置用户密码为随机 10 个字符
 func (us *UserService) ResetPassword(db *gorm.DB, userUUID uuid.UUID) (err error) {
 	userInfo, err := us.FetchUserByUUID(userUUID)
 	if err != nil {
 		return fmt.Errorf("未找到用户信息")
 	}
 
-	newPassword, _ := util.GeneratePassword(8)
+	newPassword, _ := util.GeneratePassword(10)
 
 	timeCompleted := time.Now().Format("2006-01-02 15:04:05")
 	body := fmt.Sprintf(`

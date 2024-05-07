@@ -48,3 +48,11 @@ export const ResetPassword = (data) => {
     data: data
   })
 }
+
+export const UpdatePassword = (data) => {
+  return http({
+    url: '/api/v1/user/postupdatepassword',
+    method: 'POST',
+    data: data
+  })
+}
