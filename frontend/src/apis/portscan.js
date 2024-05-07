@@ -26,3 +26,13 @@ export const DeletePortScanResult = (data) => {
     data: data
   })
 }
+
+// 删除端口扫描任务结果
+export const ExportPortScanResult = (data) => {
+  return http({
+    url: '/api/v1/portscan/postexportdata',
+    method: 'POST',
+    data: data,
+    responseType: 'blob'
+  })
+}

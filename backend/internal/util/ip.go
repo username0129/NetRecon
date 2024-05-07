@@ -89,12 +89,13 @@ func ParseMultipleIPAddresses(input string) ([]string, error) {
 }
 
 func Ip2region(ip string) (string, error) {
-	var dbPath = "./data/ip2region/ip2region.xdb"
+	var dbPath = GetExecPwd() + "/data/ip2region.xdb"
 	searcher, err := xdb.NewWithFileOnly(dbPath)
 	if err != nil {
 		return "", err
 	}
 	defer searcher.Close()
+
 	region, err := searcher.SearchByStr(ip)
 	if err != nil {
 		return "", err

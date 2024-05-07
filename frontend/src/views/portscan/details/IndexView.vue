@@ -3,7 +3,7 @@ import WarningBar from '@/components/warningBar/warningBar.vue'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
-import { DeletePortScanResult, FetchPortScanResult } from '@/apis/portscan.js'
+import { DeletePortScanResult, ExportPortScanResult, FetchPortScanResult } from '@/apis/portscan.js'
 import { toSQLLine } from '@/utils/stringFun.js'
 
 const route = useRoute()
@@ -140,7 +140,54 @@ async function deleteSelectedItems() {
   })
 }
 
-function exportData() {}
+async function exportData() {
+  try {
+    // 发送请求，携带必要的数据
+    const response = await ExportPortScanResult({ uuid: taskUUID.value })
+    // 检查响应状态码是否为 200（OK）
+    if (response.status === 200) {
+      // 从响应头中提取文件名
+      const contentDisposition = response.headers['content-disposition']
+      let filename = 'default.csv'  // 默认文件名
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)*"/)
+        if (filenameMatch) {
+          filename = filenameMatch[1]
+        }
+      }
+      // 创建一个 Blob URL，并使用临时 <a> 标签下载文件
+      const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' })
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      // 显示成功消息
+      ElMessage({
+        type: 'success',
+        message: '文件下载成功'
+      })
+    } else {
+      // 如果响应状态码不是 200，处理错误
+      ElMessage({
+        type: 'error',
+        message: '下载失败: 服务器处理异常',
+        showClose: true
+      })
+    }
+  } catch (error) {
+    // 网络或其他错误处理
+    ElMessage({
+      type: 'error',
+      message: '网络错误或数据处理异常',
+      showClose: true
+    })
+  }
+}
+
 </script>
 
 <template>
@@ -170,7 +217,9 @@ function exportData() {}
         <el-button icon="Delete" :disabled="selectedRows.length === 0" @click="deleteSelectedItems">
           批量删除
         </el-button>
-        <el-button icon="Share" @click="exportData"> 导出所有数据</el-button>
+        <el-button :disabled="tableData.length===0" icon="Share" @click="exportData">
+          导出所有数据
+        </el-button>
       </div>
 
       <el-table

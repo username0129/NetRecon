@@ -7,9 +7,13 @@ import (
 	"backend/internal/model/response"
 	"backend/internal/service"
 	"backend/internal/util"
+	"encoding/csv"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 type PortScanController struct {
@@ -81,5 +85,47 @@ func (pc *PortScanController) PostDeleteResult(c *gin.Context) {
 		common.Response(c, http.StatusOK, "目标结果删除成功", nil)
 		return
 	}
+}
 
+func (pc *PortScanController) PostExportData(c *gin.Context) {
+	var req request.DeletePortScanResultRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.Logger.Error("PostExportData 参数解析错误: ", zap.Error(err))
+		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		return
+	}
+
+	results, err := service.PortServiceApp.FetchAllResult(global.DB, req.UUID)
+	if err != nil {
+		global.Logger.Error("PostExportData 查询数据失败: ", zap.Error(err))
+		common.Response(c, http.StatusBadRequest, "查询数据失败", nil)
+		return
+	}
+
+	// 设置 CSV 文件名
+	filename := "portscan_" + time.Now().Format("20060102") + ".csv"
+	// 设置响应内容类型为 CSV
+	c.Writer.Header().Set("Content-type", "text/csv; charset=utf-8")
+	// 设置下载的文件名
+	c.Writer.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+
+	// 写入 UTF-8 BOM，防止中文乱码
+	c.Writer.Write([]byte{0xEF, 0xBB, 0xBF})
+
+	// 创建 csv writer 并写入数据
+	writer := csv.NewWriter(c.Writer)
+	defer writer.Flush()
+
+	// 写入 CSV 头部
+	writer.Write([]string{"IP 地址", "端口号", "开放服务", "链接"})
+
+	// 遍历数据并写入 CSV
+	for _, result := range results {
+		if err := writer.Write([]string{result.IP, strconv.Itoa(result.Port), result.Service, fmt.Sprintf("%v://%v:%v", result.Service, result.IP, result.Port)}); err != nil {
+			global.Logger.Error("PostExportData 创建 CSV 文件失败: ", zap.Error(err))
+			common.Response(c, http.StatusBadRequest, "创建 CSV 文件失败", nil)
+			return
+		}
+	}
+	return
 }

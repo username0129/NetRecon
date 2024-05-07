@@ -155,6 +155,13 @@ func (ss *SubDomainService) Resolution(ctx context.Context, domain string, timeo
 		return nil, nil
 	}
 
+	region, err := util.Ip2region("121.37.217.131")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	ip := fmt.Sprintf("%v (%v)", ips[0], region)
+
 	// 先使用 http 协议进行探测
 	url := "http://" + domain
 	title, code, err := ss.FetchTitle(url)
@@ -177,7 +184,7 @@ func (ss *SubDomainService) Resolution(ctx context.Context, domain string, timeo
 		Title:     strings.TrimSpace(title),
 		Code:      code,
 		Cname:     strings.Join(cnames, ","),
-		Ips:       ips[0],
+		Ips:       ip,
 	}
 
 	for _, cdns := range cdnList {
@@ -358,6 +365,16 @@ func (ss *SubDomainService) FetchTitle(url string) (string, int, error) {
 		title = util.CleanString(title)
 	}
 	return title, resp.StatusCode, nil
+}
+
+// FetchAllResult 获取全部数据
+func (ss *SubDomainService) FetchAllResult(db *gorm.DB, taskUUID uuid.UUID) ([]model.SubDomainResult, error) {
+	var result []model.SubDomainResult
+	if err := db.Model(&model.SubDomainResult{}).Where("task_uuid LIKE ?", "%"+taskUUID.String()+"%").Find(&result).Error; err != nil {
+		global.Logger.Error("查询数据失败: ", zap.Error(err))
+		return nil, errors.New("查询数据失败")
+	}
+	return result, nil
 }
 
 func (ss *SubDomainService) FetchResult(cdb *gorm.DB, result model.SubDomainResult, info request.PageInfo, order string, desc bool) ([]model.SubDomainResult, int64, error) {

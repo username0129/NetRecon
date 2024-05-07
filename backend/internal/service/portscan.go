@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -92,7 +93,10 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 				defer wg.Done()
 				defer func() { <-semaphore }()
 				semaphore <- struct{}{}
-				// 检测任务是否被取消（手动取消 / 执行失败），取消后续代码执行
+				// 任务状态出现变动，如取消 / 执行失败
+				if getStatus() != "1" {
+					return
+				}
 				if task.Status == "3" {
 					setStatus("3") // 更新状态为取消
 					return
@@ -131,6 +135,10 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 					defer wg.Done()
 					defer func() { <-semaphore }()
 					semaphore <- struct{}{}
+					// 任务状态出现变动，如取消 / 执行失败
+					if getStatus() != "1" {
+						return
+					}
 					if task.Status == "3" {
 						setStatus("3") // 更新状态为取消
 						return
@@ -227,7 +235,7 @@ func (ps *PortService) PortCheck(target string, port int, timeout int, taskUUID 
 		result.Open = true
 	}
 	if response != nil {
-		if response.FingerPrint.Service != "" {
+		if strings.TrimSpace(response.FingerPrint.Service) != "" {
 			result.Service = response.FingerPrint.Service
 		} else {
 			result.Service = "unknown"
@@ -312,4 +320,15 @@ func (ps *PortService) DeleteResult(uuid uuid.UUID) error {
 
 	// 提交事务
 	return tx.Commit().Error
+}
+
+// FetchAllResult 获取全部数据
+func (ps *PortService) FetchAllResult(db *gorm.DB, taskUUID uuid.UUID) ([]model.PortScanResult, error) {
+	var result []model.PortScanResult
+	if err := db.Model(&model.PortScanResult{}).Where("task_uuid LIKE ?", "%"+taskUUID.String()+"%").Find(&result).Error; err != nil {
+		global.Logger.Error("查询数据失败: ", zap.Error(err))
+		// 查询数据失败
+		return nil, errors.New("查询数据失败")
+	}
+	return result, nil
 }

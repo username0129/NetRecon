@@ -26,3 +26,13 @@ export const DeleteSubdomainResult = (data) => {
     data: data
   })
 }
+
+// 删除端口扫描任务结果
+export const ExportSubdomainResult = (data) => {
+  return http({
+    url: '/api/v1/subdomain/postexportdata',
+    method: 'POST',
+    data: data,
+    responseType: 'blob'
+  })
+}

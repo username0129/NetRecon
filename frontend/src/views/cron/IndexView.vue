@@ -132,20 +132,41 @@ function formatStatus(value) {
   }
 }
 
-function formatDictType(value) {
-  switch (value) {
-    case '1':
-      return '数据库端口'
-    case '2':
-      return '企业端口'
-    case '3':
-      return '高危端口'
-    case '4':
-      return '全端口'
-    case '5':
-      return '自定义'
-    default:
-      return '未知状态'
+function formatDictType(type, value) {
+  if (type === 'Cron/Port') {
+    switch (value) {
+      case '1':
+        return '数据库端口'
+      case '2':
+        return '企业端口'
+      case '3':
+        return '高危端口'
+      case '4':
+        return '全端口'
+      case '5':
+        return '自定义'
+      default:
+        return '未知状态'
+    }
+  } else {
+    switch (value) {
+      case '1':
+        return '小字典(5000)'
+      case '2':
+        return '中字典(20000)'
+      case '3':
+        return '大字典(110000)'
+      default:
+        return '未知'
+    }
+  }
+}
+
+function formatType(type) {
+  if (type === 'Cron/Port') {
+    return '端口扫描'
+  } else {
+    return '子域名爆破'
   }
 }
 
@@ -222,6 +243,18 @@ const statusOptions = [
   }
 ]
 
+const typesOptions = [
+  {
+    value: 'Cron/Port',
+    label: '端口扫描'
+  },
+  {
+    value: 'Cron/Domain',
+    label: '子域名爆破'
+  }
+]
+
+
 // 监听选择项的变化
 async function handleSelectionChange(selection) {
   selectedRows.value = selection
@@ -244,6 +277,16 @@ async function handleSelectionChange(selection) {
         </el-form-item>
         <el-form-item label="任务目标">
           <el-input v-model="searchInfo.targets" placeholder="任务目标" />
+        </el-form-item>
+        <el-form-item label="任务类型">
+          <el-select v-model="searchInfo.type" clearable placeholder="请选择">
+            <el-option
+              v-for="item in typesOptions"
+              :key="item.value"
+              :label="`${item.label}(${item.value})`"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="执行状态">
           <el-select v-model="searchInfo.status" clearable placeholder="请选择">
@@ -304,9 +347,14 @@ async function handleSelectionChange(selection) {
         </el-table-column>
         <el-table-column label="任务标题" min-width="200" sortable="custom" prop="title" />
         <el-table-column label="任务目标" min-width="150" sortable="custom" prop="targets" />
+        <el-table-column label="任务类型" min-width="150" sortable="custom" prop="type">
+          <template #default="scope">
+            {{ formatType(scope.row.type) }}
+          </template>
+        </el-table-column>
         <el-table-column label="字典类型" min-width="120" sortable="custom" prop="dictType">
           <template #default="scope">
-            {{ formatDictType(scope.row.dictType) }}
+            {{ formatDictType(scope.row.type, scope.row.dictType) }}
           </template>
         </el-table-column>
         <el-table-column label="执行状态" min-width="130" sortable="custom" prop="status">
@@ -330,14 +378,14 @@ async function handleSelectionChange(selection) {
               :disabled="scope.row.status !== '1'"
               icon="Close"
               @click="cancelTask(scope.row)"
-              >取消
+            >取消
             </el-button>
             <el-button
               type="danger"
               :disabled="scope.row.status === '1'"
               icon="Delete"
               @click="deleteTask(scope.row)"
-              >删除
+            >删除
             </el-button>
           </template>
         </el-table-column>

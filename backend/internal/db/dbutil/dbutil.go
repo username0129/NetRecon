@@ -59,6 +59,8 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postdeleteresult", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postaddresult", V2: "POST"}, // 咱家扫描结果
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postaddresult", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postexportdata", V2: "POST"}, // 导出数据
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postexportdata", V2: "POST"},
 
 			// 任务管理模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postcanceltask", V2: "POST"}, // 根据任务 UUID 取消任务
@@ -79,6 +81,8 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postdeleteresult", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postaddresult", V2: "POST"}, // 咱家扫描结果
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postaddresult", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postexportdata", V2: "POST"}, // 导出数据
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postexportdata", V2: "POST"},
 
 			// 资产管理模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/asset/postaddasset", V2: "POST"}, // 添加资产
@@ -105,6 +109,10 @@ var initialDatas = []InitialData{
 			// 顶级菜单
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "仪表盘", Icon: "odometer"}, Name: "Dashboard", Path: "dashboard", Component: "views/dashboard/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "管理面板", Icon: "MessageBox"}, Name: "Admin", Path: "admin", Component: "views/admin/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Title: "子域名扫描", Icon: "Coordinate"}, Name: "Subdomain", Path: "subdomain", Component: "views/subdomain/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Hidden: true, Title: "子域名扫描详情", Icon: "avatar"}, Name: "SubdomainDetail", Path: "subdomaindetail", Component: "views/subdomain/details/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Title: "IP 端口扫描", Icon: "Cloudy"}, Name: "PortScan", Path: "portscan", Component: "views/portscan/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Hidden: true, Title: "IP 端口扫描详情", Icon: "avatar"}, Name: "PortscanDetail", Path: "portscandetail", Component: "views/portscan/details/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "资产管理", Icon: "Reading"}, Name: "Asset", Path: "asset", Component: "views/asset/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "计划任务", Icon: "Coin"}, Name: "Cron", Path: "cron", Component: "views/cron/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Hidden: true, Title: "个人信息", Icon: "message"}, Name: "Person", Path: "person", Component: "views/person/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
@@ -114,10 +122,6 @@ var initialDatas = []InitialData{
 			&model.Route{ParentId: 2, Meta: model.Meta{Title: "操作历史", Icon: "pie-chart"}, Name: "Operation", Path: "operation", Component: "views/admin/operation/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 
 			// 任务管理
-			&model.Route{ParentId: 0, Meta: model.Meta{Title: "子域名扫描", Icon: "Coordinate"}, Name: "Subdomain", Path: "subdomain", Component: "views/task/subdomain/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
-			&model.Route{ParentId: 0, Meta: model.Meta{Hidden: true, Title: "子域名扫描详情", Icon: "avatar"}, Name: "SubdomainDetail", Path: "subdomaindetail", Component: "views/task/subdomain/details/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
-			&model.Route{ParentId: 0, Meta: model.Meta{Title: "IP 端口扫描", Icon: "Cloudy"}, Name: "PortScan", Path: "portscan", Component: "views/task/portscan/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
-			&model.Route{ParentId: 0, Meta: model.Meta{Hidden: true, Title: "IP 端口扫描详情", Icon: "avatar"}, Name: "PortscanDetail", Path: "portscandetail", Component: "views/task/portscan/details/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			//&model.Route{ParentId: 3, Meta: model.Meta{Title: "FOFA 任务下发", Icon: "avatar"}, Name: "FoFaScan", Path: "FoFaScan", Component: "views/task/fofascan/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			//&model.Route{ParentId: 2, Meta: model.Meta{Title: "从企业名收集资产", Icon: "avatar"}, Name: "Authority", Path: "authority", Component: "views/admin/AuthorityView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 		},
