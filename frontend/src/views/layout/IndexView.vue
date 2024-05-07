@@ -176,7 +176,6 @@ function closePwdDialog() {
   pwdForm.value.clearValidate()
 }
 
-
 const submitPwdForm = async () => {
   // 访问 Form 实例
   if (!pwdForm.value) {
@@ -227,8 +226,6 @@ const submitPwdForm = async () => {
     })
   }
 }
-
-
 </script>
 
 <template>
@@ -291,8 +288,8 @@ const submitPwdForm = async () => {
                             <span class="cursor-pointer flex justify-center items-center">
                               <!--                              <CustomPic />-->
                               <span style="margin-left: 5px">{{
-                                  userStore.userInfo.nickname
-                                }}</span>
+                                userStore.userInfo.nickname
+                              }}</span>
                               <el-icon>
                                 <arrow-down />
                               </el-icon>
@@ -304,13 +301,13 @@ const submitPwdForm = async () => {
                                 <span class="font-bold">当前角色：{{ getRoleName() }}</span>
                               </el-dropdown-item>
                               <el-dropdown-item icon="user" @click="showUserDialog"
-                              >个人信息
+                                >个人信息
                               </el-dropdown-item>
                               <el-dropdown-item icon="lock" @click="showPwdDialog"
-                              >更新密码
+                                >更新密码
                               </el-dropdown-item>
                               <el-dropdown-item icon="reading-lamp" @click="userStore.logout"
-                              >登 出
+                                >登 出
                               </el-dropdown-item>
                             </el-dropdown-menu>
                           </template>

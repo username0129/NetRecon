@@ -6,17 +6,21 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import router from '@/router/index.js'
 import { toSQLLine } from '@/utils/stringFun.js'
 import { FormatDate } from '@/utils/format.js'
+import { useRoute } from 'vue-router'
 
 defineOptions({
   name: 'PortScanIndex'
 })
 
+const route = useRoute()
 const selectedRows = ref([])
 const page = ref(1)
 const total = ref(0)
 const pageSize = ref(10)
 const tableData = ref([])
-const searchInfo = ref({})
+const searchInfo = ref({
+  assetUUID: ref(route.query.uuid || null)
+})
 
 // 重置
 async function onReset() {
@@ -165,6 +169,16 @@ function redirectToDomainDetailPage(row) {
   })
 }
 
+function redirectToAssetPage(row) {
+  // 跳转到任务详情页面
+  router.push({
+    name: 'Asset',
+    query: {
+      uuid: row.assetUUID
+    }
+  })
+}
+
 // 获取标签类型
 function getTagType(status) {
   switch (status) {
@@ -281,7 +295,7 @@ async function handleSelectionChange(selection) {
           <template v-slot="scope">
             <a
               href="#"
-              @click="redirectToDetailPage(scope.row)"
+              @click="redirectToAssetPage(scope.row)"
               style="color: #00c5dc; text-decoration: none"
             >
               {{ scope.row.assetUUID }}

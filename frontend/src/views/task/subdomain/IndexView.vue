@@ -414,14 +414,14 @@ async function deleteSelectedItems() {
               :disabled="scope.row.status !== '1'"
               icon="Close"
               @click="cancelTask(scope.row)"
-            >取消
+              >取消
             </el-button>
             <el-button
               type="danger"
               :disabled="scope.row.status === '1'"
               icon="Delete"
               @click="deleteTask(scope.row)"
-            >删除
+              >删除
             </el-button>
           </template>
         </el-table-column>

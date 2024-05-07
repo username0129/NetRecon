@@ -140,8 +140,7 @@ async function deleteSelectedItems() {
   })
 }
 
-function exportData() {
-}
+function exportData() {}
 
 function formatDate(value) {
   const date = new Date(value)

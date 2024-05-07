@@ -116,7 +116,6 @@ const toTarget = (name) => {
               </div>
             </el-col>
           </el-row>
-
         </div>
         <img src="@/assets/dashboard.png" class="my-top-card-right" alt />
       </div>

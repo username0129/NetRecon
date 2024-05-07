@@ -4,7 +4,7 @@ import { reactive, ref } from 'vue'
 import { CancelTask, DeleteTask, FetchTasks } from '@/apis/task.js'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 import { QuestionFilled } from '@element-plus/icons-vue'
-import { DeletePortScanResult, SubmitPortScanTask } from '@/apis/portscan.js'
+import { SubmitPortScanTask } from '@/apis/portscan.js'
 import router from '@/router/index.js'
 import { toSQLLine } from '@/utils/stringFun.js'
 import { FormatDate } from '@/utils/format.js'
@@ -390,7 +390,6 @@ async function deleteSelectedItems() {
     await getTableData()
   })
 }
-
 </script>
 
 <template>
@@ -478,14 +477,14 @@ async function deleteSelectedItems() {
               :disabled="scope.row.status !== '1'"
               icon="Close"
               @click="cancelTask(scope.row)"
-            >取消
+              >取消
             </el-button>
             <el-button
               type="danger"
               :disabled="scope.row.status === '1'"
               icon="Delete"
               @click="deleteTask(scope.row)"
-            >删除
+              >删除
             </el-button>
           </template>
         </el-table-column>
@@ -526,7 +525,7 @@ async function deleteSelectedItems() {
 
         <el-form-item prop="targets">
           <template #label
-          >IP:
+            >IP:
             <el-tooltip placement="right-end">
               <template #content>
                 目标支持换行分割,IP支持如下格式:<br />

@@ -9,7 +9,6 @@ import { AddAsset, DeleteAsset, FetchAsset, UpdateAsset } from '@/apis/asset.js'
 import { AddCron } from '@/apis/cron.js'
 import { useRoute } from 'vue-router'
 
-
 defineOptions({
   name: 'PortScanIndex'
 })
@@ -519,9 +518,7 @@ function updateDictType() {
         <el-button icon="Delete" :disabled="selectedRows.length === 0" @click="deleteSelectedItems">
           批量删除
         </el-button>
-        <el-button type="primary" icon="plus" @click="showAddAssetDialog">
-          添加资产信息
-        </el-button>
+        <el-button type="primary" icon="plus" @click="showAddAssetDialog"> 添加资产信息 </el-button>
       </div>
 
       <el-table
@@ -555,10 +552,10 @@ function updateDictType() {
           <template #default="scope">
             <el-button icon="Edit" @click="showUpdateAssetDialog(scope.row)">修改</el-button>
             <el-button icon="Location" @click="showAddSubdomainDialog(scope.row)"
-            >添加站点监控
+              >添加站点监控
             </el-button>
             <el-button icon="MagicStick" @click="showAddPortScanDialog(scope.row)"
-            >添加 IP 监控
+              >添加 IP 监控
             </el-button>
           </template>
         </el-table-column>

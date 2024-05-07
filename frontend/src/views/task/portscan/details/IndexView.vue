@@ -140,8 +140,7 @@ async function deleteSelectedItems() {
   })
 }
 
-function exportData() {
-}
+function exportData() {}
 </script>
 
 <template>
