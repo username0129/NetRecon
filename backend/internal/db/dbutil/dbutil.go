@@ -65,6 +65,8 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postfetchtasks", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postdeletetask", V2: "POST"}, // 根据任务 UUID 删除任务
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postdeletetask", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postfetchtaskcount", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postfetchtaskcount", V2: "POST"},
 
 			// 子域名爆破模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postbrutesubdomains", V2: "POST"}, // 提交子域名扫描任务

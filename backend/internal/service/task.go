@@ -87,6 +87,27 @@ func (ts *TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.
 	return resultList, total, nil
 }
 
+func (ts *TaskService) FetchTaskCount(cdb *gorm.DB, taskType string, userUUID uuid.UUID, authorityId string) (int64, error) {
+
+	db := cdb.Model(&model.Task{})
+
+	// 管理员用户可查看全部扫描任务
+	if authorityId != "1" {
+		db = db.Where("creator_uuid LIKE ?", "%"+userUUID.String()+"%")
+	}
+
+	if taskType != "" {
+		db = db.Where("type LIKE ?", "%"+taskType+"%")
+	}
+
+	// 获取满足条件的条目总数
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
 func (ts *TaskService) CancelTask(taskUUID, userUUID uuid.UUID, authorityId string) (err error) {
 	if cancel, exists := global.TaskManager[taskUUID]; exists { // 任务在管理器中存在
 		var task model.Task
@@ -124,6 +145,11 @@ func (ts *TaskService) DeleteTask(db *gorm.DB, taskUUID, userUUID uuid.UUID, aut
 	// 首先获取任务信息，确保任务存在
 	if err := global.DB.Model(&model.Task{}).Where("uuid = ?", taskUUID).First(&task).Error; err != nil {
 		return err // 可能是因为没有找到任务
+	}
+
+	// 检查是否有权限取消任务
+	if task.Status == "1" {
+		return errors.New("任务正在运行中，请等待执行完成。")
 	}
 
 	// 检查是否有权限取消任务

@@ -66,6 +66,28 @@ func (tc *TaskController) PostFetchTasks(c *gin.Context) {
 	}
 }
 
+// PostFetchTaskCount 获取指定类型的任务的个数
+func (tc *TaskController) PostFetchTaskCount(c *gin.Context) {
+	var req request.FetchTaskCountRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.Logger.Error("FetchTaskCount 参数解析错误: ", zap.Error(err))
+		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		return
+	}
+
+	total, err := service.TaskServiceApp.FetchTaskCount(global.DB, req.TaskType, util.GetUUID(c), util.GetAuthorityId(c))
+	if err != nil {
+		global.Logger.Error("查询数据失败: ", zap.Error(err))
+		common.Response(c, http.StatusInternalServerError, "查询数据失败", nil)
+		return
+	}
+
+	common.Response(c, http.StatusOK, "查询数据成功", gin.H{
+		"total": total,
+	})
+	return
+}
+
 // PostDeleteTask 删除指定任务及其结果
 func (tc *TaskController) PostDeleteTask(c *gin.Context) {
 	var req request.DeleteTaskRequest

@@ -8,6 +8,7 @@ import { FormatDate } from '@/utils/format.js'
 import { AddAsset, DeleteAsset, FetchAsset, UpdateAsset } from '@/apis/asset.js'
 import { SubmitSubdomainTask } from '@/apis/subdomain.js'
 import { AddCron } from '@/apis/cron.js'
+import { DeleteTask } from '@/apis/task.js'
 
 defineOptions({
   name: 'PortScanIndex'
@@ -141,7 +142,6 @@ async function getTableData() {
   }
 }
 
-
 // 页面加载时获取数据
 getTableData()
 
@@ -176,7 +176,6 @@ function initSubdomainForm() {
   }
 }
 
-
 function showAddAssetDialog() {
   dialogFlag.value = 'add'
   addAssetDialog.value = true
@@ -203,7 +202,6 @@ const showUpdateAssetDialog = (row) => {
   addAssetDialog.value = true
 }
 
-
 function closeAddAssetDialog() {
   initForm()
   addAssetDialog.value = false
@@ -220,7 +218,6 @@ function closeSubdomainDialog() {
   radio.value = 1
   addSubdomainDialog.value = false
 }
-
 
 async function submitAddAssetForm() {
   // 访问 Form 实例
@@ -332,7 +329,6 @@ async function submitAddPortScanForm() {
     })
   }
 }
-
 
 async function submitAddSubdomainForm() {
   // 访问 Form 实例
@@ -554,19 +550,11 @@ function updateDictType() {
         </el-table-column>
         <el-table-column label="操作" min-width="420" fixed="right">
           <template #default="scope">
-            <el-button
-              icon="Edit"
-              @click="showUpdateAssetDialog(scope.row)"
-            >修改
-            </el-button>
-            <el-button
-              icon="Location"
-              @click="showAddSubdomainDialog(scope.row)"
+            <el-button icon="Edit" @click="showUpdateAssetDialog(scope.row)">修改</el-button>
+            <el-button icon="Location" @click="showAddSubdomainDialog(scope.row)"
             >添加站点监控
             </el-button>
-            <el-button
-              icon="MagicStick"
-              @click="showAddPortScanDialog(scope.row)"
+            <el-button icon="MagicStick" @click="showAddPortScanDialog(scope.row)"
             >添加 IP 监控
             </el-button>
           </template>
@@ -593,16 +581,16 @@ function updateDictType() {
     >
       <template #header>
         <div class="flex justify-between items-center">
-          <span v-if="dialogFlag==='add'" class="text-lg">添加资产</span>
-          <span v-if="dialogFlag==='update'" class="text-lg">更新资产</span>
+          <span v-if="dialogFlag === 'add'" class="text-lg">添加资产</span>
+          <span v-if="dialogFlag === 'update'" class="text-lg">更新资产</span>
           <div>
             <el-button @click="closeAddAssetDialog">取 消</el-button>
             <el-button type="primary" @click="submitAddAssetForm">确 定</el-button>
           </div>
         </div>
       </template>
-      <warning-bar v-if="dialogFlag==='add'" title="新增资产" />
-      <warning-bar v-if="dialogFlag==='update'" title="更新资产" />
+      <warning-bar v-if="dialogFlag === 'add'" title="新增资产" />
+      <warning-bar v-if="dialogFlag === 'update'" title="更新资产" />
       <el-form ref="addAssetForm" :model="addAssetFormData" :rules="rules" label-width="auto">
         <el-form-item label="资产标题:" prop="title">
           <el-input v-model="addAssetFormData.title" />
@@ -615,7 +603,6 @@ function updateDictType() {
         </el-form-item>
       </el-form>
     </el-drawer>
-
 
     <el-drawer
       v-model="addPortScanDialog"
@@ -639,7 +626,13 @@ function updateDictType() {
         </el-form-item>
 
         <el-form-item label="IP:" prop="targets">
-          <el-input disabled type="textarea" rows="3" v-model="addPortScanFormData.targets" resize="none" />
+          <el-input
+            disabled
+            type="textarea"
+            rows="3"
+            v-model="addPortScanFormData.targets"
+            resize="none"
+          />
         </el-form-item>
 
         <el-form-item label="预设端口:" prop="dictType">
@@ -666,7 +659,11 @@ function updateDictType() {
           />
         </el-form-item>
         <el-form-item label="超时时长(s):" prop="timeout">
-          <el-input-number controls-position="right" v-model="addPortScanFormData.timeout" :min="1" />
+          <el-input-number
+            controls-position="right"
+            v-model="addPortScanFormData.timeout"
+            :min="1"
+          />
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -687,13 +684,24 @@ function updateDictType() {
         </div>
       </template>
       <warning-bar title="新增子域名扫描监控任务" />
-      <el-form ref="addSubdomainForm" :model="addSubdomainFormData" :rules="rules" label-width="auto">
+      <el-form
+        ref="addSubdomainForm"
+        :model="addSubdomainFormData"
+        :rules="rules"
+        label-width="auto"
+      >
         <el-form-item label="任务标题" prop="title">
           <el-input disabled v-model="addSubdomainFormData.title" />
         </el-form-item>
 
         <el-form-item label="域名列表:" prop="targets">
-          <el-input disabled type="textarea" rows="3" v-model="addSubdomainFormData.targets" resize="none" />
+          <el-input
+            disabled
+            type="textarea"
+            rows="3"
+            v-model="addSubdomainFormData.targets"
+            resize="none"
+          />
         </el-form-item>
         <el-form-item label="预设字典:" prop="dictType">
           <el-radio-group v-model="radio" @change="updateDictType">
@@ -711,7 +719,11 @@ function updateDictType() {
           />
         </el-form-item>
         <el-form-item label="超时时长(s):" prop="timeout">
-          <el-input-number controls-position="right" v-model="addSubdomainFormData.timeout" :min="1" />
+          <el-input-number
+            controls-position="right"
+            v-model="addSubdomainFormData.timeout"
+            :min="1"
+          />
         </el-form-item>
       </el-form>
     </el-drawer>

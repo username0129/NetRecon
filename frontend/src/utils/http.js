@@ -39,7 +39,7 @@ http.interceptors.response.use(
     }
   },
   (error) => {
-    if (error.response && (error.response.status !== 200)) {
+    if (error.response && error.response.status !== 200) {
       localStorage.clear()
       router.replace({ name: 'Login' })
     }

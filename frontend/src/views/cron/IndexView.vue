@@ -7,7 +7,6 @@ import router from '@/router/index.js'
 import { toSQLLine } from '@/utils/stringFun.js'
 import { FormatDate } from '@/utils/format.js'
 
-
 defineOptions({
   name: 'PortScanIndex'
 })
@@ -18,7 +17,6 @@ const total = ref(0)
 const pageSize = ref(10)
 const tableData = ref([])
 const searchInfo = ref({})
-
 
 // 重置
 async function onReset() {
@@ -87,7 +85,6 @@ async function getTableData() {
 // 页面加载时获取数据
 getTableData()
 
-
 async function deleteTask(row) {
   ElMessageBox.confirm('确定要删除吗?', '提示', {
     confirmButtonText: '确定',
@@ -147,7 +144,6 @@ function formatDictType(value) {
       return '未知状态'
   }
 }
-
 
 function redirectToPortDetailPage(row) {
   // 跳转到任务详情页面
@@ -253,8 +249,7 @@ async function handleSelectionChange(selection) {
     </div>
 
     <div class="my-table-box">
-      <div class="my-btn-list">
-      </div>
+      <div class="my-btn-list"></div>
       <el-table
         :data="tableData"
         @sort-change="handleSortChange"
@@ -321,14 +316,14 @@ async function handleSelectionChange(selection) {
               :disabled="scope.row.status !== '1'"
               icon="Close"
               @click="cancelTask(scope.row)"
-            >取消
+              >取消
             </el-button>
             <el-button
               type="danger"
               :disabled="scope.row.status === '1'"
               icon="Delete"
               @click="deleteTask(scope.row)"
-            >删除
+              >删除
             </el-button>
           </template>
         </el-table-column>

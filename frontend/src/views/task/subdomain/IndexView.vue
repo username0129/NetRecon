@@ -290,13 +290,53 @@ async function handleSortChange({ prop, order }) {
   await getTableData()
 }
 
-
 // 监听选择项的变化
 async function handleSelectionChange(selection) {
   selectedRows.value = selection
 }
 
-
+async function deleteSelectedItems() {
+  ElMessageBox.confirm('确定要删除吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    for (const row of selectedRows.value) {
+      let loadingInstance = ElLoading.service({
+        lock: true,
+        fullscreen: true,
+        text: '正在执行批量删除，请稍候...',
+        spinner: 'loading'
+      })
+      try {
+        if (row.status !== '1') {
+          const response = await DeleteTask({ uuid: row.uuid })
+          if (response.code === 200) {
+            ElMessage({
+              type: 'success',
+              message: '删除成功'
+            })
+          } else {
+            ElMessage({
+              type: 'error',
+              message: response.msg,
+              showClose: true
+            })
+          }
+        }
+      } catch (error) {
+        ElMessage({
+          type: 'error',
+          message: '网络错误或数据处理异常',
+          showClose: true
+        })
+      } finally {
+        loadingInstance.close()
+      }
+    }
+    await getTableData()
+  })
+}
 </script>
 
 <template>
@@ -322,6 +362,9 @@ async function handleSelectionChange(selection) {
 
     <div class="my-table-box">
       <div class="my-btn-list">
+        <el-button icon="Delete" :disabled="selectedRows.length === 0" @click="deleteSelectedItems">
+          批量删除
+        </el-button>
         <el-button type="primary" icon="plus" @click="showAddTaskDialog">
           添加子域名扫描任务
         </el-button>
@@ -371,14 +414,14 @@ async function handleSelectionChange(selection) {
               :disabled="scope.row.status !== '1'"
               icon="Close"
               @click="cancelTask(scope.row)"
-              >取消
+            >取消
             </el-button>
             <el-button
               type="danger"
               :disabled="scope.row.status === '1'"
               icon="Delete"
               @click="deleteTask(scope.row)"
-              >删除
+            >删除
             </el-button>
           </template>
         </el-table-column>

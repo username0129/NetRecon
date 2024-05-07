@@ -119,7 +119,6 @@ async function deleteSelectedItems() {
             type: 'success',
             message: '删除成功'
           })
-          await getTableData()
         } else {
           ElMessage({
             type: 'error',
@@ -137,10 +136,12 @@ async function deleteSelectedItems() {
         loadingInstance.close()
       }
     }
+    await getTableData()
   })
 }
 
-function exportData() {}
+function exportData() {
+}
 
 function formatDate(value) {
   const date = new Date(value)

@@ -4,11 +4,10 @@ import { reactive, ref } from 'vue'
 import { CancelTask, DeleteTask, FetchTasks } from '@/apis/task.js'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 import { QuestionFilled } from '@element-plus/icons-vue'
-import { SubmitPortScanTask } from '@/apis/portscan.js'
+import { DeletePortScanResult, SubmitPortScanTask } from '@/apis/portscan.js'
 import router from '@/router/index.js'
 import { toSQLLine } from '@/utils/stringFun.js'
 import { FormatDate } from '@/utils/format.js'
-
 
 defineOptions({
   name: 'PortScanIndex'
@@ -293,7 +292,6 @@ function formatDictType(value) {
   }
 }
 
-
 function redirectToDetailPage(row) {
   // 跳转到任务详情页面
   router.push({
@@ -352,6 +350,46 @@ async function handleSelectionChange(selection) {
   selectedRows.value = selection
 }
 
+async function deleteSelectedItems() {
+  ElMessageBox.confirm('确定要删除吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    for (const row of selectedRows.value) {
+      let loadingInstance = ElLoading.service({
+        lock: true,
+        fullscreen: true,
+        text: '正在执行批量删除，请稍候...',
+        spinner: 'loading'
+      })
+      try {
+        const response = await DeleteTask({ uuid: row.uuid })
+        if (response.code === 200) {
+          ElMessage({
+            type: 'success',
+            message: '删除成功'
+          })
+        } else {
+          ElMessage({
+            type: 'error',
+            message: response.msg,
+            showClose: true
+          })
+        }
+      } catch (error) {
+        ElMessage({
+          type: 'error',
+          message: '网络错误或数据处理异常',
+          showClose: true
+        })
+      } finally {
+        loadingInstance.close()
+      }
+    }
+    await getTableData()
+  })
+}
 
 </script>
 
@@ -388,6 +426,9 @@ async function handleSelectionChange(selection) {
 
     <div class="my-table-box">
       <div class="my-btn-list">
+        <el-button icon="Delete" :disabled="selectedRows.length === 0" @click="deleteSelectedItems">
+          批量删除
+        </el-button>
         <el-button type="primary" icon="plus" @click="showAddTaskDialog">
           添加端口扫描任务
         </el-button>

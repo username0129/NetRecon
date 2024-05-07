@@ -9,6 +9,16 @@ export const FetchTasks = (data) => {
   })
 }
 
+
+// 获取任务列表
+export const FetchTaskCount = (data) => {
+  return http({
+    url: '/api/v1/task/postfetchtaskcount',
+    method: 'POST',
+    data: data
+  })
+}
+
 // 删除任务
 export const DeleteTask = (data) => {
   return http({

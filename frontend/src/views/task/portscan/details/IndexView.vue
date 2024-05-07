@@ -119,7 +119,6 @@ async function deleteSelectedItems() {
             type: 'success',
             message: '删除成功'
           })
-          await getTableData()
         } else {
           ElMessage({
             type: 'error',
@@ -137,10 +136,12 @@ async function deleteSelectedItems() {
         loadingInstance.close()
       }
     }
+    await getTableData()
   })
 }
 
-function exportData() {}
+function exportData() {
+}
 </script>
 
 <template>
@@ -170,7 +171,7 @@ function exportData() {}
         <el-button icon="Delete" :disabled="selectedRows.length === 0" @click="deleteSelectedItems">
           批量删除
         </el-button>
-        <el-button icon="Share" @click="exportData"> 导出所有数据 </el-button>
+        <el-button icon="Share" @click="exportData"> 导出所有数据</el-button>
       </div>
 
       <el-table

@@ -17,9 +17,9 @@ const matched = computed(() => route.matched)
 
 function getRoleName() {
   switch (userStore.userInfo.valueOf().authorityId) {
-    case 1:
+    case '1':
       return '系统管理员'
-    case 2:
+    case '2':
       return '普通用户'
     default:
       return '未知角色'
@@ -87,8 +87,8 @@ function getRoleName() {
                             <span class="cursor-pointer flex justify-center items-center">
                               <!--                              <CustomPic />-->
                               <span style="margin-left: 5px">{{
-                                userStore.userInfo.nickname
-                              }}</span>
+                                  userStore.userInfo.nickname
+                                }}</span>
                               <el-icon>
                                 <arrow-down />
                               </el-icon>
@@ -100,7 +100,7 @@ function getRoleName() {
                                 <span class="font-bold">当前角色：{{ getRoleName() }}</span>
                               </el-dropdown-item>
                               <el-dropdown-item icon="reading-lamp" @click="userStore.logout"
-                                >登 出
+                              >登 出
                               </el-dropdown-item>
                             </el-dropdown-menu>
                           </template>

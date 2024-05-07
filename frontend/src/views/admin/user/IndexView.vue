@@ -3,7 +3,13 @@ import WarningBar from '@/components/warningBar/warningBar.vue'
 import { reactive, ref } from 'vue'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 import { toSQLLine } from '@/utils/stringFun.js'
-import { AddUserInfo, DeleteUserInfo, FetchUserInfo, ResetPassword, UpdateUserInfo } from '@/apis/user.js'
+import {
+  AddUserInfo,
+  DeleteUserInfo,
+  FetchUserInfo,
+  ResetPassword,
+  UpdateUserInfo
+} from '@/apis/user.js'
 import { FormatDate } from '@/utils/format.js'
 import { useUserStore } from '@/stores/modules/user.js'
 
@@ -43,9 +49,7 @@ const rules = reactive({
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
   ],
-  authorityId: [
-    { required: true, message: '请选择用户角色', trigger: 'change' }
-  ],
+  authorityId: [{ required: true, message: '请选择用户角色', trigger: 'change' }],
   mail: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
@@ -142,7 +146,6 @@ const showUpdateUserDialog = (row) => {
   addUserDialog.value = true
 }
 
-
 function closeAddUserDialog() {
   initForm()
   addUserDialog.value = false
@@ -223,7 +226,7 @@ async function deleteUserInfo(row) {
     if (response.code === 200) {
       ElMessage.success('删除成功')
       await getTableData()
-    }else {
+    } else {
       ElMessage({
         type: 'error',
         message: response.msg,
@@ -293,8 +296,6 @@ function formatAuthority(value) {
       return '未知角色'
   }
 }
-
-
 </script>
 
 <template>
@@ -340,9 +341,7 @@ function formatAuthority(value) {
 
     <div class="my-table-box">
       <div class="my-btn-list">
-        <el-button type="primary" icon="plus" @click="showAddUserDialog">
-          添加用户
-        </el-button>
+        <el-button type="primary" icon="plus" @click="showAddUserDialog"> 添加用户 </el-button>
       </div>
 
       <el-table
@@ -380,22 +379,12 @@ function formatAuthority(value) {
 
         <el-table-column label="操作" min-width="250" fixed="right">
           <template #default="scope">
-            <el-button
-              icon="Edit"
-              @click="showUpdateUserDialog(scope.row)"
-            >编辑
+            <el-button icon="Edit" @click="showUpdateUserDialog(scope.row)">编辑 </el-button>
+            <el-button type="danger" icon="Delete" @click="deleteUserInfo(scope.row)"
+              >删除
             </el-button>
-            <el-button
-              type="danger"
-              icon="Delete"
-              @click="deleteUserInfo(scope.row)"
-            >删除
-            </el-button>
-            <el-button
-              type="warning"
-              icon="RefreshRight"
-              @click="resetPassword(scope.row)"
-            >重置密码
+            <el-button type="warning" icon="RefreshRight" @click="resetPassword(scope.row)"
+              >重置密码
             </el-button>
           </template>
         </el-table-column>
@@ -421,24 +410,24 @@ function formatAuthority(value) {
     >
       <template #header>
         <div class="flex justify-between items-center">
-          <span v-if="dialogFlag==='add'" class="text-lg">添加用户</span>
-          <span v-if="dialogFlag==='update'" class="text-lg">更新用户</span>
+          <span v-if="dialogFlag === 'add'" class="text-lg">添加用户</span>
+          <span v-if="dialogFlag === 'update'" class="text-lg">更新用户</span>
           <div>
             <el-button @click="closeAddUserDialog">取 消</el-button>
             <el-button type="primary" @click="submitAddUserForm">确 定</el-button>
           </div>
         </div>
       </template>
-      <warning-bar v-if="dialogFlag==='add'" title="新增用户" />
-      <warning-bar v-if="dialogFlag==='update'" title="更新用户" />
+      <warning-bar v-if="dialogFlag === 'add'" title="新增用户" />
+      <warning-bar v-if="dialogFlag === 'update'" title="更新用户" />
       <el-form ref="addUserForm" :model="addUserFormData" :rules="rules" label-width="auto">
         <el-form-item label="昵称:" prop="nickname">
           <el-input v-model="addUserFormData.nickname" />
         </el-form-item>
         <el-form-item label="用户名:" prop="username">
-          <el-input :disabled="dialogFlag==='update'" v-model="addUserFormData.username" />
+          <el-input :disabled="dialogFlag === 'update'" v-model="addUserFormData.username" />
         </el-form-item>
-        <el-form-item v-if="dialogFlag==='add'" label="密码:" prop="password">
+        <el-form-item v-if="dialogFlag === 'add'" label="密码:" prop="password">
           <el-input type="password" show-password v-model="addUserFormData.password" />
         </el-form-item>
         <el-form-item label="用户角色:" prop="authorityId">
