@@ -33,6 +33,7 @@ func getControllerList() []interface{} {
 		&controller.AssetController{},
 		&controller.CronController{},
 		&controller.OperationController{},
+		&controller.FofaController{},
 	}
 }
 

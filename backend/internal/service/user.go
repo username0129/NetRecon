@@ -101,7 +101,7 @@ func (us *UserService) ResetPassword(db *gorm.DB, userUUID uuid.UUID) (err error
 </html>
 `, userInfo.Username, newPassword, timeCompleted)
 
-	subject := fmt.Sprintf("端口扫描任务完成通知 - 账户 %v", userInfo.Username)
+	subject := fmt.Sprintf("密码重置通知 - 账户 %v", userInfo.Username)
 	mail := global.Config.Mail
 	err = util.SendMail(mail.SmtpServer, mail.SmtpPort, mail.SmtpFrom, mail.SmtpPassword, []string{userInfo.Mail}, subject, body)
 	if err != nil {

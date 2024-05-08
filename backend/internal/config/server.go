@@ -15,4 +15,7 @@ type Server struct {
 
 	// 域名黑名单
 	BlackDomain []string `mapstructure:"black_domain" yaml:"black_domain" json:"black_domain"` // 域名黑名单
+
+	// 网络空间引擎
+	Fofa Fofa `mapstructure:"fofa" yaml:"fofa" json:"fofa"` // Fofa 配置
 }

@@ -111,6 +111,12 @@ var initialDatas = []InitialData{
 			// 计划任务模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/cron/postaddtask", V2: "POST"}, // 添加计划任务
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/cron/postaddtask", V2: "POST"},
+
+			// fofa 任务管理
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/fofa/postfofasearch", V2: "POST"}, // 添加 Fofa 查询
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/fofa/postfofasearch", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/fofa/postexportdata", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/fofa/postexportdata", V2: "POST"},
 		},
 	},
 	{
@@ -126,13 +132,13 @@ var initialDatas = []InitialData{
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "资产管理", Icon: "Reading"}, Name: "Asset", Path: "asset", Component: "views/asset/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "计划任务", Icon: "Coin"}, Name: "Cron", Path: "cron", Component: "views/cron/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Hidden: true, Title: "个人信息", Icon: "message"}, Name: "Person", Path: "person", Component: "views/person/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Title: "FOFA 任务", Icon: "Rank"}, Name: "Fofa", Path: "Fofa", Component: "views/fofa/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 
 			// 管理员菜单
 			&model.Route{ParentId: 2, Meta: model.Meta{Title: "用户管理", Icon: "coordinate"}, Name: "User", Path: "user", Component: "views/admin/user/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 			&model.Route{ParentId: 2, Meta: model.Meta{Title: "操作历史", Icon: "pie-chart"}, Name: "Operation", Path: "operation", Component: "views/admin/operation/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 
 			// 任务管理
-			//&model.Route{ParentId: 3, Meta: model.Meta{Title: "FOFA 任务下发", Icon: "avatar"}, Name: "FoFaScan", Path: "FoFaScan", Component: "views/task/fofascan/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			//&model.Route{ParentId: 2, Meta: model.Meta{Title: "从企业名收集资产", Icon: "avatar"}, Name: "Authority", Path: "authority", Component: "views/admin/AuthorityView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 		},
 	},

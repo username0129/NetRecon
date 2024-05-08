@@ -1,6 +1,6 @@
 package util
 
-// 去除某个元素
+// RemoveElement 去除某个元素
 func RemoveElement(arr []string, ele string) (newArr []string) {
 	for _, v := range arr {
 		if v != ele {

@@ -7,21 +7,21 @@
 <style lang="scss" scoped>
 .page {
   @apply p-0;
-  .gva-card-box {
+  .my-card-box {
     @apply p-4;
-    & + .gva-card-box {
+    & + .my-card-box {
       @apply pt-0;
     }
   }
 
-  .gva-card {
+  .my-card {
     @apply box-border bg-white rounded h-auto px-6 py-8 overflow-hidden shadow-sm;
-    .gva-card-title {
+    .my-card-title {
       @apply pb-5 border-t-0 border-l-0 border-r-0 border-b border-solid border-gray-100;
     }
   }
 
-  .gva-top-card {
+  .my-top-card {
     @apply h-72 flex items-center justify-between text-gray-500;
     &-left {
       @apply h-full flex flex-col w-auto;
@@ -34,7 +34,7 @@
       }
 
       &-item {
-        + .gva-top-card-left-item {
+        + .my-top-card-left-item {
           margin-top: 24px;
         }
 
