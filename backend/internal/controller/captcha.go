@@ -42,11 +42,11 @@ func (cc *CaptchaController) GetCaptcha(c *gin.Context) {
 	id, b64s, _, err := cp.Generate()
 	if err != nil {
 		global.Logger.Error("验证码获取失败", zap.Error(err))
-		common.Response(c, http.StatusInternalServerError, "验证码获取失败", nil)
+		common.ResponseOk(c, http.StatusInternalServerError, "验证码获取失败", nil)
 		return
 	}
 
-	common.Response(c, http.StatusOK, "验证码获取成功", model.CaptchaResponse{
+	common.ResponseOk(c, http.StatusOK, "验证码获取成功", model.CaptchaResponse{
 		CaptchaId:     id,
 		CaptchaImg:    b64s,
 		CaptchaLength: global.Config.Captcha.Long,

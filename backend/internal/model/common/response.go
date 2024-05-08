@@ -11,8 +11,16 @@ type ApiResponse struct {
 	Data interface{} `json:"data"` // 相应数据
 }
 
-func Response(c *gin.Context, code int, msg string, data interface{}) {
+func ResponseOk(c *gin.Context, code int, msg string, data interface{}) {
 	c.JSON(http.StatusOK, ApiResponse{
+		Code: code,
+		Msg:  msg,
+		Data: data,
+	})
+}
+
+func ResponseError(c *gin.Context, code int, msg string, data interface{}) {
+	c.JSON(http.StatusInternalServerError, ApiResponse{
 		Code: code,
 		Msg:  msg,
 		Data: data,

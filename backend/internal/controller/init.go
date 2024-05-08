@@ -22,10 +22,10 @@ type InitController struct{}
 //	@Router: /init/init
 func (ic *InitController) GetInit(c *gin.Context) {
 	if global.DB != nil {
-		common.Response(c, http.StatusOK, "已存在数据库配置", nil)
+		common.ResponseOk(c, http.StatusOK, "已存在数据库配置", nil)
 		return
 	}
-	common.Response(c, http.StatusInternalServerError, "数据库尚未初始化", nil)
+	common.ResponseOk(c, http.StatusInternalServerError, "数据库尚未初始化", nil)
 	return
 }
 
@@ -38,23 +38,23 @@ func (ic *InitController) GetInit(c *gin.Context) {
 func (ic *InitController) PostInit(c *gin.Context) {
 	if global.DB != nil {
 		global.Logger.Error("已存在数据库配置")
-		common.Response(c, http.StatusInternalServerError, "已存在数据库配置", nil)
+		common.ResponseOk(c, http.StatusInternalServerError, "已存在数据库配置", nil)
 		return
 	}
 
 	var req request.InitRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error(fmt.Sprintf("参数解析错误 %v", err.Error()))
-		common.Response(c, http.StatusInternalServerError, "参数解析错误", nil)
+		common.ResponseOk(c, http.StatusInternalServerError, "参数解析错误", nil)
 		return
 	}
 
 	if err := service.InitServiceApp.Init(req); err != nil {
 		global.Logger.Error(fmt.Sprintf("数据库初始化错误：%v", err.Error()))
-		common.Response(c, http.StatusInternalServerError, "数据库初始化错误，详情请查看后端。", nil)
+		common.ResponseOk(c, http.StatusInternalServerError, "数据库初始化错误，详情请查看后端。", nil)
 		return
 	}
-	common.Response(c, http.StatusOK, "数据库初始化成功，请等待服务器重启... ", nil)
+	common.ResponseOk(c, http.StatusOK, "数据库初始化成功，请等待服务器重启... ", nil)
 
 	administratorMail, err := service.UserServiceApp.GetAdministratorMail()
 	if err != nil {

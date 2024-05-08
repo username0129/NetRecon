@@ -37,7 +37,7 @@ func getControllerList() []interface{} {
 
 func setupRoutes(router *gin.Engine, controllers []interface{}) {
 	publicGroup := router.Group(global.Config.System.RouterPrefix) // 无需鉴权的路由组
-	publicGroup.Use(middleware.CorsMiddleware())
+	publicGroup.Use(middleware.CorsMiddleware()).Use(middleware.OperationRecord())
 
 	{
 		// 全局处理 OPTIONS 请求 -> 防止 AXIOS CORS 错误
@@ -47,8 +47,8 @@ func setupRoutes(router *gin.Engine, controllers []interface{}) {
 		})
 
 	}
-	protectedGroup := router.Group(global.Config.System.RouterPrefix)                                                   // 需要鉴权的路由组
-	protectedGroup.Use(middleware.CorsMiddleware()).Use(middleware.JWTAuthMiddleware()).Use(middleware.CasbinHandler()) // 使用 JWT 和 Casbin 完成身份验证以及访问控制
+	protectedGroup := router.Group(global.Config.System.RouterPrefix)                                                                                     // 需要鉴权的路由组
+	protectedGroup.Use(middleware.CorsMiddleware()).Use(middleware.JWTAuthMiddleware()).Use(middleware.CasbinHandler()).Use(middleware.OperationRecord()) // 使用 JWT 和 Casbin 完成身份验证以及访问控制
 
 	for _, ctrl := range controllers {
 		ctrlType := reflect.TypeOf(ctrl)

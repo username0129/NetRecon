@@ -15,5 +15,5 @@ type BaseController struct{}
 //	@param c
 //	@Router: /base/health
 func (bc *BaseController) GetHealth(c *gin.Context) {
-	common.Response(c, http.StatusOK, "服务运行正常", nil)
+	common.ResponseOk(c, http.StatusOK, "服务运行正常", nil)
 }

@@ -26,16 +26,16 @@ func (pc *PortScanController) PostPortScan(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&portScanRequest); err != nil {
 		global.Logger.Error("PostPortScan 参数解析错误: ", zap.Error(err))
-		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		common.ResponseOk(c, http.StatusBadRequest, "参数解析错误", nil)
 		return
 	}
 
 	err := service.PortServiceApp.ExecutePortScan(portScanRequest, util.GetUUID(c), util.GetAuthorityId(c), "PortScan")
 	if err != nil {
-		common.Response(c, http.StatusInternalServerError, err.Error(), nil)
+		common.ResponseOk(c, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
-	common.Response(c, http.StatusOK, "任务提交成功", nil)
+	common.ResponseOk(c, http.StatusOK, "任务提交成功", nil)
 	return
 }
 
@@ -43,22 +43,22 @@ func (pc *PortScanController) PostFetchResult(c *gin.Context) {
 	var req request.FetchPortScanResultRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostFetchResult 参数解析错误: ", zap.Error(err))
-		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		common.ResponseOk(c, http.StatusBadRequest, "参数解析错误", nil)
 		return
 	}
 
 	result, total, err := service.PortServiceApp.FetchResult(global.DB, req.PortScanResult, req.PageInfo, req.OrderKey, req.Desc)
 	if err != nil {
 		global.Logger.Error("查询数据失败: ", zap.Error(err))
-		common.Response(c, http.StatusInternalServerError, "查询数据失败", nil)
+		common.ResponseOk(c, http.StatusInternalServerError, "查询数据失败", nil)
 		return
 	}
 
 	if total == 0 {
-		common.Response(c, http.StatusNotFound, "未查询到有效数据", nil)
+		common.ResponseOk(c, http.StatusNotFound, "未查询到有效数据", nil)
 		return
 	} else {
-		common.Response(c, http.StatusOK, "查询数据成功", response.PageResult{
+		common.ResponseOk(c, http.StatusOK, "查询数据成功", response.PageResult{
 			Data:     result,
 			Total:    total,
 			Page:     req.Page,
@@ -73,16 +73,16 @@ func (pc *PortScanController) PostDeleteResult(c *gin.Context) {
 	var req request.DeletePortScanResultRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostDeleteResult 参数解析错误: ", zap.Error(err))
-		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		common.ResponseOk(c, http.StatusBadRequest, "参数解析错误", nil)
 		return
 	}
 
 	if err := service.PortServiceApp.DeleteResult(req.UUID); err != nil {
 		global.Logger.Error("PostDeleteResult 运行失败: ", zap.Error(err))
-		common.Response(c, http.StatusInternalServerError, "目标结果删除失败", nil)
+		common.ResponseOk(c, http.StatusInternalServerError, "目标结果删除失败", nil)
 		return
 	} else {
-		common.Response(c, http.StatusOK, "目标结果删除成功", nil)
+		common.ResponseOk(c, http.StatusOK, "目标结果删除成功", nil)
 		return
 	}
 }
@@ -91,14 +91,14 @@ func (pc *PortScanController) PostExportData(c *gin.Context) {
 	var req request.DeletePortScanResultRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostExportData 参数解析错误: ", zap.Error(err))
-		common.Response(c, http.StatusBadRequest, "参数解析错误", nil)
+		common.ResponseOk(c, http.StatusBadRequest, "参数解析错误", nil)
 		return
 	}
 
 	results, err := service.PortServiceApp.FetchAllResult(global.DB, req.UUID)
 	if err != nil {
 		global.Logger.Error("PostExportData 查询数据失败: ", zap.Error(err))
-		common.Response(c, http.StatusBadRequest, "查询数据失败", nil)
+		common.ResponseOk(c, http.StatusBadRequest, "查询数据失败", nil)
 		return
 	}
 
@@ -123,7 +123,7 @@ func (pc *PortScanController) PostExportData(c *gin.Context) {
 	for _, result := range results {
 		if err := writer.Write([]string{result.IP, strconv.Itoa(result.Port), result.Service, fmt.Sprintf("%v://%v:%v", result.Service, result.IP, result.Port)}); err != nil {
 			global.Logger.Error("PostExportData 创建 CSV 文件失败: ", zap.Error(err))
-			common.Response(c, http.StatusBadRequest, "创建 CSV 文件失败", nil)
+			common.ResponseOk(c, http.StatusBadRequest, "创建 CSV 文件失败", nil)
 			return
 		}
 	}

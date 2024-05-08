@@ -32,9 +32,11 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/base/gethealth", V2: "GET"}, //
 
 			// 管理员模块
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postdeleteuserinfo", V2: "POST"}, // 删除用户信息
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postadduserinfo", V2: "POST"},    // 添加用户信息
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postfetchusers", V2: "POST"},     // 获取所有用户信息
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postdeleteuserinfo", V2: "POST"},    // 删除用户信息
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postadduserinfo", V2: "POST"},       // 添加用户信息
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postfetchusers", V2: "POST"},        // 获取所有用户信息
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/operation/postfetchresult", V2: "POST"},  // 获取操作记录
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/operation/postdeleteresult", V2: "POST"}, // 获取操作记录
 
 			// 路由模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/route/getroute", V2: "GET"}, // 根据当前用户角色获取路由信息
@@ -166,6 +168,12 @@ var initialDatas = []InitialData{
 		TableName: "sys_network_assets",
 		Data: []interface{}{
 			&model.Asset{},
+		},
+	},
+	{
+		TableName: "sys_operation_records",
+		Data: []interface{}{
+			&model.OperationRecord{},
 		},
 	},
 }

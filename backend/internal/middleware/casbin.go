@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"backend/internal/global"
 	"backend/internal/model"
 	"backend/internal/model/common"
 	"backend/internal/service"
@@ -12,6 +13,9 @@ var casbinService = service.CasbinServiceApp
 
 func CasbinHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if global.DB == nil {
+			return
+		}
 		// 获取请求资源
 		obj := c.Request.URL.Path
 		// 获取请求方式
@@ -29,7 +33,7 @@ func CasbinHandler() gin.HandlerFunc {
 		if ok {
 			c.Next() // 请求成功
 		} else {
-			common.Response(c, http.StatusForbidden, "用户权限不足", nil)
+			common.ResponseOk(c, http.StatusForbidden, "用户权限不足", nil)
 			c.Abort() // 请求失败
 			return
 		}
