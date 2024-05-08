@@ -410,17 +410,16 @@ async function handleSelectionChange(selection) {
   selectedRows.value = selection
 }
 
-async function deleteSelectedItems() {
+async function deleteAsset(row) {
   ElMessageBox.confirm('确定要删除吗?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
-    for (const row of selectedRows.value) {
       let loadingInstance = ElLoading.service({
         lock: true,
         fullscreen: true,
-        text: '正在执行批量删除，请稍候...',
+        text: '正在执行删除，请稍候...',
         spinner: 'loading'
       })
       try {
@@ -430,7 +429,6 @@ async function deleteSelectedItems() {
             type: 'success',
             message: '删除成功'
           })
-          await getTableData()
         } else {
           ElMessage({
             type: 'error',
@@ -446,9 +444,10 @@ async function deleteSelectedItems() {
         })
       } finally {
         loadingInstance.close()
+        await getTableData()
       }
     }
-  })
+  )
 }
 
 const options = [
@@ -491,7 +490,7 @@ function updateDictType() {
 
 <template>
   <div>
-    <warning-bar title="注：没有注释" />
+    <warning-bar title="注：点击资产 UUID可以跳转到资产下的计划任务" />
     <div class="my-search-box">
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="资产 UUID">
@@ -515,10 +514,7 @@ function updateDictType() {
 
     <div class="my-table-box">
       <div class="my-btn-list">
-        <el-button icon="Delete" :disabled="selectedRows.length === 0" @click="deleteSelectedItems">
-          批量删除
-        </el-button>
-        <el-button type="primary" icon="plus" @click="showAddAssetDialog"> 添加资产信息 </el-button>
+        <el-button type="primary" icon="plus" @click="showAddAssetDialog"> 添加资产信息</el-button>
       </div>
 
       <el-table
@@ -527,7 +523,6 @@ function updateDictType() {
         @selection-change="handleSelectionChange"
         :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
       >
-        <el-table-column type="selection" width="55" />
         <el-table-column fixed label="资产 UUID" min-width="320" sortable="custom" prop="uuid">
           <template v-slot="scope">
             <a
@@ -548,14 +543,15 @@ function updateDictType() {
             {{ FormatDate(scope.row.CreatedAt) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="420" fixed="right">
+        <el-table-column label="操作" min-width="500" fixed="right">
           <template #default="scope">
             <el-button icon="Edit" @click="showUpdateAssetDialog(scope.row)">修改</el-button>
+            <el-button type="danger" icon="Delete" @click="deleteAsset(scope.row)">删除</el-button>
             <el-button icon="Location" @click="showAddSubdomainDialog(scope.row)"
-              >添加站点监控
+            >添加站点监控
             </el-button>
             <el-button icon="MagicStick" @click="showAddPortScanDialog(scope.row)"
-              >添加 IP 监控
+            >添加 IP 监控
             </el-button>
           </template>
         </el-table-column>

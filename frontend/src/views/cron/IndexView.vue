@@ -263,7 +263,7 @@ async function handleSelectionChange(selection) {
 
 <template>
   <div>
-    <warning-bar title="注：没有注释" />
+    <warning-bar title="注：点击任务 UUID 可跳转到任务详情页，点击资产 UUID 可跳转到资产详情页" />
     <div class="my-search-box">
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="任务 UUID">
@@ -313,7 +313,6 @@ async function handleSelectionChange(selection) {
         @selection-change="handleSelectionChange"
         :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
       >
-        <el-table-column type="selection" width="55" />
         <el-table-column fixed label="任务 UUID" min-width="300" sortable="custom" prop="uuid">
           <template v-slot="scope">
             <a
@@ -334,7 +333,7 @@ async function handleSelectionChange(selection) {
             </a>
           </template>
         </el-table-column>
-        <el-table-column label="所属资产" min-width="300" sortable="custom" prop="assetUUID">
+        <el-table-column label="所属资产 UUID" min-width="300" sortable="custom" prop="assetUUID">
           <template v-slot="scope">
             <a
               href="#"

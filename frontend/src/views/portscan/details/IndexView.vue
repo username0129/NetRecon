@@ -3,8 +3,14 @@ import WarningBar from '@/components/warningBar/warningBar.vue'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
-import { DeletePortScanResult, ExportPortScanResult, FetchPortScanResult } from '@/apis/portscan.js'
+import {
+  DeletePortScanResult,
+  DeletePortScanResults,
+  ExportPortScanResult,
+  FetchPortScanResult
+} from '@/apis/portscan.js'
 import { toSQLLine } from '@/utils/stringFun.js'
+import { DeleteOperationResults } from '@/apis/operation.js'
 
 const route = useRoute()
 const taskUUID = ref(route.query.uuid || '')
@@ -105,38 +111,40 @@ async function deleteSelectedItems() {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
-    for (const row of selectedRows.value) {
-      let loadingInstance = ElLoading.service({
-        lock: true,
-        fullscreen: true,
-        text: '正在执行批量删除，请稍候...',
-        spinner: 'loading'
-      })
-      try {
-        const response = await DeletePortScanResult({ uuid: row.uuid })
-        if (response.code === 200) {
-          ElMessage({
-            type: 'success',
-            message: '删除成功'
-          })
-        } else {
-          ElMessage({
-            type: 'error',
-            message: response.msg,
-            showClose: true
-          })
-        }
-      } catch (error) {
+    const uuids = []
+    selectedRows.value.forEach(item => {
+      uuids.push(item.uuid)
+    })
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      fullscreen: true,
+      text: '正在执行批量删除，请稍候...',
+      spinner: 'loading'
+    })
+    try {
+      const response = await DeletePortScanResults({ uuids: uuids })
+      if (response.code === 200) {
+        ElMessage({
+          type: 'success',
+          message: '删除成功'
+        })
+      } else {
         ElMessage({
           type: 'error',
-          message: '网络错误或数据处理异常',
+          message: response.msg,
           showClose: true
         })
-      } finally {
-        loadingInstance.close()
       }
+    } catch (error) {
+      ElMessage({
+        type: 'error',
+        message: '网络错误或数据处理异常',
+        showClose: true
+      })
+    } finally {
+      loadingInstance.close()
+      await getTableData()
     }
-    await getTableData()
   })
 }
 

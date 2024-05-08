@@ -32,11 +32,11 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/base/gethealth", V2: "GET"}, //
 
 			// 管理员模块
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postdeleteuserinfo", V2: "POST"},    // 删除用户信息
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postadduserinfo", V2: "POST"},       // 添加用户信息
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postfetchusers", V2: "POST"},        // 获取所有用户信息
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/operation/postfetchresult", V2: "POST"},  // 获取操作记录
-			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/operation/postdeleteresult", V2: "POST"}, // 获取操作记录
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postdeleteuserinfo", V2: "POST"},     // 删除用户信息
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postadduserinfo", V2: "POST"},        // 添加用户信息
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/user/postfetchusers", V2: "POST"},         // 获取所有用户信息
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/operation/postfetchresult", V2: "POST"},   // 获取操作记录
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/operation/postdeleteresults", V2: "POST"}, // 获取操作记录
 
 			// 路由模块
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/route/getroute", V2: "GET"}, // 根据当前用户角色获取路由信息
@@ -59,6 +59,8 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postfetchresult", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postdeleteresult", V2: "POST"}, // 删除扫描结果
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postdeleteresult", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postdeleteresults", V2: "POST"}, // 批量删除扫描结果
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postdeleteresults", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postaddresult", V2: "POST"}, // 咱家扫描结果
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/portscan/postaddresult", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/portscan/postexportdata", V2: "POST"}, // 导出数据
@@ -71,6 +73,8 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postfetchtasks", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postdeletetask", V2: "POST"}, // 根据任务 UUID 删除任务
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postdeletetask", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postdeletetasks", V2: "POST"}, // 批量根据任务 UUID 删除任务
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postdeletetasks", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/task/postfetchtaskcount", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/task/postfetchtaskcount", V2: "POST"},
 
@@ -81,6 +85,8 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postfetchresult", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postdeleteresult", V2: "POST"}, // 删除扫描结果
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postdeleteresult", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postdeleteresults", V2: "POST"}, // 批量删除扫描结果
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postdeleteresults", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postaddresult", V2: "POST"}, // 咱家扫描结果
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/subdomain/postaddresult", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/subdomain/postexportdata", V2: "POST"}, // 导出数据
@@ -91,6 +97,8 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/asset/postaddasset", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/asset/postdeleteasset", V2: "POST"}, // 删除资产
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/asset/postdeleteasset", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/asset/postdeleteassets", V2: "POST"}, // 删除资产
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/asset/postdeleteassets", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/asset/postupdateasset", V2: "POST"}, // 修改资产
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/asset/postupdateasset", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/asset/postfetchasset", V2: "POST"}, // 获取

@@ -1,7 +1,7 @@
 <script setup>
 import WarningBar from '@/components/warningBar/warningBar.vue'
 import { reactive, ref } from 'vue'
-import { CancelTask, DeleteTask, FetchTasks } from '@/apis/task.js'
+import { CancelTask, DeleteTask, DeleteTasks, FetchTasks } from '@/apis/task.js'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { SubmitPortScanTask } from '@/apis/portscan.js'
@@ -356,7 +356,20 @@ async function deleteSelectedItems() {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
-    for (const row of selectedRows.value) {
+      const uuids = []
+      selectedRows.value.forEach(item => {
+        if (item.status !== '1') {
+          uuids.push(item.uuid)
+        }
+      })
+      if (uuids.length === 0) {
+        ElMessage({
+          type: 'error',
+          message: '所有任务均在运行中，无法删除',
+          showClose: true
+        })
+        return
+      }
       let loadingInstance = ElLoading.service({
         lock: true,
         fullscreen: true,
@@ -364,7 +377,7 @@ async function deleteSelectedItems() {
         spinner: 'loading'
       })
       try {
-        const response = await DeleteTask({ uuid: row.uuid })
+        const response = await DeleteTasks({ uuids: uuids })
         if (response.code === 200) {
           ElMessage({
             type: 'success',
@@ -385,16 +398,16 @@ async function deleteSelectedItems() {
         })
       } finally {
         loadingInstance.close()
+        await getTableData()
       }
     }
-    await getTableData()
-  })
+  )
 }
 </script>
 
 <template>
   <div>
-    <warning-bar title="注：没有注释" />
+    <warning-bar title="注：点击任务 UUID 可以跳转到任务详情页" />
     <div class="my-search-box">
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="任务 UUID">
@@ -477,14 +490,14 @@ async function deleteSelectedItems() {
               :disabled="scope.row.status !== '1'"
               icon="Close"
               @click="cancelTask(scope.row)"
-              >取消
+            >取消
             </el-button>
             <el-button
               type="danger"
               :disabled="scope.row.status === '1'"
               icon="Delete"
               @click="deleteTask(scope.row)"
-              >删除
+            >删除
             </el-button>
           </template>
         </el-table-column>
@@ -525,7 +538,7 @@ async function deleteSelectedItems() {
 
         <el-form-item prop="targets">
           <template #label
-            >IP:
+          >IP:
             <el-tooltip placement="right-end">
               <template #content>
                 目标支持换行分割,IP支持如下格式:<br />

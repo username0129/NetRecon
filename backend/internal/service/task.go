@@ -164,7 +164,7 @@ func (ts *TaskService) DeleteTask(db *gorm.DB, taskUUID, userUUID uuid.UUID, aut
 		if err := db.Model(&model.PortScanResult{}).Where("task_uuid = ?", taskUUID).Delete(&model.PortScanResult{}).Error; err != nil {
 			return fmt.Errorf("删除 PortScan 结果失败: %w", err)
 		}
-	case "Subdomain", "Cron/Domain":
+	case "BruteSubdomain", "Cron/Domain":
 		// 删除 Subdomain 任务相关的数据
 		if err := db.Model(&model.SubDomainResult{}).Where("task_uuid = ?", taskUUID).Delete(&model.SubDomainResult{}).Error; err != nil {
 			return fmt.Errorf("删除 Subdomain 结果失败: %w", err)
@@ -176,5 +176,16 @@ func (ts *TaskService) DeleteTask(db *gorm.DB, taskUUID, userUUID uuid.UUID, aut
 		return fmt.Errorf("删除任务失败: %w", result.Error)
 	}
 
+	return nil
+}
+
+// DeleteTasks 批量任务及其结果
+func (ts *TaskService) DeleteTasks(db *gorm.DB, taskUUIDs []uuid.UUID, userUUID uuid.UUID, authorityId string) (err error) {
+	for _, v := range taskUUIDs {
+		err := ts.DeleteTask(db, v, userUUID, authorityId)
+		if !errors.Is(err, errors.New("任务正在运行中，请等待执行完成。")) && !errors.Is(err, errors.New("没有权限删除任务")) {
+			return err
+		}
+	}
 	return nil
 }

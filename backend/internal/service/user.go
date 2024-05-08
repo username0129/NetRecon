@@ -208,7 +208,6 @@ func (us *UserService) FetchUsers(cdb *gorm.DB, result model.User, info request.
 	if order != "" {
 		allowedOrders := map[string]bool{
 			"uuid":         true,
-			"username":     true,
 			"nickname":     true,
 			"authority_id": true,
 			"enable":       true,
@@ -249,4 +248,17 @@ func (us *UserService) GetUserMailByUUID(userUUID uuid.UUID) (mails []string, er
 	} else {
 		return mails, nil
 	}
+}
+
+// GetUserUUIDByUsername 根据用户名获取 UUID
+func (us *UserService) GetUserUUIDByUsername(username string) (userUUID uuid.UUID, err error) {
+	var uuidStr string
+	if err := global.DB.Model(&model.User{}).Select("uuid").Where("username = ?", username).First(&uuidStr).Error; err != nil {
+		return uuid.Nil, err
+	}
+	userUUID, err = uuid.FromString(uuidStr)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return userUUID, nil
 }

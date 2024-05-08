@@ -13,6 +13,10 @@ type DeleteTaskRequest struct {
 	UUID uuid.UUID `json:"uuid"`
 }
 
+type DeleteTasksRequest struct {
+	UUIDS []uuid.UUID `json:"uuids"`
+}
+
 type FetchTasksRequest struct {
 	PageInfo
 	model.Task

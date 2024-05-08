@@ -12,6 +12,7 @@ import {
 } from '@/apis/user.js'
 import { FormatDate } from '@/utils/format.js'
 import { useUserStore } from '@/stores/modules/user.js'
+import { QuestionFilled } from '@element-plus/icons-vue'
 
 defineOptions({
   name: 'UserIndex'
@@ -300,7 +301,7 @@ function formatAuthority(value) {
 
 <template>
   <div>
-    <warning-bar title="注：没有注释" />
+    <warning-bar title="注：重置密码会生成一串随机密码发送给用户的邮箱" />
     <div class="my-search-box">
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="用户 UUID">
@@ -441,6 +442,18 @@ function formatAuthority(value) {
           </el-select>
         </el-form-item>
         <el-form-item label="用户邮箱:" prop="mail">
+          <template #label
+          >用户邮箱:
+            <el-tooltip placement="right-end">
+              <template #content>
+                邮箱将用于接受重置密码邮件以及任务执行完成通知<br />
+                请保证邮箱有效<br />
+              </template>
+              <el-icon>
+                <QuestionFilled size="24" />
+              </el-icon>
+            </el-tooltip>
+          </template>
           <el-input v-model="addUserFormData.mail" />
         </el-form-item>
         <el-form-item label="启用账户:">

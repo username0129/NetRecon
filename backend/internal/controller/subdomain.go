@@ -118,7 +118,7 @@ func (sc *SubDomainController) PostDeleteResult(c *gin.Context) {
 		return
 	}
 
-	if err := service.PortServiceApp.DeleteResult(req.UUID); err != nil {
+	if err := service.SubDomainServiceApp.DeleteResult(req.UUID); err != nil {
 		global.Logger.Error("PostDeleteResult 运行失败: ", zap.Error(err))
 		common.ResponseOk(c, http.StatusInternalServerError, "目标结果删除失败", nil)
 		return
@@ -126,5 +126,23 @@ func (sc *SubDomainController) PostDeleteResult(c *gin.Context) {
 		common.ResponseOk(c, http.StatusOK, "目标结果删除成功", nil)
 		return
 	}
+}
 
+// PostDeleteResults  批量删除指定结果
+func (sc *SubDomainController) PostDeleteResults(c *gin.Context) {
+	var req request.DeleteSubDomainResultsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.Logger.Error("PostDeleteResults 参数解析错误: ", zap.Error(err))
+		common.ResponseOk(c, http.StatusBadRequest, "参数解析错误", nil)
+		return
+	}
+
+	if err := service.SubDomainServiceApp.DeleteResults(req.UUIDS); err != nil {
+		global.Logger.Error("PostDeleteResults 运行失败: ", zap.Error(err))
+		common.ResponseOk(c, http.StatusInternalServerError, "目标结果删除失败", nil)
+		return
+	} else {
+		common.ResponseOk(c, http.StatusOK, "目标结果删除成功", nil)
+		return
+	}
 }

@@ -107,3 +107,22 @@ func (tc *TaskController) PostDeleteTask(c *gin.Context) {
 		return
 	}
 }
+
+// PostDeleteTasks  批量删除指定结果
+func (tc *TaskController) PostDeleteTasks(c *gin.Context) {
+	var req request.DeleteTasksRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.Logger.Error("PostDeleteTasks 参数解析错误: ", zap.Error(err))
+		common.ResponseOk(c, http.StatusBadRequest, "参数解析错误", nil)
+		return
+	}
+
+	if err := service.TaskServiceApp.DeleteTasks(global.DB, req.UUIDS, util.GetUUID(c), util.GetAuthorityId(c)); err != nil {
+		global.Logger.Error("PostDeleteTasks 运行失败: ", zap.Error(err))
+		common.ResponseOk(c, http.StatusInternalServerError, "目标结果删除失败", nil)
+		return
+	} else {
+		common.ResponseOk(c, http.StatusOK, "目标结果删除成功", nil)
+		return
+	}
+}

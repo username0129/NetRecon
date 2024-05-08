@@ -16,6 +16,9 @@ type DeletePortScanResultRequest struct {
 	UUID uuid.UUID `json:"uuid"`
 }
 
+type DeletePortScanResultsRequest struct {
+	UUIDS []uuid.UUID `json:"uuids"`
+}
 type PortScanRequest struct {
 	Title      string `json:"title"`   // 标题
 	Targets    string `json:"targets"` // 目标 IP

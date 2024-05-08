@@ -27,6 +27,15 @@ export const DeletePortScanResult = (data) => {
   })
 }
 
+// 批量删除端口扫描任务结果
+export const DeletePortScanResults = (data) => {
+  return http({
+    url: '/api/v1/portscan/postdeleteresults',
+    method: 'POST',
+    data: data
+  })
+}
+
 // 删除端口扫描任务结果
 export const ExportPortScanResult = (data) => {
   return http({

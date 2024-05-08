@@ -23,13 +23,16 @@ func (os *OperationService) FetchResult(cdb *gorm.DB, result model.OperationReco
 	db := cdb.Model(&model.OperationRecord{})
 	// 条件查询
 	if result.UserUUID != uuid.Nil {
-		db = db.Where("user_uuid LIKE ?", "%"+result.UserUUID.String()+"%")
+		db = db.Where("user_uuid = ?", result.UserUUID.String())
 	}
 	if result.Method != "" {
-		db = db.Where("method LIKE ?", "%"+result.Method+"%")
+		db = db.Where("method = ?", result.Method)
+	}
+	if result.IP != "" {
+		db = db.Where("ip = ?", result.IP)
 	}
 	if result.Code != "" {
-		db = db.Where("code LIKE ?", "%"+result.Code+"%")
+		db = db.Where("code = ?", result.Code)
 	}
 	if result.Path != "" {
 		db = db.Where("path LIKE ?", "%"+result.Path+"%")
@@ -65,15 +68,15 @@ func (os *OperationService) FetchResult(cdb *gorm.DB, result model.OperationReco
 
 	// 查询数据
 	var resultList []model.OperationRecord
-	if err := db.Limit(limit).Offset(offset).Order(orderStr).Find(&resultList).Error; err != nil {
+	if err := db.Limit(limit).Offset(offset).Order(orderStr).Preload("User").Find(&resultList).Error; err != nil {
 		return nil, 0, err
 	}
 
 	return resultList, total, nil
 }
 
-// DeleteResult 删除端口扫描结果
-func (os *OperationService) DeleteResult(uuid uuid.UUID) error {
+// DeleteResults DeleteResult 删除端口扫描结果
+func (os *OperationService) DeleteResults(uuids []uuid.UUID) error {
 	// 开启事务
 	tx := global.DB.Begin()
 	if tx.Error != nil {
@@ -81,7 +84,7 @@ func (os *OperationService) DeleteResult(uuid uuid.UUID) error {
 	}
 
 	// 直接尝试删除记录
-	result := tx.Where("uuid = ?", uuid).Delete(&model.OperationRecord{})
+	result := tx.Where("uuid in (?)", uuids).Delete(&model.OperationRecord{})
 	if result.Error != nil {
 		tx.Rollback() // 如果删除操作出错，回滚事务
 		return result.Error

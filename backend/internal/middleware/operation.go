@@ -25,15 +25,7 @@ type bodyWriter struct {
 
 // Write 将响应写入缓存和响应体
 func (w *bodyWriter) Write(b []byte) (int, error) {
-	// 仅存储前 1024 个字节
-	remainingSpace := 1024 - w.body.Len()
-	if remainingSpace > 0 {
-		if len(b) > remainingSpace {
-			w.body.Write(b[:remainingSpace])
-		} else {
-			w.body.Write(b)
-		}
-	}
+	w.body.Write(b)
 	return w.ResponseWriter.Write(b)
 }
 
@@ -43,6 +35,17 @@ func OperationRecord() gin.HandlerFunc {
 			return
 		}
 		start := time.Now()
+
+		blackUrl := []string{
+			"/api/v1/route/getroute",
+			"/api/v1/operation/postfetchresult",
+		}
+
+		for _, item := range blackUrl {
+			if strings.Contains(c.Request.RequestURI, item) {
+				return
+			}
+		}
 
 		var body []byte
 		var err error

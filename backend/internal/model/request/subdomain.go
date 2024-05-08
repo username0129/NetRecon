@@ -23,3 +23,7 @@ type FetchSubDomainResultRequest struct {
 type DeleteSubDomainResultRequest struct {
 	UUID uuid.UUID `json:"uuid"`
 }
+
+type DeleteSubDomainResultsRequest struct {
+	UUIDS []uuid.UUID `json:"uuids"`
+}

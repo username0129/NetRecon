@@ -463,3 +463,27 @@ func (ss *SubDomainService) DeleteResult(uuid uuid.UUID) error {
 	// 提交事务
 	return tx.Commit().Error
 }
+
+// DeleteResults 删除端口扫描结果
+func (ss *SubDomainService) DeleteResults(uuids []uuid.UUID) error {
+	// 开启事务
+	tx := global.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	// 直接尝试删除记录
+	result := tx.Where("uuid in (?)", uuids).Delete(&model.SubDomainResult{})
+	if result.Error != nil {
+		tx.Rollback() // 回滚事务
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		tx.Rollback() // 如果没有删除任何记录，也回滚事务
+		return errors.New("没有找到记录")
+	}
+
+	// 提交事务
+	return tx.Commit().Error
+}

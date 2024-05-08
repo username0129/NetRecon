@@ -27,6 +27,14 @@ export const DeleteTask = (data) => {
   })
 }
 
+export const DeleteTasks = (data) => {
+  return http({
+    url: '/api/v1/task/postdeletetasks',
+    method: 'POST',
+    data: data
+  })
+}
+
 // 取消任务
 export const CancelTask = (data) => {
   return http({

@@ -87,6 +87,25 @@ func (pc *PortScanController) PostDeleteResult(c *gin.Context) {
 	}
 }
 
+// PostDeleteResults 删除指定结果
+func (pc *PortScanController) PostDeleteResults(c *gin.Context) {
+	var req request.DeletePortScanResultsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		global.Logger.Error("PostDeleteResult 参数解析错误: ", zap.Error(err))
+		common.ResponseOk(c, http.StatusBadRequest, "参数解析错误", nil)
+		return
+	}
+
+	if err := service.PortServiceApp.DeleteResults(req.UUIDS); err != nil {
+		global.Logger.Error("PostDeleteResult 运行失败: ", zap.Error(err))
+		common.ResponseOk(c, http.StatusInternalServerError, "目标结果删除失败", nil)
+		return
+	} else {
+		common.ResponseOk(c, http.StatusOK, "目标结果删除成功", nil)
+		return
+	}
+}
+
 func (pc *PortScanController) PostExportData(c *gin.Context) {
 	var req request.DeletePortScanResultRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
