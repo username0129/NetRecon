@@ -155,7 +155,7 @@ func (ss *SubDomainService) Resolution(ctx context.Context, domain string, timeo
 		return nil, nil
 	}
 
-	region, err := util.Ip2region("121.37.217.131")
+	region, err := util.Ip2region(ips[0])
 	if err != nil {
 		fmt.Println(err)
 		return

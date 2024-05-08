@@ -39,12 +39,7 @@ func OperationRecord() gin.HandlerFunc {
 		blackUrl := []string{
 			"/api/v1/route/getroute",
 			"/api/v1/operation/postfetchresult",
-		}
-
-		for _, item := range blackUrl {
-			if strings.Contains(c.Request.RequestURI, item) {
-				return
-			}
+			"exportdata",
 		}
 
 		var body []byte
@@ -85,6 +80,14 @@ func OperationRecord() gin.HandlerFunc {
 
 		duration := time.Since(start).Milliseconds() // 记录毫秒数
 
+		resp := writer.body.String()
+
+		for _, item := range blackUrl {
+			if strings.Contains(c.Request.RequestURI, item) {
+				resp = "{}"
+			}
+		}
+
 		record := model.OperationRecord{
 			UUID:         uuid.Must(uuid.NewV4()),
 			IP:           c.ClientIP(),
@@ -96,7 +99,7 @@ func OperationRecord() gin.HandlerFunc {
 			ErrorMessage: c.Errors.ByType(gin.ErrorTypePrivate).String(),
 			Duration:     strconv.FormatInt(duration, 10),
 			Code:         strconv.Itoa(writer.Status()),
-			Resp:         writer.body.String(),
+			Resp:         resp,
 		}
 
 		if err := record.InsertData(global.DB); err != nil {

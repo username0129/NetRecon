@@ -1,10 +1,8 @@
 package config
 
 import (
-	"fmt"
 	"github.com/robfig/cron/v3"
 	"sync"
-	"time"
 )
 
 // CronManager 用于管理和存储所有cron任务
@@ -55,27 +53,4 @@ func (m *CronManager) Stop() {
 // ListTasks 列出所有任务
 func (m *CronManager) ListTasks() map[cron.EntryID]string {
 	return m.tasks
-}
-
-// RestartTask 重新启动指定ID的任务
-func (m *CronManager) RestartTask(id cron.EntryID) (cron.EntryID, error) {
-	m.tasksLock.Lock()
-	spec, exists := m.tasks[id]
-	if !exists {
-		m.tasksLock.Unlock()
-		return 0, fmt.Errorf("定时任务 ID %v 未找到 ", id)
-	}
-	m.tasksLock.Unlock()
-
-	// 先删除旧任务
-	m.RemoveTask(id)
-
-	// 添加新任务
-	newID, err := m.AddTask(spec, func() {
-		fmt.Println("任务重新规则: ", time.Now(), ", 运行频率:", spec)
-	})
-	if err != nil {
-		return 0, err
-	}
-	return newID, nil
 }

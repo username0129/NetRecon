@@ -5,11 +5,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { toSQLLine } from '@/utils/stringFun.js'
 import { FofaExportData, FofaSearch } from '@/apis/fofa.js'
 
-
 defineOptions({
   name: 'FofaIndex'
 })
-
 
 const selectedRows = ref([])
 const page = ref(1)
@@ -148,7 +146,6 @@ async function exportData() {
     }
   })
 }
-
 </script>
 
 <template>
@@ -157,7 +154,11 @@ async function exportData() {
     <div class="my-search-box">
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="FOFA 查询语句">
-          <el-input style="min-width: 600px" v-model="searchInfo.query" placeholder="FOFA 查询语句" />
+          <el-input
+            style="min-width: 600px"
+            v-model="searchInfo.query"
+            placeholder="FOFA 查询语句"
+          />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
