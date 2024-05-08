@@ -21,7 +21,6 @@ const searchInfo = ref({
   uuid: ref(route.query.uuid || null)
 })
 
-
 // 重置
 async function onReset() {
   searchInfo.value = {}
@@ -108,7 +107,7 @@ async function deleteSelectedItems() {
     type: 'warning'
   }).then(async () => {
     const uuids = []
-    selectedRows.value.forEach(item => {
+    selectedRows.value.forEach((item) => {
       uuids.push(item.uuid)
     })
     let loadingInstance = ElLoading.service({

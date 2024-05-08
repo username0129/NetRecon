@@ -1,6 +1,5 @@
 import http from '@/utils/http'
 
-
 // 获取端口扫描任务执行结果
 export const FetchOperationResult = (data) => {
   return http({

@@ -4,13 +4,11 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 import {
-  DeletePortScanResult,
   DeletePortScanResults,
   ExportPortScanResult,
   FetchPortScanResult
 } from '@/apis/portscan.js'
 import { toSQLLine } from '@/utils/stringFun.js'
-import { DeleteOperationResults } from '@/apis/operation.js'
 
 const route = useRoute()
 const taskUUID = ref(route.query.uuid || '')
@@ -112,7 +110,7 @@ async function deleteSelectedItems() {
     type: 'warning'
   }).then(async () => {
     const uuids = []
-    selectedRows.value.forEach(item => {
+    selectedRows.value.forEach((item) => {
       uuids.push(item.uuid)
     })
     let loadingInstance = ElLoading.service({
@@ -156,7 +154,7 @@ async function exportData() {
     if (response.status === 200) {
       // 从响应头中提取文件名
       const contentDisposition = response.headers['content-disposition']
-      let filename = 'default.csv'  // 默认文件名
+      let filename = 'default.csv' // 默认文件名
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)*"/)
         if (filenameMatch) {
@@ -195,7 +193,6 @@ async function exportData() {
     })
   }
 }
-
 </script>
 
 <template>
@@ -225,7 +222,7 @@ async function exportData() {
         <el-button icon="Delete" :disabled="selectedRows.length === 0" @click="deleteSelectedItems">
           批量删除
         </el-button>
-        <el-button :disabled="tableData.length===0" icon="Share" @click="exportData">
+        <el-button :disabled="tableData.length === 0" icon="Share" @click="exportData">
           导出所有数据
         </el-button>
       </div>

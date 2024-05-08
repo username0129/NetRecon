@@ -443,7 +443,7 @@ function formatAuthority(value) {
         </el-form-item>
         <el-form-item label="用户邮箱:" prop="mail">
           <template #label
-          >用户邮箱:
+            >用户邮箱:
             <el-tooltip placement="right-end">
               <template #content>
                 邮箱将用于接受重置密码邮件以及任务执行完成通知<br />

@@ -26,7 +26,7 @@ http.interceptors.request.use(
 http.interceptors.response.use(
   (response) => {
     if (response.config.responseType === 'blob') {
-      return response  // 返回完整的响应对象
+      return response // 返回完整的响应对象
     }
     if (response.status === 200) {
       if (response.data.code === 401) {

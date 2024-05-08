@@ -416,38 +416,37 @@ async function deleteAsset(row) {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
-      let loadingInstance = ElLoading.service({
-        lock: true,
-        fullscreen: true,
-        text: '正在执行删除，请稍候...',
-        spinner: 'loading'
-      })
-      try {
-        const response = await DeleteAsset({ uuid: row.uuid })
-        if (response.code === 200) {
-          ElMessage({
-            type: 'success',
-            message: '删除成功'
-          })
-        } else {
-          ElMessage({
-            type: 'error',
-            message: response.msg,
-            showClose: true
-          })
-        }
-      } catch (error) {
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      fullscreen: true,
+      text: '正在执行删除，请稍候...',
+      spinner: 'loading'
+    })
+    try {
+      const response = await DeleteAsset({ uuid: row.uuid })
+      if (response.code === 200) {
+        ElMessage({
+          type: 'success',
+          message: '删除成功'
+        })
+      } else {
         ElMessage({
           type: 'error',
-          message: '网络错误或数据处理异常',
+          message: response.msg,
           showClose: true
         })
-      } finally {
-        loadingInstance.close()
-        await getTableData()
       }
+    } catch (error) {
+      ElMessage({
+        type: 'error',
+        message: '网络错误或数据处理异常',
+        showClose: true
+      })
+    } finally {
+      loadingInstance.close()
+      await getTableData()
     }
-  )
+  })
 }
 
 const options = [
@@ -548,10 +547,10 @@ function updateDictType() {
             <el-button icon="Edit" @click="showUpdateAssetDialog(scope.row)">修改</el-button>
             <el-button type="danger" icon="Delete" @click="deleteAsset(scope.row)">删除</el-button>
             <el-button icon="Location" @click="showAddSubdomainDialog(scope.row)"
-            >添加站点监控
+              >添加站点监控
             </el-button>
             <el-button icon="MagicStick" @click="showAddPortScanDialog(scope.row)"
-            >添加 IP 监控
+              >添加 IP 监控
             </el-button>
           </template>
         </el-table-column>

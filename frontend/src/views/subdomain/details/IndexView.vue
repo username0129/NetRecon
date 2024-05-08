@@ -6,11 +6,9 @@ import { ElLoading, ElMessage, ElMessageBox } from 'element-plus'
 import { toSQLLine } from '@/utils/stringFun.js'
 import {
   FetchSubdomainResult,
-  DeleteSubdomainResult,
   ExportSubdomainResult,
   DeleteSubdomainResults
 } from '@/apis/subdomain.js'
-import { DeletePortScanResults, ExportPortScanResult } from '@/apis/portscan.js'
 
 const route = useRoute()
 const taskUUID = ref(route.query.uuid || '')
@@ -112,7 +110,7 @@ async function deleteSelectedItems() {
     type: 'warning'
   }).then(async () => {
     const uuids = []
-    selectedRows.value.forEach(item => {
+    selectedRows.value.forEach((item) => {
       uuids.push(item.uuid)
     })
     let loadingInstance = ElLoading.service({
@@ -155,7 +153,7 @@ async function exportData() {
     if (response.status === 200) {
       // 从响应头中提取文件名
       const contentDisposition = response.headers['content-disposition']
-      let filename = 'default.csv'  // 默认文件名
+      let filename = 'default.csv' // 默认文件名
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)*"/)
         if (filenameMatch) {
@@ -230,7 +228,7 @@ function formatDate(value) {
         <el-button icon="Delete" :disabled="selectedRows.length === 0" @click="deleteSelectedItems">
           批量删除
         </el-button>
-        <el-button :disabled="tableData.length===0" icon="Share" @click="exportData">
+        <el-button :disabled="tableData.length === 0" icon="Share" @click="exportData">
           导出所有数据
         </el-button>
       </div>
@@ -274,8 +272,20 @@ function formatDate(value) {
           prop="title"
         />
         <el-table-column align="left" label="CNAME 解析记录" min-width="200" prop="cname" />
-        <el-table-column align="left" label="IP 解析记录" min-width="300" sortable="custom" prop="ips" />
-        <el-table-column align="left" label="扫描时间" min-width="200" sortable="custom" prop="CreatedAt">
+        <el-table-column
+          align="left"
+          label="IP 解析记录"
+          min-width="300"
+          sortable="custom"
+          prop="ips"
+        />
+        <el-table-column
+          align="left"
+          label="扫描时间"
+          min-width="200"
+          sortable="custom"
+          prop="CreatedAt"
+        >
           <template #default="scope">
             {{ formatDate(scope.row.CreatedAt) }}
           </template>

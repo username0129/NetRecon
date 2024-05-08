@@ -356,52 +356,51 @@ async function deleteSelectedItems() {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(async () => {
-      const uuids = []
-      selectedRows.value.forEach(item => {
-        if (item.status !== '1') {
-          uuids.push(item.uuid)
-        }
-      })
-      if (uuids.length === 0) {
-        ElMessage({
-          type: 'error',
-          message: '所有任务均在运行中，无法删除',
-          showClose: true
-        })
-        return
+    const uuids = []
+    selectedRows.value.forEach((item) => {
+      if (item.status !== '1') {
+        uuids.push(item.uuid)
       }
-      let loadingInstance = ElLoading.service({
-        lock: true,
-        fullscreen: true,
-        text: '正在执行批量删除，请稍候...',
-        spinner: 'loading'
+    })
+    if (uuids.length === 0) {
+      ElMessage({
+        type: 'error',
+        message: '所有任务均在运行中，无法删除',
+        showClose: true
       })
-      try {
-        const response = await DeleteTasks({ uuids: uuids })
-        if (response.code === 200) {
-          ElMessage({
-            type: 'success',
-            message: '删除成功'
-          })
-        } else {
-          ElMessage({
-            type: 'error',
-            message: response.msg,
-            showClose: true
-          })
-        }
-      } catch (error) {
-        ElMessage({
-          type: 'error',
-          message: '网络错误或数据处理异常',
-          showClose: true
-        })
-      } finally {
-        loadingInstance.close()
-        await getTableData()
-      }
+      return
     }
-  )
+    let loadingInstance = ElLoading.service({
+      lock: true,
+      fullscreen: true,
+      text: '正在执行批量删除，请稍候...',
+      spinner: 'loading'
+    })
+    try {
+      const response = await DeleteTasks({ uuids: uuids })
+      if (response.code === 200) {
+        ElMessage({
+          type: 'success',
+          message: '删除成功'
+        })
+      } else {
+        ElMessage({
+          type: 'error',
+          message: response.msg,
+          showClose: true
+        })
+      }
+    } catch (error) {
+      ElMessage({
+        type: 'error',
+        message: '网络错误或数据处理异常',
+        showClose: true
+      })
+    } finally {
+      loadingInstance.close()
+      await getTableData()
+    }
+  })
 }
 </script>
 
@@ -490,14 +489,14 @@ async function deleteSelectedItems() {
               :disabled="scope.row.status !== '1'"
               icon="Close"
               @click="cancelTask(scope.row)"
-            >取消
+              >取消
             </el-button>
             <el-button
               type="danger"
               :disabled="scope.row.status === '1'"
               icon="Delete"
               @click="deleteTask(scope.row)"
-            >删除
+              >删除
             </el-button>
           </template>
         </el-table-column>
@@ -538,7 +537,7 @@ async function deleteSelectedItems() {
 
         <el-form-item prop="targets">
           <template #label
-          >IP:
+            >IP:
             <el-tooltip placement="right-end">
               <template #content>
                 目标支持换行分割,IP支持如下格式:<br />
