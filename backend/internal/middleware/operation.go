@@ -36,7 +36,11 @@ func OperationRecord() gin.HandlerFunc {
 		}
 		start := time.Now()
 
-		blackUrl := []string{
+		reqUrl := []string{
+			"/api/v1/upload/postuploadfile",
+		}
+
+		respUrl := []string{
 			"/api/v1/route/getroute",
 			"/api/v1/operation/postfetchresult",
 			"exportdata",
@@ -82,9 +86,15 @@ func OperationRecord() gin.HandlerFunc {
 
 		resp := writer.body.String()
 
-		for _, item := range blackUrl {
+		for _, item := range respUrl {
 			if strings.Contains(c.Request.RequestURI, item) {
 				resp = "{}"
+			}
+		}
+
+		for _, item := range reqUrl {
+			if strings.Contains(c.Request.RequestURI, item) {
+				body = nil
 			}
 		}
 

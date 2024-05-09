@@ -117,6 +117,14 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/fofa/postfofasearch", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/fofa/postexportdata", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/fofa/postexportdata", V2: "POST"},
+
+			// 图片管理
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/upload/postuploadfile", V2: "POST"}, // 文件上传
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/upload/postuploadfile", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/upload/postdeletefile", V2: "POST"}, // 删除文件
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/upload/postdeletefile", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/upload/postfetchfiles", V2: "POST"}, // 获取文件列表
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/upload/postfetchfiles", V2: "POST"},
 		},
 	},
 	{
@@ -133,6 +141,7 @@ var initialDatas = []InitialData{
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "计划任务", Icon: "Coin"}, Name: "Cron", Path: "cron", Component: "views/cron/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Hidden: true, Title: "个人信息", Icon: "message"}, Name: "Person", Path: "person", Component: "views/person/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
 			&model.Route{ParentId: 0, Meta: model.Meta{Title: "FOFA 任务", Icon: "Rank"}, Name: "Fofa", Path: "Fofa", Component: "views/fofa/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}, {AuthorityName: "普通用戶"}}},
+			&model.Route{ParentId: 0, Meta: model.Meta{Title: "图片管理", Icon: "Notebook"}, Name: "Upload", Path: "upload", Component: "views/upload/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
 
 			// 管理员菜单
 			&model.Route{ParentId: 2, Meta: model.Meta{Title: "用户管理", Icon: "coordinate"}, Name: "User", Path: "user", Component: "views/admin/user/IndexView.vue", Authorities: []model.Authority{{AuthorityName: "系统管理员"}}},
@@ -188,6 +197,12 @@ var initialDatas = []InitialData{
 		TableName: "sys_operation_records",
 		Data: []interface{}{
 			&model.OperationRecord{},
+		},
+	},
+	{
+		TableName: "sys_files",
+		Data: []interface{}{
+			&model.File{},
 		},
 	},
 }

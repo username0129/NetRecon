@@ -11,10 +11,6 @@ type AddAssetRequest struct {
 	IPs     string `json:"ips"`
 }
 
-type DeleteAssetRequest struct {
-	UUID uuid.UUID `json:"uuid"`
-}
-
 type UpdateAssetRequest struct {
 	UUID    uuid.UUID `json:"uuid"`
 	Title   string    `json:"title"`

@@ -16,6 +16,7 @@ type UpdateUserRequest struct {
 	UUID        uuid.UUID `json:"uuid"`
 	Username    string    `json:"username"`
 	Nickname    string    `json:"nickname"`
+	Avatar      string    `json:"avatar"`
 	AuthorityId string    `json:"authorityId"`
 	Mail        string    `json:"mail"`
 	Enable      string    `json:"enable"`
@@ -25,20 +26,13 @@ type AddUserRequest struct {
 	Username    string `json:"username"`
 	Password    string `json:"password"`
 	Nickname    string `json:"nickname"`
+	Avatar      string `json:"avatar"`
 	AuthorityId string `json:"authorityId"`
 	Mail        string `json:"mail"`
 	Enable      string `json:"enable"`
 }
 
-type DeleteUserRequest struct {
-	UUID uuid.UUID `json:"uuid"`
-}
-
 type UpdatePasswordRequest struct {
 	Password    string `json:"password"`
 	NewPassword string `json:"newPassword"`
-}
-
-type ResetPasswordRequest struct {
-	UUID uuid.UUID `json:"uuid"`
 }

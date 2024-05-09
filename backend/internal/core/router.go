@@ -13,6 +13,8 @@ func InitializeRout() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery()) // 避免 panic 导致服务器停止
 
+	r.Static("/uploads", "./uploads")
+
 	_ = r.SetTrustedProxies(nil) // 设置信任网络 nil 为不计算，避免性能消耗
 	setupRoutes(r, getControllerList())
 
@@ -34,6 +36,7 @@ func getControllerList() []interface{} {
 		&controller.CronController{},
 		&controller.OperationController{},
 		&controller.FofaController{},
+		&controller.UploadController{},
 	}
 }
 

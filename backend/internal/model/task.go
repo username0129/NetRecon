@@ -10,7 +10,7 @@ import (
 
 type Task struct {
 	gorm.Model
-	UUID        uuid.UUID          `json:"uuid" gorm:"uniqueIndex;comment:任务 UUID;"`
+	UUID        uuid.UUID          `json:"uuid" gorm:"index;comment:任务 UUID;"`
 	CronID      int                `json:"cronID" gorm:"index;comment:计划任务 ID;"`
 	CreatorUUID uuid.UUID          `json:"creatorUUID" gorm:"index;comment:创建者 UUID;"`            // 创建者 UUID
 	Creator     User               `json:"creator" gorm:"foreignKey:CreatorUUID;references:UUID"` // 创建者详细信息

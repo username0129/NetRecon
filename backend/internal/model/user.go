@@ -12,6 +12,7 @@ type User struct {
 	Username    string    `json:"username" gorm:"index;comment:用户登录名;"`
 	Password    string    `json:"-" gorm:"comment:用户登录密码;"`
 	Nickname    string    `json:"nickname" gorm:"comment:用户昵称;"`
+	Avatar      string    `json:"avatar" gorm:"用户头像 URL"`
 	AuthorityId string    `json:"authorityId" gorm:"default:1;comment:用户身份 ID;"`
 	Mail        string    `json:"mail" gorm:"comment:邮箱;"`
 	Enable      string    `json:"enable" gorm:"default:1;comment:用户状态 1 => 正常 2 => 冻结;"`

@@ -13,10 +13,14 @@ import {
 import { FormatDate } from '@/utils/format.js'
 import { useUserStore } from '@/stores/modules/user.js'
 import { QuestionFilled } from '@element-plus/icons-vue'
+import ShowImgIndex from '@/components/showimg/IndexView.vue'
+import AvatarIndex from '@/components/avatar/IndexView.vue'
 
 defineOptions({
   name: 'UserIndex'
 })
+
+const path = 'http://103.228.64.175:8081/'
 
 const dialogFlag = ref('add')
 
@@ -33,6 +37,7 @@ const addUserFormData = ref({
   password: '',
   nickname: '',
   mail: '',
+  avatar: '',
   authorityId: '2',
   enable: '2'
 })
@@ -129,6 +134,7 @@ function initForm() {
     password: '',
     nickname: '',
     mail: '',
+    avatar: '',
     authorityId: '2',
     enable: '2'
   }
@@ -342,7 +348,7 @@ function formatAuthority(value) {
 
     <div class="my-table-box">
       <div class="my-btn-list">
-        <el-button type="primary" icon="plus" @click="showAddUserDialog"> 添加用户 </el-button>
+        <el-button type="primary" icon="plus" @click="showAddUserDialog"> 添加用户</el-button>
       </div>
 
       <el-table
@@ -350,6 +356,15 @@ function formatAuthority(value) {
         @sort-change="handleSortChange"
         :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
       >
+        <el-table-column align="left" label="头像" min-width="100">
+          <template #default="scope">
+            <ShowImgIndex
+              style="margin-top:4px"
+              img-type="avatar"
+              :img-src="scope.row.avatar"
+            />
+          </template>
+        </el-table-column>
         <el-table-column fixed label="用户 UUID" min-width="250" sortable="custom" prop="uuid" />
         <el-table-column label="用户名" min-width="130" sortable="custom" prop="username" />
         <el-table-column label="昵称" min-width="130" sortable="custom" prop="nickname" />
@@ -378,14 +393,14 @@ function formatAuthority(value) {
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" min-width="250" fixed="right">
+        <el-table-column fixed="right" label="操作" min-width="300">
           <template #default="scope">
-            <el-button icon="Edit" @click="showUpdateUserDialog(scope.row)">编辑 </el-button>
+            <el-button icon="Edit" @click="showUpdateUserDialog(scope.row)">编辑</el-button>
             <el-button type="danger" icon="Delete" @click="deleteUserInfo(scope.row)"
-              >删除
+            >删除
             </el-button>
             <el-button type="warning" icon="RefreshRight" @click="resetPassword(scope.row)"
-              >重置密码
+            >重置密码
             </el-button>
           </template>
         </el-table-column>
@@ -443,7 +458,7 @@ function formatAuthority(value) {
         </el-form-item>
         <el-form-item label="用户邮箱:" prop="mail">
           <template #label
-            >用户邮箱:
+          >用户邮箱:
             <el-tooltip placement="right-end">
               <template #content>
                 邮箱将用于接受重置密码邮件以及任务执行完成通知<br />
@@ -466,9 +481,25 @@ function formatAuthority(value) {
             inactive-text="否"
           />
         </el-form-item>
+        <el-form-item label="用户头像:" label-width="80px">
+          <div>
+            <img
+              v-if="addUserFormData.avatar"
+              alt="头像"
+              class="header-img-box"
+              :src="path + addUserFormData.avatar"
+              @click="addUserFormData.avatar=''"
+            >
+            <AvatarIndex v-else :target="addUserFormData" :target-key="'avatar'" />
+          </div>
+        </el-form-item>
       </el-form>
     </el-drawer>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.header-img-box {
+  @apply w-52 h-52 border border-solid border-gray-300 rounded-xl flex justify-center items-center cursor-pointer;
+}
+</style>

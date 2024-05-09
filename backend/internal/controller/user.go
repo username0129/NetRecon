@@ -35,7 +35,7 @@ func (uc *UserController) GetUserInfo(c *gin.Context) {
 }
 
 func (uc *UserController) PostResetPassword(c *gin.Context) {
-	var req request.ResetPasswordRequest
+	var req request.UUIDRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostResetPassword 参数解析错误: ", zap.Error(err))
@@ -66,6 +66,7 @@ func (uc *UserController) PostUpdateUserInfo(c *gin.Context) {
 		Username:    req.Username,
 		Nickname:    req.Nickname,
 		Mail:        req.Mail,
+		Avatar:      req.Avatar,
 		AuthorityId: req.AuthorityId,
 		Enable:      req.Enable,
 	}
@@ -125,6 +126,7 @@ func (uc *UserController) PostAddUserInfo(c *gin.Context) {
 		Password:    req.Password,
 		Nickname:    req.Nickname,
 		Mail:        req.Mail,
+		Avatar:      req.Avatar,
 		AuthorityId: req.AuthorityId,
 		Enable:      req.Enable,
 	}
@@ -141,7 +143,7 @@ func (uc *UserController) PostAddUserInfo(c *gin.Context) {
 
 // PostDeleteUserInfo 删除用户数据
 func (uc *UserController) PostDeleteUserInfo(c *gin.Context) {
-	var req request.DeleteUserRequest
+	var req request.UUIDRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostFetchUsers 参数解析错误: ", zap.Error(err))

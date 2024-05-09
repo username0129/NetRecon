@@ -34,7 +34,7 @@ func (ac *AssetController) PostAddAsset(c *gin.Context) {
 }
 
 func (ac *AssetController) PostDeleteAsset(c *gin.Context) {
-	var req request.DeleteAssetRequest
+	var req request.UUIDRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostDeleteAsset 参数解析错误: ", zap.Error(err))
