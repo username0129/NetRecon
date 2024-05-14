@@ -4,18 +4,19 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
+	"time"
 )
 
 type User struct {
-	gorm.Model
-	UUID        uuid.UUID `json:"uuid" gorm:"uniqueIndex;comment:用户 UUID;"`
+	UUID        uuid.UUID `json:"uuid" gorm:"primarykey;index;not null;comment:唯一标识符"`
 	Username    string    `json:"username" gorm:"index;comment:用户登录名;"`
 	Password    string    `json:"-" gorm:"comment:用户登录密码;"`
 	Nickname    string    `json:"nickname" gorm:"comment:用户昵称;"`
-	Avatar      string    `json:"avatar" gorm:"用户头像 URL"`
-	AuthorityId string    `json:"authorityId" gorm:"default:1;comment:用户身份 ID;"`
+	Avatar      string    `json:"avatar" gorm:"comment:用户头像路径"`
+	AuthorityId string    `json:"authorityId" gorm:"default:1;comment:用户角色编号;"`
 	Mail        string    `json:"mail" gorm:"comment:邮箱;"`
 	Enable      string    `json:"enable" gorm:"default:1;comment:用户状态 1 => 正常 2 => 冻结;"`
+	CreatedAt   time.Time `json:"createdAt" gorm:"autoCreateTime;comment:创建时间"`
 }
 
 func (*User) TableName() string {

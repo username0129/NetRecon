@@ -178,7 +178,7 @@ async function exportData() {
         :data="tableData"
         @sort-change="handleSortChange"
         @selection-change="handleSelectionChange"
-        :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
+        :default-sort="{ prop: 'createdAt', order: 'descending' }"
       >
         <el-table-column fixed label="URL" min-width="350" prop="url" />
         <el-table-column label="标题" min-width="150" prop="title" />

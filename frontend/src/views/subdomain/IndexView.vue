@@ -384,7 +384,7 @@ async function deleteSelectedItems() {
         :data="tableData"
         @sort-change="handleSortChange"
         @selection-change="handleSelectionChange"
-        :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
+        :default-sort="{ prop: 'createdAt', order: 'descending' }"
       >
         <el-table-column type="selection" width="55" />
         <el-table-column fixed label="任务 UUID" min-width="250" sortable="custom" prop="uuid">
@@ -413,9 +413,9 @@ async function deleteSelectedItems() {
           </template>
         </el-table-column>
         <el-table-column label="创建者" min-width="150" sortable="custom" prop="creator.username" />
-        <el-table-column label="创建时间" min-width="150" sortable="custom" prop="CreatedAt">
+        <el-table-column label="创建时间" min-width="150" sortable="custom" prop="createdAt">
           <template #default="scope">
-            {{ formatDate(scope.row.CreatedAt) }}
+            {{ formatDate(scope.row.createdAt) }}
           </template>
         </el-table-column>
         <el-table-column label="操作" min-width="200" fixed="right">

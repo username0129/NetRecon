@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"backend/internal/model"
 	"backend/internal/model/common"
+	"backend/internal/model/response"
 	"errors"
 	"github.com/allegro/bigcache/v3"
 	"github.com/gin-gonic/gin"
@@ -46,7 +46,7 @@ func (cc *CaptchaController) GetCaptcha(c *gin.Context) {
 		return
 	}
 
-	common.ResponseOk(c, http.StatusOK, "验证码获取成功", model.CaptchaResponse{
+	common.ResponseOk(c, http.StatusOK, "验证码获取成功", response.CaptchaResponse{
 		CaptchaId:     id,
 		CaptchaImg:    b64s,
 		CaptchaLength: global.Config.Captcha.Long,

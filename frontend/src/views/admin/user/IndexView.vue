@@ -354,7 +354,7 @@ function formatAuthority(value) {
       <el-table
         :data="tableData"
         @sort-change="handleSortChange"
-        :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
+        :default-sort="{ prop: 'createdAt', order: 'descending' }"
       >
         <el-table-column align="left" label="头像" min-width="100">
           <template #default="scope">
@@ -387,9 +387,9 @@ function formatAuthority(value) {
             />
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" min-width="150" sortable="custom" prop="CreatedAt">
+        <el-table-column label="创建时间" min-width="150" sortable="custom" prop="createdAt">
           <template #default="scope">
-            {{ FormatDate(scope.row.CreatedAt) }}
+            {{ FormatDate(scope.row.createdAt) }}
           </template>
         </el-table-column>
 

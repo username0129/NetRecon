@@ -36,29 +36,17 @@ func OperationRecord() gin.HandlerFunc {
 		}
 		start := time.Now()
 
-		reqUrl := []string{
-			"/api/v1/upload/postuploadfile",
-		}
-
-		respUrl := []string{
-			"/api/v1/route/getroute",
-			"/api/v1/operation/postfetchresult",
-			"exportdata",
-		}
-
 		var body []byte
 		var err error
 		// 如果使用其他方式如 POST，获取请求体中的内容
 		if c.Request.Method != http.MethodGet {
-			var err error
 			body, err = io.ReadAll(c.Request.Body)
 			if err != nil {
 				global.Logger.Error("读取请求体失败: ", zap.Error(err))
 				return
-			} else {
-				// 重新设置读取指针
-				c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 			}
+			// 重新设置读取指针
+			c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 		} else {
 			// 如果使用 GET 方式，则获取 URL 中的内容
 			query, _ := url.QueryUnescape(c.Request.URL.RawQuery)
@@ -86,30 +74,26 @@ func OperationRecord() gin.HandlerFunc {
 
 		resp := writer.body.String()
 
-		for _, item := range respUrl {
-			if strings.Contains(c.Request.RequestURI, item) {
-				resp = "{}"
-			}
+		// 检查请求体和响应体的长度
+		if len(body) > 2048 {
+			body = []byte(`{"error": "长度超出保存限制"}`)
 		}
 
-		for _, item := range reqUrl {
-			if strings.Contains(c.Request.RequestURI, item) {
-				body = nil
-			}
+		if len(resp) > 2048 {
+			resp = `{"error": "长度超出保存限制"}`
 		}
 
 		record := model.OperationRecord{
-			UUID:         uuid.Must(uuid.NewV4()),
-			IP:           c.ClientIP(),
-			Method:       c.Request.Method,
-			Path:         c.Request.URL.Path,
-			Agent:        c.Request.UserAgent(),
-			Body:         string(body),
-			UserUUID:     util.GetUUID(c),
-			ErrorMessage: c.Errors.ByType(gin.ErrorTypePrivate).String(),
-			Duration:     strconv.FormatInt(duration, 10),
-			Code:         strconv.Itoa(writer.Status()),
-			Resp:         resp,
+			UUID:     uuid.Must(uuid.NewV4()),
+			IP:       c.ClientIP(),
+			Method:   c.Request.Method,
+			Path:     c.Request.URL.Path,
+			Agent:    c.Request.UserAgent(),
+			Body:     string(body),
+			UserUUID: util.GetUUID(c),
+			Duration: strconv.FormatInt(duration, 10),
+			Code:     strconv.Itoa(writer.Status()),
+			Resp:     resp,
 		}
 
 		if err := record.InsertData(global.DB); err != nil {

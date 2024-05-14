@@ -6,8 +6,8 @@ import (
 )
 
 type Authority struct {
-	gorm.Model
-	AuthorityName string  `json:"authorityName" gorm:"comment:角色名称"`
+	ID            uint    `json:"id" gorm:"primarykey;index;not null;autoIncrement"`
+	AuthorityName string  `json:"authorityName" gorm:"not null;comment:角色名称"`
 	Routes        []Route `json:"routes" gorm:"many2many:sys_authority_route;"`
 }
 

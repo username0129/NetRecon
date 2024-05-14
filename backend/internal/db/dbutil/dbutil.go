@@ -152,17 +152,6 @@ var initialDatas = []InitialData{
 		},
 	},
 	{
-		TableName: "sys_apis",
-		Data: []interface{}{
-			// 基础 API
-			&model.Api{Path: "/api/v1/base/gethealth", Description: "获取服务运行状态", Group: "base", Method: "GET"},
-			// 初始化 API
-			&model.Api{Path: "/api/v1/init/postinit", Description: "初始化数据库", Group: "init", Method: "POST"},
-			// 用户认证 API
-			&model.Api{Path: "/api/v1/auth/postlogin", Description: "用户登录", Group: "auth", Method: "POST"},
-		},
-	},
-	{
 		TableName: "sys_users",
 		Data: []interface{}{
 			&model.User{Username: "admin", Password: util.BcryptHash("123456"), Nickname: "系统管理员", AuthorityId: "1", Mail: "q.nah@outlook.com"},

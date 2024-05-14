@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
+	"time"
 )
 
 type SubDomainResult struct {
-	gorm.Model
-	UUID      uuid.UUID `json:"uuid" gorm:"index;comment:'UUID';"`
-	TaskUUID  uuid.UUID `json:"taskUUID" gorm:"comment:'所属任务 UUID'"`
-	Task      Task      `json:"task" gorm:"foreignKey:TaskUUID;references:UUID"` // 创建者详细信息
-	SubDomain string    `json:"subDomain" gorm:"comment:'子域名'"`
-	Title     string    `json:"title" gorm:"comment:'网站标题'"`
-	Cname     string    `json:"cname" gorm:"comment:'CNAME 解析'"`
-	Ips       string    `json:"ips" gorm:"comment:'A 解析'"`
-	Code      int       `json:"code" gorm:"comment:'响应码'"`
-	Notes     string    `json:"notes" gorm:"comment:'备注'"`
+	UUID      uuid.UUID `json:"uuid" gorm:"primarykey;index;not null;comment:唯一标识符;"`
+	TaskUUID  uuid.UUID `json:"taskUUID" gorm:"index;not null;comment:所属任务标识符"`
+	Task      Task      `json:"task" gorm:"foreignKey:TaskUUID;references:UUID;comment:任务信息"`
+	SubDomain string    `json:"subDomain" gorm:"index;not null;comment:子域名"`
+	Title     string    `json:"title" gorm:"comment:网站标题"`
+	Cname     string    `json:"cname" gorm:"comment:CNAME 解析"`
+	Ips       string    `json:"ips" gorm:"comment:IP 地址"`
+	Code      int       `json:"code" gorm:"comment:响应码"`
+	Notes     string    `json:"notes" gorm:"comment:备注"`
+	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime;comment:创建时间"`
 }
 
 func (*SubDomainResult) TableName() string {

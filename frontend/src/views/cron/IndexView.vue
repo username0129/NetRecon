@@ -310,7 +310,7 @@ async function handleSelectionChange(selection) {
         :data="tableData"
         @sort-change="handleSortChange"
         @selection-change="handleSelectionChange"
-        :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
+        :default-sort="{ prop: 'createdAt', order: 'descending' }"
       >
         <el-table-column fixed label="任务 UUID" min-width="300" sortable="custom" prop="uuid">
           <template v-slot="scope">
@@ -365,9 +365,9 @@ async function handleSelectionChange(selection) {
         <el-table-column label="创建者" min-width="150" prop="creator.username" />
         <el-table-column label="上一次运行日期" min-width="200" sortable="custom" prop="lastTime" />
         <el-table-column label="下一次运行日期" min-width="200" sortable="custom" prop="nextTime" />
-        <el-table-column label="创建时间" min-width="200" sortable="custom" prop="CreatedAt">
+        <el-table-column label="创建时间" min-width="200" sortable="custom" prop="createdAt">
           <template #default="scope">
-            {{ FormatDate(scope.row.CreatedAt) }}
+            {{ FormatDate(scope.row.createdAt) }}
           </template>
         </el-table-column>
         <el-table-column label="操作" min-width="200" fixed="right">

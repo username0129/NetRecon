@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
+	"time"
 )
 
 type File struct {
-	gorm.Model
-	UUID uuid.UUID `json:"uuid" gorm:"index;comment:文件 UUID"`
-	Name string    `json:"filename" gorm:"comment:文件名"` // 文件名
-	Url  string    `json:"url" gorm:"comment:文件地址"`     // 文件地址
+	UUID      uuid.UUID `json:"uuid" gorm:"primarykey;index;not null;comment:唯一标识符"`
+	Name      string    `json:"filename" gorm:"comment:文件名"` // 文件名
+	Url       string    `json:"url" gorm:"comment:文件地址"`     // 文件地址
+	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime;comment:创建时间"`
 }
 
 func (*File) TableName() string {

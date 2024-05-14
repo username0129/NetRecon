@@ -207,7 +207,7 @@ function getTagType(value) {
         :data="tableData"
         @sort-change="handleSortChange"
         @selection-change="handleSelectionChange"
-        :default-sort="{ prop: 'CreatedAt', order: 'descending' }"
+        :default-sort="{ prop: 'createdAt', order: 'descending' }"
       >
         <el-table-column type="selection" width="55" />
         <el-table-column label="用户" min-width="100" prop="user.username" />
@@ -253,9 +253,9 @@ function getTagType(value) {
             </el-popover>
           </template>
         </el-table-column>
-        <el-table-column label="请求日期" min-width="180" sortable="custom" prop="CreatedAt">
+        <el-table-column label="请求日期" min-width="180" sortable="custom" prop="createdAt">
           <template #default="scope">
-            {{ FormatDate(scope.row.CreatedAt) }}
+            {{ FormatDate(scope.row.createdAt) }}
           </template>
         </el-table-column>
       </el-table>

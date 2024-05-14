@@ -8,35 +8,38 @@ import { ArrowDown } from '@element-plus/icons-vue'
 import WarningBar from '@/components/warningBar/warningBar.vue'
 import { ElLoading, ElMessage } from 'element-plus'
 import { UpdatePassword, UpdateUserInfo } from '@/apis/user.js'
+import AvatarIndex from '@/components/avatar/IndexView.vue'
 
 defineOptions({
   name: 'LayoutIndex'
 })
 
+const path = 'http://103.228.64.175:8081/'
 const route = useRoute()
 const userStore = useUserStore()
 
 const userDialog = ref(false)
 const userForm = ref(null)
 const userFormData = ref({
+  avatar: '',
   username: '',
-  password: '',
   nickname: '',
-  mail: '',
-  authorityId: ''
+  mail: ''
 })
 
 function initForm() {
   userFormData.value = {
+    uuid: '',
+    avatar: '',
     username: '',
-    password: '',
     nickname: '',
-    mail: '',
-    authorityId: '2'
+    mail: ''
   }
 }
 
 const showUserDialog = () => {
+  userFormData.value.avatar = userStore.userInfo.avatar
+  userFormData.value.uuid = userStore.userInfo.uuid
   userFormData.value.nickname = userStore.userInfo.nickname
   userFormData.value.username = userStore.userInfo.username
   userFormData.value.mail = userStore.userInfo.mail
@@ -288,8 +291,8 @@ const submitPwdForm = async () => {
                             <span class="cursor-pointer flex justify-center items-center">
                               <!--                              <CustomPic />-->
                               <span style="margin-left: 5px">{{
-                                userStore.userInfo.nickname
-                              }}</span>
+                                  userStore.userInfo.nickname
+                                }}</span>
                               <el-icon>
                                 <arrow-down />
                               </el-icon>
@@ -301,13 +304,13 @@ const submitPwdForm = async () => {
                                 <span class="font-bold">当前角色：{{ getRoleName() }}</span>
                               </el-dropdown-item>
                               <el-dropdown-item icon="user" @click="showUserDialog"
-                                >个人信息
+                              >个人信息
                               </el-dropdown-item>
                               <el-dropdown-item icon="lock" @click="showPwdDialog"
-                                >更新密码
+                              >更新密码
                               </el-dropdown-item>
                               <el-dropdown-item icon="reading-lamp" @click="userStore.logout"
-                                >登 出
+                              >登 出
                               </el-dropdown-item>
                             </el-dropdown-menu>
                           </template>
@@ -335,6 +338,18 @@ const submitPwdForm = async () => {
               </template>
               <warning-bar title="更新用户" />
               <el-form ref="userForm" :model="userFormData" :rules="rules" label-width="auto">
+                <el-form-item label="用户头像:" label-width="80px">
+                  <div>
+                    <img
+                      v-if="userFormData.avatar"
+                      alt="头像"
+                      class="header-img-box"
+                      :src="path + userFormData.avatar"
+                      @click="userFormData.avatar=''"
+                    >
+                    <AvatarIndex v-else :target="userFormData" :target-key="'avatar'" />
+                  </div>
+                </el-form-item>
                 <el-form-item label="昵称:" prop="nickname">
                   <el-input v-model="userFormData.nickname" />
                 </el-form-item>

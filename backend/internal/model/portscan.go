@@ -4,17 +4,18 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
+	"time"
 )
 
 type PortScanResult struct {
-	gorm.Model
-	UUID     uuid.UUID `json:"uuid" gorm:"index;comment:'UUID';"`
-	TaskUUID uuid.UUID `json:"taskUUID" gorm:"index;comment:'所属任务 UUID';"`      // 外键
-	Task     Task      `json:"task" gorm:"foreignKey:TaskUUID;references:UUID"` // 创建者详细信息
-	IP       string    `json:"ip" gorm:"comment:'目标 IP';"`                      // IP 地址
-	Port     int       `json:"port" gorm:"comment:'端口';"`                       // 端口
-	Service  string    `json:"service" gorm:"comment:'服务';"`                    // 端口是否开启
-	Open     bool      `json:"open" gorm:"comment:'端口开启状态';"`                   // 端口是否开启
+	UUID      uuid.UUID `json:"uuid" gorm:"primarykey;index;not null;comment:结果编号;"`
+	TaskUUID  uuid.UUID `json:"taskUUID" gorm:"index;not null;comment:所属任务编号;"`               // 外键
+	Task      Task      `json:"task" gorm:"foreignKey:TaskUUID;references:UUID;comment:任务信息"` // 创建者详细信息
+	IP        string    `json:"ip" gorm:"comment:目标 IP;"`                                     // IP 地址
+	Port      int       `json:"port" gorm:"comment:端口;"`                                      // 端口
+	Service   string    `json:"service" gorm:"comment:服务;"`                                   // 端口是否开启
+	Open      bool      `json:"open" gorm:"comment:端口开启状态;"`                                  // 端口是否开启
+	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime;comment:创建时间"`
 }
 
 func (*PortScanResult) TableName() string {

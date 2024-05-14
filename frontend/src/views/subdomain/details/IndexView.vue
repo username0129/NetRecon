@@ -284,10 +284,10 @@ function formatDate(value) {
           label="扫描时间"
           min-width="200"
           sortable="custom"
-          prop="CreatedAt"
+          prop="createdAt"
         >
           <template #default="scope">
-            {{ formatDate(scope.row.CreatedAt) }}
+            {{ formatDate(scope.row.createdAt) }}
           </template>
         </el-table-column>
         <el-table-column align="left" label="备注" min-width="200" prop="notes" />

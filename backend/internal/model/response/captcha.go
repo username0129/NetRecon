@@ -1,4 +1,4 @@
-package model
+package response
 
 type CaptchaResponse struct {
 	CaptchaId     string `json:"captchaId"`

@@ -4,6 +4,7 @@ import (
 	"backend/internal/global"
 	"backend/internal/model"
 	"backend/internal/model/common"
+	"backend/internal/model/request"
 	"backend/internal/service"
 	"backend/internal/util"
 	"errors"
@@ -18,7 +19,7 @@ import (
 type AuthController struct{}
 
 func (ac *AuthController) PostLogin(c *gin.Context) {
-	var logonRequest model.LoginRequest
+	var logonRequest request.LoginRequest
 
 	if err := c.ShouldBindJSON(&logonRequest); err != nil {
 		common.ResponseOk(c, http.StatusBadRequest, "参数解析错误！", nil)
@@ -72,9 +73,9 @@ func (ac *AuthController) TokenNext(c *gin.Context, user model.User) {
 		common.ResponseOk(c, http.StatusUnauthorized, fmt.Sprintf("用户 %v 登陆失败：获取 token 失败！", user.Username), nil)
 	} else {
 		global.Logger.Info(fmt.Sprintf("用户 %v 登陆成功！", user.Username))
-		common.ResponseOk(c, http.StatusOK, "登陆成功！", model.LoginResponse{
-			User:  user,
-			Token: token,
+		common.ResponseOk(c, http.StatusOK, "登陆成功！", gin.H{
+			"user":  user,
+			"token": token,
 		})
 	}
 }
