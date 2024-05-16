@@ -34,6 +34,7 @@ func OperationRecord() gin.HandlerFunc {
 		if global.DB == nil {
 			return
 		}
+
 		start := time.Now()
 
 		var body []byte

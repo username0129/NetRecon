@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 func CorsMiddleware() gin.HandlerFunc {
@@ -26,13 +25,10 @@ func CorsMiddleware() gin.HandlerFunc {
 			//允许客户端传递校验信息比如 cookie (重要)
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
-
 		defer func() {
 			if err := recover(); err != nil {
-				log.Printf("Panic info is: %v", err)
 			}
 		}()
-
 		c.Next()
 	}
 }

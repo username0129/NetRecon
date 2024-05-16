@@ -38,10 +38,8 @@ func (us *UserService) UpdateUserInfo(db *gorm.DB, user model.User) (err error) 
 	// 更新用户信息
 	result := db.Model(&model.User{}).Where("uuid = ?", user.UUID).Updates(&user)
 	if result.Error != nil {
+		global.Logger.Error("更新用户信息失败: ", zap.Error(result.Error))
 		return fmt.Errorf("更新用户信息失败: %v", result.Error)
-	}
-	if result.RowsAffected == 0 {
-		return fmt.Errorf("没有找到要更新的用户")
 	}
 	return nil
 }

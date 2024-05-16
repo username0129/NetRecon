@@ -40,6 +40,7 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 			return
 		}
 	}
+
 	count, _ := strconv.Atoi(string(item))
 
 	var oc = openCaptcha == 0 || openCaptcha <= count

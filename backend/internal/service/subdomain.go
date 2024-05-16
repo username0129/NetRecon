@@ -70,7 +70,7 @@ func (ss *SubDomainService) BruteSubdomains(req request.SubDomainRequest, userUU
 }
 
 func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []string, threads, timeout int, dict []string, cdnList map[string][]string, userUUID uuid.UUID) {
-	status := "1"              // "2" 表示正在扫描, "3" 表示已取消, "4" 表示错误
+	status := "1"              // "1" 表示正在扫描, "3" 表示已取消, "4" 表示错误
 	var statusMutex sync.Mutex // 互斥锁，保护 status
 	var wg sync.WaitGroup
 	semaphore := make(chan struct{}, threads) // 用于控制并发数量的信号量
@@ -133,10 +133,9 @@ func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []st
 			ss.processResults(results, userUUID, task)
 		}
 	}()
-
 }
 
-// Resolution 解析域名
+// Resolution 解析域名信息
 func (ss *SubDomainService) Resolution(ctx context.Context, domain string, timeout int, taskUUID uuid.UUID, cdnList map[string][]string) (subDomainResult *model.SubDomainResult, err error) {
 	// 解析域名 CNAME 列表
 	cnames, err := ss.LookupCNAME(ctx, domain, timeout)
@@ -155,6 +154,7 @@ func (ss *SubDomainService) Resolution(ctx context.Context, domain string, timeo
 		return nil, nil
 	}
 
+	// 获取 IP 归属地
 	region, err := util.Ip2region(ips[0])
 	if err != nil {
 		fmt.Println(err)
@@ -164,6 +164,7 @@ func (ss *SubDomainService) Resolution(ctx context.Context, domain string, timeo
 
 	// 先使用 http 协议进行探测
 	url := "http://" + domain
+	// 获取域名标题
 	title, code, err := ss.FetchTitle(url)
 	if err != nil {
 		if strings.Contains(err.Error(), "connection refused") {
@@ -190,7 +191,7 @@ func (ss *SubDomainService) Resolution(ctx context.Context, domain string, timeo
 	for _, cdns := range cdnList {
 		for _, cdn := range cdns {
 			for _, cname := range cnames {
-				if strings.Contains(cname, cdn) { // 识别到cdn
+				if strings.Contains(cname, cdn) {
 					subDomainResult.Notes = fmt.Sprintf("在 CNAME 中识别到 CDN 字段: %v", cdn)
 					return subDomainResult, nil
 				} else if strings.Contains(cname, "cdn") {
@@ -317,7 +318,6 @@ func (ss *SubDomainService) processResults(results chan model.SubDomainResult, u
 			global.Logger.Error("发送邮箱失败: ", zap.Error(err))
 		}
 	}
-
 }
 
 // FetchTitle 发送 HTTP GET 请求到指定的 URL 并解析 HTML 文档以提取网页标题。

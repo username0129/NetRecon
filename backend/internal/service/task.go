@@ -108,6 +108,7 @@ func (ts *TaskService) FetchTaskCount(cdb *gorm.DB, taskType string, userUUID uu
 
 	return total, nil
 }
+
 func (ts *TaskService) CancelTask(taskUUID, userUUID uuid.UUID, authorityId string) (err error) {
 	if cancel, exists := global.TaskManager[taskUUID]; exists { // 任务在管理器中存在
 		var task model.Task

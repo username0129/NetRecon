@@ -3,6 +3,7 @@ package util
 import (
 	"backend/internal/global"
 	"backend/internal/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"net"
@@ -33,11 +34,13 @@ func ParseToken(tokenString string) (*model.CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &model.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return signingKey, nil
 	})
-
+	if err != nil {
+		return nil, err
+	}
 	if claims, ok := token.Claims.(*model.CustomClaims); ok && token.Valid {
 		return claims, nil
 	} else {
-		return nil, err
+		return nil, fmt.Errorf("令牌无效")
 	}
 }
 

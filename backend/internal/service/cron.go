@@ -39,7 +39,8 @@ func (cs *CronService) parseRequest(targets, ports string) ([]string, []int, err
 
 func (cs *CronService) AddTask(manager *config.CronManager, req request.CronAddTaskRequest, userUUID uuid.UUID, authorityId string) (err error) {
 	runtime := time.Now()
-	spec := util.TimeToCronSpec(runtime.Add(30 * time.Second)) // 30 秒之后执行
+	spec := util.TimeToCronSpec(runtime.Add(30 * time.Second)) // 格式化时间为 spec 如 0 0 12 * * * 即在每天的 12 点运行计划任务
+	spec = "0 0 12 * * *"                                      // 格式化时间为 spec 如 0 0 12 * * * 即在每天的 12 点运行计划任务
 	if req.TaskType == "PortScan" {
 		targetList, err := util.ParseMultipleIPAddresses(req.Targets)
 		if err != nil {
@@ -64,13 +65,15 @@ func (cs *CronService) AddTask(manager *config.CronManager, req request.CronAddT
 			global.Logger.Error("无法创建任务: ", zap.Error(err))
 			return errors.New("无法创建任务")
 		}
-
+		// 添加到计划任务管理器
 		taskID, err := manager.AddTask(spec, createPortScanTaskFunc(req.CheckAlive, task, targetList, portList, req.Threads, req.Timeout, userUUID, authorityId))
 		if err != nil {
 			global.Logger.Error("添加计划任务失败", zap.Error(err))
 			return fmt.Errorf("添加计划任务失败")
 		}
+		// 获取计划任务编号
 		task.CronID = int(taskID)
+		// 更新任务的下一次执行时间
 		task.NextTime = runtime.Add(30 * time.Second).Format("2006-01-02 15:04:05")
 		task.CreateOrUpdate()
 	} else if req.TaskType == "Subdomain" {
@@ -124,9 +127,14 @@ func (cs *CronService) AddTask(manager *config.CronManager, req request.CronAddT
 func createPortScanTaskFunc(checkAlive bool, task *model.Task, targets []string, ports []int, threads, timeout int, userUUID uuid.UUID, authorityId string) func() {
 	return func() {
 		now := time.Now()
+		// 更新任务为未执行
+		task.Status = "1"
+		// 更新执行时间
 		task.LastTime = now.Format("2006-01-02 15:04:05")
+		// 更新下一次执行时间为 24 小时之后
 		task.NextTime = now.Add(24 * time.Hour).Format("2006-01-02 15:04:05")
 		task.CreateOrUpdate()
+		fmt.Printf("计划任务 %v 于 %v 开始执行", task.UUID, now.Format("2006-01-02 15:04:05"))
 		PortServiceApp.PerformPortScan(checkAlive, task, targets, ports, threads, timeout, userUUID, authorityId)
 	}
 }
@@ -134,7 +142,11 @@ func createPortScanTaskFunc(checkAlive bool, task *model.Task, targets []string,
 func createSubdomainTaskFunc(task *model.Task, targets []string, threads, timeout int, dict []string, cdnList map[string][]string, userUUID uuid.UUID) func() {
 	return func() {
 		now := time.Now()
+		// 更新任务为未执行
+		task.Status = "1"
+		// 更新执行时间
 		task.LastTime = now.Format("2006-01-02 15:04:05")
+		// 更新下一次执行时间为 24 小时之后
 		task.NextTime = now.Add(24 * time.Hour).Format("2006-01-02 15:04:05")
 		task.CreateOrUpdate()
 		SubDomainServiceApp.executeBruteSubdomain(task, targets, threads, timeout, dict, cdnList, userUUID)
