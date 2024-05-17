@@ -15,11 +15,10 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString, err := util.GetToken(c)
 		if err != nil {
-			common.ResponseOk(c, http.StatusUnauthorized, fmt.Sprintf("Token 验证失败: %v", err.Error()), gin.H{"reload": true})
+			common.ResponseOk(c, http.StatusUnauthorized, fmt.Sprintf("Token 验证失败: %v", err.Error()), nil)
 			c.Abort()
 			return
 		}
-
 		// 解析 Token
 		claims, err := util.ParseToken(tokenString)
 		if err != nil {
@@ -27,20 +26,16 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			if errors.Is(err, jwt.ErrTokenExpired) {
 				errorMsg = "令牌已过期！"
 			}
-			common.ResponseOk(c, http.StatusUnauthorized, errorMsg, gin.H{"reload": true})
+			common.ResponseOk(c, http.StatusUnauthorized, errorMsg, nil)
 			c.Abort()
 			return
 		}
-
 		// 判断 Token 所属用户是否存在
 		if _, err = service.UserServiceApp.FetchUserByUUID(claims.UUID); err != nil {
-			common.ResponseOk(c, http.StatusUnauthorized, fmt.Sprintf("用户信息被删除或不存在: %v", err.Error()), gin.H{"reload": true})
+			common.ResponseOk(c, http.StatusUnauthorized, fmt.Sprintf("用户信息被删除或不存在: %v", err.Error()), nil)
 			c.Abort()
 			return
 		}
-
-		// Token 验证通过，将 claims 保存到请求上下文中
-		c.Set("claims", claims)
 		c.Next()
 	}
 }

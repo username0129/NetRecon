@@ -18,7 +18,7 @@ type TaskController struct {
 
 // PostCancelTask 取消指定任务
 func (tc *TaskController) PostCancelTask(c *gin.Context) {
-	var req request.CancelTaskRequest
+	var req request.UUIDRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostCancelTask 参数解析错误: ", zap.Error(err))
@@ -90,7 +90,7 @@ func (tc *TaskController) PostFetchTaskCount(c *gin.Context) {
 
 // PostDeleteTask 删除指定任务及其结果
 func (tc *TaskController) PostDeleteTask(c *gin.Context) {
-	var req request.DeleteTaskRequest
+	var req request.UUIDRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		global.Logger.Error("PostCancelTask 参数解析错误: ", zap.Error(err))

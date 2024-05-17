@@ -5,10 +5,10 @@ import (
 	"backend/internal/model"
 	"backend/internal/model/request"
 	"backend/internal/util"
+	"backend/lib/gonmap"
 	"errors"
 	"fmt"
 	"github.com/gofrs/uuid/v5"
-	"github.com/lcvvvv/gonmap"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"strconv"
@@ -68,7 +68,6 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 	aliveTargets := make(map[string]bool)
 
 	var statusMutex sync.Mutex // 互斥锁，保护 status
-	var TargetMutex sync.Mutex // 互斥锁，保护 aliveTargets
 
 	var wg sync.WaitGroup
 	semaphore := make(chan struct{}, threads) // 用于控制并发数量的信号量
@@ -88,39 +87,29 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 	// 首先检测所有目标是否存活
 	if checkAlive {
 		for _, target := range targets {
-			wg.Add(1)
-			go func(t string) {
-				defer wg.Done()
-				defer func() { <-semaphore }()
-				semaphore <- struct{}{}
-				// 任务状态出现变动，如取消 / 执行失败
-				if getStatus() != "1" {
-					return
-				}
-				if task.Status == "3" {
-					setStatus("3") // 更新状态为取消
-					return
-				}
-				if alive, err := util.IcmpCheckAlive(t, 10); err != nil {
-					setStatus("4") // 更新状态为执行失败
-					TaskServiceApp.CancelTask(task.UUID, userUUID, authorityId)
-					task.UpdateStatus("4") // 更新任务状态
-					global.Logger.Error("检测主机存活失败", zap.String("target", t), zap.Error(err))
-				} else if alive {
-					TargetMutex.Lock()
-					defer TargetMutex.Unlock()
-					aliveTargets[t] = true
-				}
-			}(target)
+			// 任务状态出现变动，如取消 / 执行失败
+			if getStatus() != "1" {
+				return
+			}
+			if task.Status == "3" {
+				setStatus("3") // 更新状态为取消
+				return
+			}
+			if alive, err := util.IcmpCheckAlive(target); err != nil {
+				setStatus("4") // 更新状态为执行失败
+				TaskServiceApp.CancelTask(task.UUID, userUUID, authorityId)
+				task.UpdateStatus("4") // 更新任务状态
+				global.Logger.Error("检测主机存活失败", zap.String("target", target), zap.Error(err))
+			} else if alive {
+				aliveTargets[target] = true
+			}
 		}
-		wg.Wait()
 	} else {
 		// 如果不检查存活，假定所有目标都是活跃的
 		for _, target := range targets {
 			aliveTargets[target] = true
 		}
 	}
-
 	if getStatus() != "1" {
 		return
 	}
@@ -145,8 +134,8 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 					}
 					//执行端口扫描
 					result := ps.PortCheck(t, p, timeout, task.UUID)
-					if result != nil {
-						results <- *result
+					if result.Open == true {
+						results <- result
 					}
 				}(target, port)
 			}
@@ -168,13 +157,11 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 func (ps *PortService) processResults(results chan model.PortScanResult, userUUID uuid.UUID, task *model.Task) {
 	count := 0
 	for result := range results {
-		if result.Open {
-			err := result.InsertData(global.DB)
-			if err != nil {
-				global.Logger.Error("插入扫描结果失败: ", zap.Error(err))
-			} else {
-				count++
-			}
+		err := result.InsertData(global.DB)
+		if err != nil {
+			global.Logger.Error("插入扫描结果失败: ", zap.Error(err))
+		} else {
+			count++
 		}
 	}
 
@@ -215,33 +202,37 @@ func (ps *PortService) processResults(results chan model.PortScanResult, userUUI
 	}
 }
 
-func (ps *PortService) PortCheck(target string, port int, timeout int, taskUUID uuid.UUID) *model.PortScanResult {
+func (ps *PortService) PortCheck(target string, port int, timeout int, taskUUID uuid.UUID) model.PortScanResult {
 	result := model.PortScanResult{
 		UUID:     uuid.Must(uuid.NewV4()),
 		TaskUUID: taskUUID,
 		IP:       target,
 		Port:     port,
 	}
+	// 创建 gonmap 扫描器
 	scanner := gonmap.New()
+	// 设置连接超时时间
 	scanner.SetTimeout(time.Duration(timeout) * time.Second)
+	// 执行扫描
 	status, response := scanner.Scan(target, port)
+	// 判断端口开放状态
 	switch status {
 	case gonmap.Closed:
 		result.Open = false
 	case gonmap.Unknown:
 		result.Open = true
-		result.Service = "filter" // filter 未知状态
+		result.Service = "filter" // 端口被过滤（防火墙拦截）
 	default:
-		result.Open = true
+		result.Open = true // 端口开放
 	}
 	if response != nil {
 		if strings.TrimSpace(response.FingerPrint.Service) != "" {
-			result.Service = response.FingerPrint.Service
+			result.Service = response.FingerPrint.Service // 获取端口提供服务
 		} else {
-			result.Service = "unknown"
+			result.Service = "unknown" // 未识别出端口具体服务
 		}
 	}
-	return &result
+	return result
 }
 
 func (ps *PortService) FetchResult(cdb *gorm.DB, result model.PortScanResult, info request.PageInfo, order string, desc bool) ([]model.PortScanResult, int64, error) {

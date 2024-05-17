@@ -37,7 +37,7 @@ func ParseMultipleDomains(input string, blackDomain []string) (allDomains []stri
 
 // 判断域名是否合法
 func isValidDomain(domain string, blackDomain []string) (bool, error) {
-	// 正则表达式用于匹配合法的域名，忽略大小写，判断一 a-z,0-9 开头以 . 结尾的部分，最后以 a-z,0-9 结尾的部分
+	// 正则表达式
 	var domainRegex = regexp.MustCompile(`^(?i)([a-z0-9]([-a-z0-9]*[a-z0-9])?\.)*[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
 	// 检查域名长度是否符合规定
 	if len(domain) > 253 {

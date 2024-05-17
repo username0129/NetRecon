@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"backend/internal/global"
-	"backend/internal/model"
 	"backend/internal/model/common"
 	"backend/internal/service"
+	"backend/internal/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -22,9 +22,7 @@ func CasbinHandler() gin.HandlerFunc {
 		act := c.Request.Method
 
 		// 获取请求主体（身份 id）
-		claims, _ := c.Get("claims")
-		typedClaims, _ := claims.(*model.CustomClaims)
-		sub := typedClaims.AuthorityId
+		sub := util.GetAuthorityId(c)
 
 		// 判断是否存在对应的 ACL
 		casbin := casbinService.GetCasbin()

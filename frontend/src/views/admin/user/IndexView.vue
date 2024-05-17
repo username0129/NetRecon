@@ -374,7 +374,7 @@ function formatAuthority(value) {
             {{ formatAuthority(scope.row.authorityId) }}
           </template>
         </el-table-column>
-        <el-table-column label="启用状态" min-width="90" sortable="custom" prop="enable">
+        <el-table-column label="启用状态" min-width="100" sortable="custom" prop="enable">
           <template #default="scope">
             <el-switch
               v-model="scope.row.enable"

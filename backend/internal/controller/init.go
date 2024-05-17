@@ -14,12 +14,7 @@ import (
 
 type InitController struct{}
 
-// GetInit
-//
-//	@Description: 检查数据库初始化状态
-//	@receiver ic
-//	@param c
-//	@Router: /init/init
+// GetInit 检查数据库初始化状态
 func (ic *InitController) GetInit(c *gin.Context) {
 	if global.DB != nil {
 		common.ResponseOk(c, http.StatusOK, "已存在数据库配置", nil)
@@ -29,12 +24,7 @@ func (ic *InitController) GetInit(c *gin.Context) {
 	return
 }
 
-// PostInit
-//
-//	@Description: 初始化数据库
-//	@receiver ic
-//	@param c
-//	@Router: /init/init
+// PostInit 初始化数据库
 func (ic *InitController) PostInit(c *gin.Context) {
 	if global.DB != nil {
 		global.Logger.Error("已存在数据库配置")

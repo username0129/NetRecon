@@ -56,6 +56,7 @@ func (ts *TaskService) FetchTasks(cdb *gorm.DB, result model.Task, info request.
 	if total == 0 {
 		return nil, 0, nil
 	}
+
 	// 根据有效列表进行排序处理
 	orderStr := "created_at desc" // 默认排序
 	if order != "" {
@@ -108,6 +109,7 @@ func (ts *TaskService) FetchTaskCount(cdb *gorm.DB, taskType string, userUUID uu
 
 	return total, nil
 }
+
 func (ts *TaskService) CancelTask(taskUUID, userUUID uuid.UUID, authorityId string) (err error) {
 	if cancel, exists := global.TaskManager[taskUUID]; exists { // 任务在管理器中存在
 		var task model.Task
@@ -119,13 +121,14 @@ func (ts *TaskService) CancelTask(taskUUID, userUUID uuid.UUID, authorityId stri
 		if task.Status != "1" { // 任务不正在进行中
 			return errors.New("任务不在运行状态")
 		}
-		if task.CreatorUUID != userUUID && authorityId != "1" { // 任务的发起者不是当前用户 或者 不是管理员
+
+		if task.CreatorUUID != userUUID && authorityId != "1" { // 任务的发起者不是当前用户或者不是管理员
 			return errors.New("没有权限取消任务")
 		}
 
-		// 取消任务
-		cancel()
-		task.UpdateStatus("3") // 更新任务状态为取消
+		cancel()                             // 取消任务
+		delete(global.TaskManager, taskUUID) // 从任务管理器中移除
+		task.UpdateStatus("3")               // 更新任务状态为取消
 
 		// 如果任务属于资产监控
 		if task.AssetUUID != uuid.Nil {
@@ -147,7 +150,7 @@ func (ts *TaskService) DeleteTask(db *gorm.DB, taskUUID, userUUID uuid.UUID, aut
 		return err // 可能是因为没有找到任务
 	}
 
-	// 检查是否有权限取消任务
+	// 检查任务是否在运行
 	if task.Status == "1" {
 		return errors.New("任务正在运行中，请等待执行完成。")
 	}
@@ -171,7 +174,7 @@ func (ts *TaskService) DeleteTask(db *gorm.DB, taskUUID, userUUID uuid.UUID, aut
 		}
 	}
 
-	// 删除任务本身
+	// 从数据库删除任务本身
 	if result := db.Model(&model.Task{}).Where("uuid = ?", taskUUID).Delete(&model.Task{}); result.Error != nil {
 		return fmt.Errorf("删除任务失败: %w", result.Error)
 	}

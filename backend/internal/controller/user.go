@@ -73,7 +73,6 @@ func (uc *UserController) PostUpdateUserInfo(c *gin.Context) {
 
 	err := service.UserServiceApp.UpdateUserInfo(global.DB, user)
 	if err != nil {
-		global.Logger.Error("更新用户失败: ", zap.Error(err))
 		common.ResponseOk(c, http.StatusInternalServerError, fmt.Sprintf("更新用户失败: %v", err), nil)
 		return
 	}

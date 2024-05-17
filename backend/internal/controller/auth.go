@@ -19,9 +19,9 @@ import (
 type AuthController struct{}
 
 func (ac *AuthController) PostLogin(c *gin.Context) {
-	var logonRequest request.LoginRequest
+	var req request.LoginRequest
 
-	if err := c.ShouldBindJSON(&logonRequest); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		common.ResponseOk(c, http.StatusBadRequest, "参数解析错误！", nil)
 		return
 	}
@@ -34,21 +34,22 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 	item, err := global.Cache.Get(key)
 	if err != nil {
 		if errors.Is(err, bigcache.ErrEntryNotFound) {
-			_ = global.Cache.Set(key, []byte("1"))
+			_ = global.Cache.Set(key, []byte("1")) // 不存在时，初始化为 1
 		} else {
 			global.Logger.Error("获取缓存条目错误！", zap.Error(err))
 			return
 		}
 	}
+
 	count, _ := strconv.Atoi(string(item))
 
 	var oc = openCaptcha == 0 || openCaptcha <= count
 
-	if !oc || (logonRequest.CaptchaId != "" && logonRequest.Answer != "" && global.CaptchaStore.Verify(logonRequest.CaptchaId, logonRequest.Answer, true)) {
-		u := model.User{Username: logonRequest.Username, Password: logonRequest.Password}
+	if !oc || (req.CaptchaId != "" && req.Answer != "" && global.CaptchaStore.Verify(req.CaptchaId, req.Answer, true)) {
+		u := model.User{Username: req.Username, Password: req.Password}
 		var user = &model.User{}
 		if user, err = service.AuthServiceApp.Login(u); err != nil {
-			global.Logger.Error(fmt.Sprintf("用户 %v 登陆失败：%v", logonRequest.Username, err.Error()))
+			global.Logger.Error(fmt.Sprintf("用户 %v 登陆失败：%v", req.Username, err.Error()))
 			_ = global.Cache.Set(key, []byte(strconv.Itoa(count+1)))
 			common.ResponseOk(c, http.StatusInternalServerError, fmt.Sprintf("登陆失败: %v", err.Error()), nil)
 			return

@@ -5,14 +5,6 @@ import (
 	"github.com/gofrs/uuid/v5"
 )
 
-type CancelTaskRequest struct {
-	UUID uuid.UUID `json:"uuid"`
-}
-
-type DeleteTaskRequest struct {
-	UUID uuid.UUID `json:"uuid"`
-}
-
 type DeleteTasksRequest struct {
 	UUIDS []uuid.UUID `json:"uuids"`
 }

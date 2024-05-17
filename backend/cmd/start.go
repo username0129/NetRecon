@@ -30,11 +30,11 @@ func init() {
 }
 
 func start() {
-	global.TaskManager = make(map[uuid.UUID]context.CancelFunc) // 初始化任务管理器
 	global.Viper = core.InitializeViper(configPath)             // 初始化并加载 Viper
 	global.Logger = logger.InitializeLogger()                   // 初始化 Zap 日志
 	global.Cache = core.InitializeCache()                       // 初始化 BigCache
-	global.CronManager = config.NewCronManager()                // 初始化 BigCache
+	global.CronManager = config.NewCronManager()                // 初始化计划任务管理器
+	global.TaskManager = make(map[uuid.UUID]context.CancelFunc) // 初始化任务管理器
 	global.CronManager.Start()                                  // 启动计划任务管理器
 	global.DB = core.InitializeDB()                             // 获取数据库连接
 	global.RestartSignal = make(chan bool, 1)

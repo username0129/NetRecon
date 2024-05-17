@@ -3,25 +3,23 @@ package model
 import (
 	"fmt"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Route struct {
 	ID          uint        `json:"id" gorm:"primarykey;not null;autoIncrement;comment:唯一标识符"`
-	ParentId    uint        `json:"parentId" gorm:"comment:父路由 ID"`    // 父路由ID
-	Name        string      `json:"name" gorm:"comment:路由 name"`       // 路由name
-	Path        string      `json:"path" gorm:"comment:路由 path"`       // 路由path
+	ParentId    uint        `json:"parentId" gorm:"comment:父路由标识符"`
+	Name        string      `json:"name" gorm:"comment:名称"`
+	Path        string      `json:"path" gorm:"comment:路径"`
 	Meta        Meta        `json:"meta" gorm:"embedded;comment:附加属性"` // 附加属性，embedded 嵌入
-	Component   string      `json:"component" gorm:"comment:对应前端文件路径"` // 前端文件路径
+	Component   string      `json:"component" gorm:"comment:前端文件路径"`
 	Authorities []Authority `json:"authorities" gorm:"many2many:sys_authority_route;"`
-	CreatedAt   time.Time   `json:"createdAt" gorm:"autoCreateTime;comment:创建时间"`
 	Children    []Route     `json:"children" gorm:"-"`
 }
 
 type Meta struct {
 	Title  string `json:"title" gorm:"comment:标题"`
 	Icon   string `json:"icon" gorm:"comment:图标"`
-	Hidden bool   `json:"hidden" gorm:"default:false;comment:是否在列表隐藏"` // 是否在列表隐藏
+	Hidden bool   `json:"hidden" gorm:"default:false;comment:是否在列表隐藏"`
 }
 
 func (r *Route) TableName() string {
