@@ -39,14 +39,14 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .el-sub-menu {
-  ::v-deep .el-sub-menu__title {
+  :deep(.el-sub-menu__title) {
     padding: 6px;
     color: var(--normalText);
   }
 }
 
 .is-active:not(.is-opened) {
-  ::v-deep .el-sub-menu__title .my-subMenu {
+  :deep(.el-sub-menu__title .my-subMenu) {
     flex: 1;
     height: 100%;
     line-height: 44px;

@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/modules/user.js'
 import { FetchTaskCount } from '@/apis/task.js'
 import { ElMessage } from 'element-plus'
+import { Avatar, Comment, Sort } from '@element-plus/icons-vue'
 // import SelectImage from '@/components/selectImage/selectImage.vue'
 
 defineOptions({
@@ -94,7 +95,7 @@ const toTarget = (name) => {
             <el-col :span="8" :xs="24" :sm="8">
               <div class="flex items-center">
                 <el-icon class="dashboard-icon">
-                  <sort />
+                  <Sort />
                 </el-icon>
                 子域名扫描任务 ({{ domainTaskCount }})
               </div>
@@ -102,7 +103,7 @@ const toTarget = (name) => {
             <el-col :span="8" :xs="24" :sm="8">
               <div class="flex items-center">
                 <el-icon class="dashboard-icon">
-                  <avatar />
+                  <Avatar />
                 </el-icon>
                 端口扫描任务 ({{ portTaskCount }})
               </div>
@@ -110,7 +111,7 @@ const toTarget = (name) => {
             <el-col :span="8" :xs="24" :sm="8">
               <div class="flex items-center">
                 <el-icon class="dashboard-icon">
-                  <comment />
+                  <Comment />
                 </el-icon>
                 监控任务 ({{ cronTaskCount }})
               </div>
@@ -200,7 +201,7 @@ const toTarget = (name) => {
     }
   }
 
-  ::v-deep(.el-card__header) {
+  :deep(.el-card__header) {
     @apply p-0  border-gray-200;
   }
 

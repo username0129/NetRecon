@@ -125,6 +125,9 @@ var initialDatas = []InitialData{
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/upload/postdeletefile", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/upload/postfetchfiles", V2: "POST"}, // 获取文件列表
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/upload/postfetchfiles", V2: "POST"},
+
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/echarts/postfetchtaskcount", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/echarts/postfetchtaskcount", V2: "POST"},
 		},
 	},
 	{

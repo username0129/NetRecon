@@ -5,6 +5,7 @@ import (
 	"backend/internal/core"
 	"backend/internal/global"
 	"backend/internal/logger"
+	"backend/internal/util"
 	"context"
 	"github.com/gofrs/uuid/v5"
 	"github.com/spf13/cobra"
@@ -24,7 +25,7 @@ var (
 )
 
 func init() {
-	startCmd.Flags().StringVarP(&configPath, "config", "c", "./config/config.yaml", "配置文件路径")
+	startCmd.Flags().StringVarP(&configPath, "config", "c", util.GetExecPwd()+"/config/config.yaml", "配置文件路径")
 	startCmd.Flags().StringVarP(&ip, "ip", "i", "0.0.0.0", "后端 IP 地址")
 	startCmd.Flags().StringVarP(&port, "port", "p", "8081", "后端监听地址")
 }

@@ -27,28 +27,21 @@ const path = 'http://103.228.64.175:8081/'
 const userStore = useUserStore()
 
 const avatar = computed(() => {
-  return props.imgSrc === '' ? `${path}${userStore.userInfo.avatar || defaultAvatar}` : `${path}${props.imgSrc}`
+  return props.imgSrc === ''
+    ? `${path}${userStore.userInfo.avatar || defaultAvatar}`
+    : `${path}${props.imgSrc}`
 })
 
 const file = computed(() => `${path}${props.imgSrc}`)
 
-const previewSrcList = computed(() => props.preview ? [file.value] : [])
-
+const previewSrcList = computed(() => (props.preview ? [file.value] : []))
 </script>
 
 <template>
   <span class="headerAvatar">
     <template v-if="imgType === 'avatar'">
-      <el-avatar
-        v-if="imgSrc"
-        :size="30"
-        :src="avatar"
-      />
-      <el-avatar
-        v-else
-        :size="30"
-        :src="defaultAvatar"
-      />
+      <el-avatar v-if="imgSrc" :size="30" :src="avatar" />
+      <el-avatar v-else :size="30" :src="defaultAvatar" />
     </template>
     <template v-if="imgType === 'file'">
       <el-image
@@ -60,7 +53,6 @@ const previewSrcList = computed(() => props.preview ? [file.value] : [])
     </template>
   </span>
 </template>
-
 
 <style scoped>
 .headerAvatar {

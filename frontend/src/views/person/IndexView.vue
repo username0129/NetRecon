@@ -49,7 +49,7 @@
     }
   }
 
-  ::v-deep(.el-card__header) {
+  :deep(.el-card__header) {
     @apply p-0  border-gray-200;
   }
 

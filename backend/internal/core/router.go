@@ -37,6 +37,7 @@ func getControllerList() []interface{} {
 		&controller.OperationController{},
 		&controller.FofaController{},
 		&controller.UploadController{},
+		&controller.EchartsController{},
 	}
 }
 

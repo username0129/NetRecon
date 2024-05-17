@@ -20,7 +20,8 @@ export default defineConfig({
     minify: 'terser', // 是否进行压缩,boolean | 'terser' | 'esbuild',默认使用terser
     manifest: false, // 是否产出manifest.json
     sourcemap: false, // 是否产出sourcemap.json
-    outDir: 'dist' // 产出目录
+    outDir: 'dist', // 产出目录
+    target: 'esnext'  // 设置为支持最新 JavaScript 特性
   },
   css: {
     preprocessorOptions: {

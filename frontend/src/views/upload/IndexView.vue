@@ -11,23 +11,14 @@
       <el-table :data="tableData">
         <el-table-column align="left" label="图片预览" width="150">
           <template #default="scope">
-            <ShowImgIndex
-              img-type="file"
-              :img-src="scope.row.url"
-              preview
-            />
+            <ShowImgIndex img-type="file" :img-src="scope.row.url" preview />
           </template>
         </el-table-column>
         <el-table-column align="left" label="文件名" prop="filename" width="250" />
         <el-table-column align="left" label="链接" prop="url" min-width="300" />
         <el-table-column align="left" label="操作" width="250">
           <template #default="scope">
-            <el-button
-              icon="Delete"
-              type="danger"
-              @click="deleteFile(scope.row)"
-            >删除
-            </el-button>
+            <el-button icon="Delete" type="danger" @click="deleteFile(scope.row)">删除 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -140,9 +131,6 @@ const deleteFile = async (row) => {
       })
     })
 }
-
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

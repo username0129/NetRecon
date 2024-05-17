@@ -1,111 +1,85 @@
 <template>
   <div class="dashboard-line-box">
-    <div class="dashboard-line-title">访问趋势</div>
+    <div class="dashboard-line-title">每日任务</div>
     <div ref="echart" class="dashboard-line" />
   </div>
 </template>
+
 <script setup>
 import * as echarts from 'echarts'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useWindowResize } from '@/hooks/use-windows-resize'
+import { FetchTaskCount } from '@/apis/echarts.js'
+import { ElMessage } from 'element-plus'
 
-var dataAxis = []
-for (var i = 1; i < 13; i++) {
-  dataAxis.push(`${i}月`)
-}
-var data = [220, 182, 191, 234, 290, 330, 310, 123, 442, 321, 90, 149]
-var yMax = 500
-var dataShadow = []
-
-for (let i = 0; i < data.length; i++) {
-  dataShadow.push(yMax)
-}
-
-let chart = null
 const echart = ref(null)
+let chart = null
+const dataAxis = ref([])
+const data = ref([])
 
-useWindowResize(() => {
-  if (!chart) {
-    return
+const fetchTaskCount = async () => {
+  try {
+    const response = await FetchTaskCount()
+    if (response.code === 200) {
+      dataAxis.value = response.data.map(item => item.date)
+      data.value = response.data.map(item => item.count)
+      initChart()
+    }
+  } catch (error) {
+    ElMessage({
+      type: 'error',
+      message: '网络错误或数据处理异常',
+      showClose: true
+    })
   }
-  chart.resize()
-})
+}
+
 
 const initChart = () => {
-  if (chart) {
-    chart = null
-  }
+  if (!echart.value) return
   chart = echarts.init(echart.value)
-  setOptions()
-}
-const setOptions = () => {
   chart.setOption({
-    grid: {
-      left: '40',
-      right: '20',
-      top: '40',
-      bottom: '20'
-    },
+    grid: { left: '40', right: '20', top: '40', bottom: '20' },
     xAxis: {
-      data: dataAxis,
-      axisTick: {
-        show: false
-      },
-      axisLine: {
-        show: false
-      },
+      data: dataAxis.value,
+      axisTick: { show: false },
+      axisLine: { show: false },
       z: 10
     },
     yAxis: {
-      axisLine: {
-        show: false
-      },
-      axisTick: {
-        show: false
-      },
-      axisLabel: {
-        textStyle: {
-          color: '#999'
-        }
-      }
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { textStyle: { color: '#999' } }
     },
-    dataZoom: [
-      {
-        type: 'inside'
-      }
-    ],
-    series: [
-      {
-        type: 'bar',
-        barWidth: '40%',
-        itemStyle: {
-          borderRadius: [5, 5, 0, 0],
-          color: '#188df0'
-        },
-        emphasis: {
-          itemStyle: {
-            color: '#188df0'
-          }
-        },
-        data: data
-      }
-    ]
+    dataZoom: [{ type: 'inside' }],
+    series: [{
+      type: 'bar',
+      barWidth: '40%',
+      itemStyle: { borderRadius: [5, 5, 0, 0], color: '#188df0' },
+      emphasis: { itemStyle: { color: '#188df0' } },
+      data: data.value
+    }]
   })
 }
 
+
+useWindowResize(() => {
+  if (chart) chart.resize()
+})
+
 onMounted(async () => {
   await nextTick()
-  initChart()
+  await fetchTaskCount()
 })
 
 onUnmounted(() => {
-  if (!chart) {
-    return
+  if (chart) {
+    chart.dispose()
+    chart = null
   }
-  chart.dispose()
-  chart = null
 })
 </script>
+
 <style lang="scss" scoped>
 .dashboard-line-box {
   .dashboard-line {

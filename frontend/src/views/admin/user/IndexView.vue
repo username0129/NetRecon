@@ -358,11 +358,7 @@ function formatAuthority(value) {
       >
         <el-table-column align="left" label="头像" min-width="100">
           <template #default="scope">
-            <ShowImgIndex
-              style="margin-top:4px"
-              img-type="avatar"
-              :img-src="scope.row.avatar"
-            />
+            <ShowImgIndex style="margin-top: 4px" img-type="avatar" :img-src="scope.row.avatar" />
           </template>
         </el-table-column>
         <el-table-column fixed label="用户 UUID" min-width="250" sortable="custom" prop="uuid" />
@@ -397,10 +393,10 @@ function formatAuthority(value) {
           <template #default="scope">
             <el-button icon="Edit" @click="showUpdateUserDialog(scope.row)">编辑</el-button>
             <el-button type="danger" icon="Delete" @click="deleteUserInfo(scope.row)"
-            >删除
+              >删除
             </el-button>
             <el-button type="warning" icon="RefreshRight" @click="resetPassword(scope.row)"
-            >重置密码
+              >重置密码
             </el-button>
           </template>
         </el-table-column>
@@ -458,7 +454,7 @@ function formatAuthority(value) {
         </el-form-item>
         <el-form-item label="用户邮箱:" prop="mail">
           <template #label
-          >用户邮箱:
+            >用户邮箱:
             <el-tooltip placement="right-end">
               <template #content>
                 邮箱将用于接受重置密码邮件以及任务执行完成通知<br />
@@ -488,8 +484,8 @@ function formatAuthority(value) {
               alt="头像"
               class="header-img-box"
               :src="path + addUserFormData.avatar"
-              @click="addUserFormData.avatar=''"
-            >
+              @click="addUserFormData.avatar = ''"
+            />
             <AvatarIndex v-else :target="addUserFormData" :target-key="'avatar'" />
           </div>
         </el-form-item>

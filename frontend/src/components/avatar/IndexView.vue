@@ -7,7 +7,6 @@ defineOptions({
   name: 'AvatarIndex'
 })
 
-
 const props = defineProps({
   target: {
     type: Object,
@@ -52,17 +51,12 @@ async function uploadFile(file) {
 
 <template>
   <div>
-    <el-upload
-      class="avatar-uploader"
-      :show-file-list="false"
-      :before-upload="uploadFile"
-    >
+    <el-upload class="avatar-uploader" :show-file-list="false" :before-upload="uploadFile">
       <el-icon class="avatar-uploader-icon">
         <Plus />
       </el-icon>
     </el-upload>
   </div>
-
 </template>
 
 <style>

@@ -34,21 +34,14 @@ async function uploadFile(file) {
     ElMessage.error('上传失败')
   }
 }
-
 </script>
 
 <template>
   <div>
-    <el-upload
-      :before-upload="uploadFile"
-      :show-file-list="false"
-      class="upload-btn"
-    >
+    <el-upload :before-upload="uploadFile" :show-file-list="false" class="upload-btn">
       <el-button type="primary">上传图片</el-button>
     </el-upload>
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>
