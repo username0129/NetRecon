@@ -117,6 +117,7 @@ func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []st
 					}
 				}
 				if err == nil && result != nil {
+					result.Domain = t
 					results <- *result
 				}
 			}(target, sub)

@@ -1,12 +1,13 @@
 <script setup>
-import EchartsLine from '@/views/dashboard/dashboardCharts/echartsLine.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/modules/user.js'
 import { FetchTaskCount } from '@/apis/task.js'
 import { ElMessage } from 'element-plus'
 import { Avatar, Comment, Sort } from '@element-plus/icons-vue'
-// import SelectImage from '@/components/selectImage/selectImage.vue'
+import LineView from '@/views/dashboard/echarts/LineView.vue'
+import PiePortView from '@/views/dashboard/echarts/PiePortView.vue'
+import PieDomainView from '@/views/dashboard/echarts/PieDomainView.vue'
 
 defineOptions({
   name: 'DashboardIndex'
@@ -149,7 +150,28 @@ const toTarget = (name) => {
       <div class="my-card">
         <div class="my-card-title">数据统计</div>
         <div class="p-4">
-          <echarts-line />
+          <el-row :gutter="20">
+            <el-col
+              :xs="24"
+              :sm="12"
+            >
+              <line-view />
+            </el-col>
+            <el-col
+              :xs="24"
+              :sm="6"
+            >
+              <pie-port-view />
+            </el-col>
+            <el-col
+              :xs="24"
+              :sm="6"
+            >
+              <pie-domain-view />
+            </el-col>
+          </el-row>
+
+
         </div>
       </div>
     </div>

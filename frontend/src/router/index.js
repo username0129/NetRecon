@@ -18,7 +18,7 @@ const constRoutes = [
     path: '/404',
     name: '404',
     meta: { title: '404' },
-    component: () => import('@/views/init/IndexView.vue')
+    component: () => import('@/views/404/IndexView.vue')
   }
 ]
 

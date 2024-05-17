@@ -128,6 +128,10 @@ var initialDatas = []InitialData{
 
 			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/echarts/postfetchtaskcount", V2: "POST"},
 			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/echarts/postfetchtaskcount", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/echarts/postfetchportcount", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/echarts/postfetchportcount", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "1", V1: "/api/v1/echarts/postfetchdomaincount", V2: "POST"},
+			&model.CasbinRule{Ptype: "p", V0: "2", V1: "/api/v1/echarts/postfetchdomaincount", V2: "POST"},
 		},
 	},
 	{
@@ -158,7 +162,6 @@ var initialDatas = []InitialData{
 		TableName: "sys_users",
 		Data: []interface{}{
 			&model.User{Username: "admin", Password: util.BcryptHash("123456"), Nickname: "系统管理员", AuthorityId: "1", Mail: "q.nah@outlook.com"},
-			&model.User{Username: "guest", Password: util.BcryptHash("guest"), Nickname: "测试账户", AuthorityId: "2", Mail: "q.nah@outlook.com"},
 		},
 	},
 	{

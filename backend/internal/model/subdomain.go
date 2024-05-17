@@ -11,6 +11,7 @@ type SubDomainResult struct {
 	UUID      uuid.UUID `json:"uuid" gorm:"primarykey;index;not null;comment:唯一标识符;"`
 	TaskUUID  uuid.UUID `json:"taskUUID" gorm:"index;not null;comment:所属任务标识符"`
 	Task      Task      `json:"task" gorm:"foreignKey:TaskUUID;references:UUID;comment:任务信息"`
+	Domain    string    `json:"domain" gorm:"index;not null;comment:域名"`
 	SubDomain string    `json:"subDomain" gorm:"index;not null;comment:子域名"`
 	Title     string    `json:"title" gorm:"comment:网站标题"`
 	Cname     string    `json:"cname" gorm:"comment:CNAME 解析"`

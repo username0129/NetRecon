@@ -6,11 +6,17 @@
 </template>
 
 <script setup>
+
 import * as echarts from 'echarts'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useWindowResize } from '@/hooks/use-windows-resize'
 import { FetchTaskCount } from '@/apis/echarts.js'
 import { ElMessage } from 'element-plus'
+
+defineOptions({
+  name: 'LineView'
+})
+
 
 const echart = ref(null)
 let chart = null
@@ -53,10 +59,21 @@ const initChart = () => {
     },
     dataZoom: [{ type: 'inside' }],
     series: [{
-      type: 'bar',
-      barWidth: '40%',
-      itemStyle: { borderRadius: [5, 5, 0, 0], color: '#188df0' },
-      emphasis: { itemStyle: { color: '#188df0' } },
+      type: 'line',
+      smooth: true,
+      lineStyle: {
+        width: 2,
+        color: '#188df0'
+      },
+      itemStyle: {
+        opacity: 0
+      },
+      emphasis: {
+        lineStyle: {
+          width: 3,
+          color: '#188df0'
+        }
+      },
       data: data.value
     }]
   })
