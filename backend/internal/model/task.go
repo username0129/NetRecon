@@ -23,6 +23,7 @@ type Task struct {
 	LastTime    string             `json:"lastTime" gorm:"comment:上一次运行时间"`                                             // 下一次运行时间
 	NextTime    string             `json:"nextTime" gorm:"comment:下一次运行时间"`                                             // 下一次运行时间
 	Status      string             `json:"status" gorm:"default:1;comment:任务状态，1 -> 进行中, 2 -> 已完成, 3 -> 已取消，4 -> 执行失败"` // 任务状态：1 -> 进行中, 2 -> 已完成, 3 -> 已取消，4 -> 执行失败
+	Note        string             `json:"note" gorm:"comment:备注"`
 	CreatedAt   time.Time          `json:"createdAt" gorm:"autoCreateTime;comment:创建时间"`
 	Cancel      context.CancelFunc `json:"-" gorm:"-"` // 不存储在数据库中，仅运行时使用
 	Ctx         context.Context    `json:"-" gorm:"-"` // 同上

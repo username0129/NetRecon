@@ -4,6 +4,7 @@ import (
 	"backend/internal/global"
 	"backend/internal/model"
 	"backend/internal/model/response"
+	"backend/internal/util"
 	"errors"
 	"fmt"
 	"github.com/gofrs/uuid/v5"
@@ -95,20 +96,42 @@ func (es *EchartsService) FetchPortCount(db *gorm.DB, userUUID uuid.UUID, author
 		return nil, fmt.Errorf("获取任务信息失败: %w", err)
 	}
 
-	var results []response.PieResponse
-	var finalResult []response.PieResponse
+	var temp []struct {
+		IP   string
+		Port string
+	}
+
+	var results []struct {
+		IP   string
+		Port string
+	}
 
 	for _, task := range tasks {
 		// 获取 Port 任务相关的数据
 		if err := db.Model(&model.PortScanResult{}).
-			Select("ip as target,COUNT(*) as count").
+			Select("ip,port").
 			Where("task_uuid = ?", task.UUID).
-			Group("target").
-			Find(&results).Error; err != nil {
+			Find(&temp).Error; err != nil {
 			global.Logger.Error("获取数量失败", zap.Error(err))
 			return nil, errors.New("获取数量失败")
 		}
-		finalResult = append(finalResult, results...)
+		results = append(results, temp...)
+	}
+	duplicates := util.RemoveDuplicates(results)
+
+	// 使用 map 来计数每个 IP 的出现次数
+	ipCount := make(map[string]int)
+	for _, result := range duplicates {
+		ipCount[result.IP]++
+	}
+
+	// 转换计数结果到 finalResult
+	var finalResult []response.PieResponse
+	for ip, count := range ipCount {
+		finalResult = append(finalResult, response.PieResponse{
+			Target: ip,
+			Count:  count,
+		})
 	}
 
 	return finalResult, nil
@@ -134,20 +157,43 @@ func (es *EchartsService) FetchDomainCount(db *gorm.DB, userUUID uuid.UUID, auth
 		return nil, fmt.Errorf("获取任务信息失败: %w", err)
 	}
 
-	var results []response.PieResponse
-	var finalResult []response.PieResponse
+	var temp []struct {
+		Domain    string
+		SubDomain string
+	}
+
+	var results []struct {
+		Domain    string
+		SubDomain string
+	}
 
 	for _, task := range tasks {
 		// 获取 Domain 任务相关的数据
 		if err := db.Model(&model.SubDomainResult{}).
-			Select("domain as target,COUNT(*) as count").
+			Select("domain, sub_domain").
 			Where("task_uuid = ?", task.UUID).
-			Group("target").
-			Find(&results).Error; err != nil {
+			Find(&temp).Error; err != nil {
 			global.Logger.Error("获取数量失败", zap.Error(err))
 			return nil, errors.New("获取数量失败")
 		}
-		finalResult = append(finalResult, results...)
+		results = append(results, temp...)
+	}
+
+	duplicates := util.RemoveDuplicates(results)
+
+	// 使用 map 来计数每个域名的出现次数
+	ipCount := make(map[string]int)
+	for _, result := range duplicates {
+		ipCount[result.Domain]++
+	}
+
+	// 转换计数结果到 finalResult
+	var finalResult []response.PieResponse
+	for domain, count := range ipCount {
+		finalResult = append(finalResult, response.PieResponse{
+			Target: domain,
+			Count:  count,
+		})
 	}
 
 	return finalResult, nil

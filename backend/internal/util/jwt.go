@@ -15,8 +15,8 @@ var (
 )
 
 func GenerateJWT(c model.CustomClaims) (string, error) {
-	bf, _ := time.ParseDuration(global.Config.Jwt.BufferTime)
-	ep, _ := time.ParseDuration(global.Config.Jwt.ExpirationTime)
+	bf, _ := time.ParseDuration(global.Config.Jwt.BufferTime)     // 缓存时间
+	ep, _ := time.ParseDuration(global.Config.Jwt.ExpirationTime) // 过期时间
 
 	c.BufferTime = int64(bf / time.Second)
 	c.RegisteredClaims = jwt.RegisteredClaims{

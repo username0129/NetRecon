@@ -6,7 +6,6 @@
 </template>
 
 <script setup>
-
 import * as echarts from 'echarts'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useWindowResize } from '@/hooks/use-windows-resize'
@@ -17,7 +16,6 @@ defineOptions({
   name: 'LineView'
 })
 
-
 const echart = ref(null)
 let chart = null
 const dataAxis = ref([])
@@ -27,8 +25,8 @@ const fetchTaskCount = async () => {
   try {
     const response = await FetchTaskCount()
     if (response.code === 200) {
-      dataAxis.value = response.data.map(item => item.date)
-      data.value = response.data.map(item => item.count)
+      dataAxis.value = response.data.map((item) => item.date)
+      data.value = response.data.map((item) => item.count)
       initChart()
     }
   } catch (error) {
@@ -39,7 +37,6 @@ const fetchTaskCount = async () => {
     })
   }
 }
-
 
 const initChart = () => {
   if (!echart.value) return
@@ -58,27 +55,28 @@ const initChart = () => {
       axisLabel: { textStyle: { color: '#999' } }
     },
     dataZoom: [{ type: 'inside' }],
-    series: [{
-      type: 'line',
-      smooth: true,
-      lineStyle: {
-        width: 2,
-        color: '#188df0'
-      },
-      itemStyle: {
-        opacity: 0
-      },
-      emphasis: {
+    series: [
+      {
+        type: 'line',
+        smooth: true,
         lineStyle: {
-          width: 3,
+          width: 2,
           color: '#188df0'
-        }
-      },
-      data: data.value
-    }]
+        },
+        itemStyle: {
+          opacity: 0
+        },
+        emphasis: {
+          lineStyle: {
+            width: 3,
+            color: '#188df0'
+          }
+        },
+        data: data.value
+      }
+    ]
   })
 }
-
 
 useWindowResize(() => {
   if (chart) chart.resize()

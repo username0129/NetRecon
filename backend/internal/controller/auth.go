@@ -28,9 +28,7 @@ func (ac *AuthController) PostLogin(c *gin.Context) {
 
 	// 验证码
 	openCaptcha := global.Config.Captcha.OpenCaptcha // 是否开启验证码
-
-	key := c.ClientIP() // 客户端 IP
-
+	key := c.ClientIP()                              // 客户端 IP
 	item, err := global.Cache.Get(key)
 	if err != nil {
 		if errors.Is(err, bigcache.ErrEntryNotFound) {

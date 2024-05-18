@@ -18,9 +18,7 @@ type CaptchaController struct{}
 
 func (cc *CaptchaController) GetCaptcha(c *gin.Context) {
 	openCaptcha := global.Config.Captcha.OpenCaptcha // 是否开启验证码
-
-	key := c.ClientIP() // 客户端 IP
-
+	key := c.ClientIP()                              // 客户端 IP
 	item, err := global.Cache.Get(key)
 	if err != nil {
 		if errors.Is(err, bigcache.ErrEntryNotFound) {
@@ -32,10 +30,7 @@ func (cc *CaptchaController) GetCaptcha(c *gin.Context) {
 	}
 	count, _ := strconv.Atoi(string(item))
 
-	var oc bool
-	if openCaptcha == 0 || openCaptcha <= count {
-		oc = true
-	}
+	var oc = openCaptcha == 0 || openCaptcha <= count
 
 	driver := base64Captcha.NewDriverDigit(global.Config.Captcha.ImgHeight, global.Config.Captcha.ImgWidth, global.Config.Captcha.Long, 0.7, 80)
 	cp := base64Captcha.NewCaptcha(driver, global.CaptchaStore)
@@ -47,9 +42,8 @@ func (cc *CaptchaController) GetCaptcha(c *gin.Context) {
 	}
 
 	common.ResponseOk(c, http.StatusOK, "验证码获取成功", response.CaptchaResponse{
-		CaptchaId:     id,
-		CaptchaImg:    b64s,
-		CaptchaLength: global.Config.Captcha.Long,
-		OpenCaptcha:   oc,
+		CaptchaId:   id,
+		CaptchaImg:  b64s,
+		OpenCaptcha: oc,
 	})
 }

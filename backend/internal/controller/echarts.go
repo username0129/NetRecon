@@ -31,6 +31,10 @@ func (ec *EchartsController) PostFetchPortCount(c *gin.Context) {
 		common.ResponseOk(c, http.StatusInternalServerError, "查询数据失败", nil)
 		return
 	}
+	if len(result) == 0 {
+		common.ResponseOk(c, http.StatusNotFound, "查无数据", nil)
+		return
+	}
 	common.ResponseOk(c, http.StatusOK, "查询成功", result)
 	return
 }
@@ -40,6 +44,10 @@ func (ec *EchartsController) PostFetchDomainCount(c *gin.Context) {
 	result, err := service.EchartsServiceApp.FetchDomainCount(global.DB, util.GetUUID(c), util.GetAuthorityId(c))
 	if err != nil {
 		common.ResponseOk(c, http.StatusInternalServerError, "查询数据失败", nil)
+		return
+	}
+	if len(result) == 0 {
+		common.ResponseOk(c, http.StatusNotFound, "查无数据", nil)
 		return
 	}
 	common.ResponseOk(c, http.StatusOK, "查询成功", result)

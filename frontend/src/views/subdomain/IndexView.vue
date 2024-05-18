@@ -387,7 +387,7 @@ async function deleteSelectedItems() {
         :default-sort="{ prop: 'createdAt', order: 'descending' }"
       >
         <el-table-column type="selection" width="55" />
-        <el-table-column fixed label="任务 UUID" min-width="250" sortable="custom" prop="uuid">
+        <el-table-column fixed label="任务 UUID" min-width="300" sortable="custom" prop="uuid">
           <template v-slot="scope">
             <a
               href="#"
@@ -412,7 +412,8 @@ async function deleteSelectedItems() {
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="创建者" min-width="150" sortable="custom" prop="creator.username" />
+        <el-table-column label="创建者" min-width="150" prop="creator.username" />
+        <el-table-column label="备注" min-width="300" prop="note" />
         <el-table-column label="创建时间" min-width="150" sortable="custom" prop="createdAt">
           <template #default="scope">
             {{ formatDate(scope.row.createdAt) }}
@@ -424,14 +425,14 @@ async function deleteSelectedItems() {
               :disabled="scope.row.status !== '1'"
               icon="Close"
               @click="cancelTask(scope.row)"
-              >取消
+            >取消
             </el-button>
             <el-button
               type="danger"
               :disabled="scope.row.status === '1'"
               icon="Delete"
               @click="deleteTask(scope.row)"
-              >删除
+            >删除
             </el-button>
           </template>
         </el-table-column>

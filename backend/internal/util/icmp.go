@@ -1,81 +1,110 @@
 package util
 
 import (
+	"backend/internal/global"
+	"encoding/binary"
 	"fmt"
-	"golang.org/x/net/icmp"
-	"golang.org/x/net/ipv4"
-	"math/rand"
+	"go.uber.org/zap"
 	"net"
+	"os"
 	"time"
 )
 
-func IcmpCheckAlive(target string) (bool, error) {
+// ICMP Echo请求和回应的类型和代码
+const (
+	icmpEchoRequestType = 8 // ICMP 请求
+	icmpEchoReplyType   = 0
+	icmpEchoRequestCode = 0 // ICMP 应答
+	icmpEchoReplyCode   = 0
+	timeoutDuration     = 2 * time.Second
+)
 
-	// 监听 ICMP 数据包
-	conn, err := icmp.ListenPacket("ip4:icmp", "0.0.0.0")
+// ICMP 消息结构
+type ICMP struct {
+	Type        uint8  // 消息类型，这里只使用 8 和 0
+	Code        uint8  // 通常为 0
+	Checksum    uint16 // 校验和
+	Identifier  uint16 // 发送方标识符
+	SequenceNum uint16 // 请求序列号
+}
+
+// 计算ICMP数据包的校验和
+func checksum(data []byte) uint16 {
+	var sum uint32
+
+	// 2 字节相加
+	for i := 0; i < len(data)-1; i += 2 {
+		sum += uint32(binary.BigEndian.Uint16(data[i : i+2]))
+	}
+	// 最后一个字节右补零
+	if len(data)%2 == 1 {
+		sum += uint32(data[len(data)-1]) << 8
+	}
+	// 溢出的值加到低位上
+	for sum>>16 != 0 {
+		sum = (sum >> 16) + (sum & 0xFFFF)
+	}
+	return uint16(^sum)
+}
+
+func IcmpCheckAlive(target string) bool {
+	// 创建原始socket，IPv4及ICMP协议
+	conn, err := net.Dial("ip4:icmp", target)
 	if err != nil {
-		return false, fmt.Errorf("ICMP 监听失败: %v", err)
+		global.Logger.Error(fmt.Sprintf("和 %v 建立 ICMP 连接失败：", target), zap.Error(err))
+		return false
 	}
 	defer conn.Close()
 
-	// 创建 ICMP Echo 请求消息
-	id := rand.Intn(0xffff)
-	msg := icmp.Message{
-		Type: ipv4.ICMPTypeEcho,
-		Code: 0,
-		Body: &icmp.Echo{
-			ID:   id,
-			Seq:  1,
-			Data: []byte("HELLO"),
-		},
+	icmp := ICMP{
+		Type:        icmpEchoRequestType, // Echo请求
+		Code:        icmpEchoRequestCode,
+		Checksum:    0, // 初始校验和为0
+		Identifier:  12345,
+		SequenceNum: 1,
 	}
 
-	// 将消息编组为二进制形式
-	msgBytes, err := msg.Marshal(nil)
-	if err != nil {
-		return false, fmt.Errorf("编码 ICMP 消息时出错: %v", err)
+	data := make([]byte, 8) // 创建足够的空间存储ICMP头部
+	binary.BigEndian.PutUint16(data[0:], uint16(icmp.Type)<<8+uint16(icmp.Code))
+	binary.BigEndian.PutUint16(data[2:], uint16(0))
+	binary.BigEndian.PutUint16(data[4:], icmp.Identifier)
+	binary.BigEndian.PutUint16(data[6:], icmp.SequenceNum)
+
+	// 计算校验和
+	icmp.Checksum = checksum(data)
+	binary.BigEndian.PutUint16(data[2:4], icmp.Checksum)
+
+	// 发送ICMP请求
+	if _, err := conn.Write(data); err != nil {
+		fmt.Println("发送 ICMP 请求失败：", err)
+		os.Exit(1)
 	}
 
-	// 解析 IP 地址并发送 ICMP 回显请求
-	dst, err := net.ResolveIPAddr("ip4", target)
-	if err != nil {
-		return false, fmt.Errorf("解析 IP 地址时出错: %v", err)
-	}
-
-	_, err = conn.WriteTo(msgBytes, dst)
-	if err != nil {
-		return false, fmt.Errorf("发送 ICMP 消息时出错: %v", err)
-	}
-
-	// 设置读取超时时间并等待响应
-	err = conn.SetReadDeadline(time.Now().Add(2 * time.Second))
-	if err != nil {
-		return false, fmt.Errorf("设置读取超时时出错: %v", err)
-	}
-
-	// 读取 ICMP Echo 响应消息
-	reply := make([]byte, 1500)
-	n, peer, err := conn.ReadFrom(reply)
-	if err != nil {
-		return false, nil
-	}
-
-	// 解析 ICMP 回应
-	resp, err := icmp.ParseMessage(1, reply[:n])
-	if err != nil {
-		return false, fmt.Errorf("解析 ICMP 消息时出错: %v", err)
-	}
-
-	// 判断响应消息的类型
-	switch resp.Type {
-	case ipv4.ICMPTypeEchoReply:
-		// 检查回显应答的源地址是否与目标地址匹配
-		if echo, ok := resp.Body.(*icmp.Echo); ok && echo.ID == id && peer.String() == target {
-			return true, nil
+	// 接收ICMP响应
+	reply := make([]byte, 20+len(data)) // 包括IP头部
+	done := make(chan bool, 1)
+	go func() {
+		_, err := conn.Read(reply)
+		if err != nil {
+			done <- false
+			return
 		}
-	default:
-		return false, nil
-	}
+		icmpType := reply[20] // 解析ICMP类型
+		if icmpType == icmpEchoReplyType {
+			done <- true
+		} else {
+			done <- false
+		}
+	}()
 
-	return false, nil
+	select {
+	case success := <-done:
+		if success {
+			return true
+		} else {
+			return false
+		}
+	case <-time.After(timeoutDuration):
+		return false
+	}
 }

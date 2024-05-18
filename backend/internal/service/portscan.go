@@ -64,53 +64,40 @@ func (ps *PortService) parseRequest(req request.PortScanRequest) ([]string, []in
 
 // PerformPortScan 执行针对指定目标和端口的端口扫描，使用 ICMP 和自定义的端口扫描逻辑。
 func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, targets []string, ports []int, threads, timeout int, userUUID uuid.UUID, authorityId string) {
-	status := "1" // "1" 表示正在扫描, "2" 表示扫描完成, "3" 表示已取消, "4" 表示错误
 	aliveTargets := make(map[string]bool)
-
-	var statusMutex sync.Mutex // 互斥锁，保护 status
 
 	var wg sync.WaitGroup
 	semaphore := make(chan struct{}, threads) // 用于控制并发数量的信号量
 
-	setStatus := func(s string) {
-		statusMutex.Lock()
-		defer statusMutex.Unlock()
-		status = s
-	}
-
-	getStatus := func() string {
-		statusMutex.Lock()
-		defer statusMutex.Unlock()
-		return status
-	}
-
 	// 首先检测所有目标是否存活
 	if checkAlive {
 		for _, target := range targets {
-			// 任务状态出现变动，如取消 / 执行失败
-			if getStatus() != "1" {
-				return
-			}
-			if task.Status == "3" {
-				setStatus("3") // 更新状态为取消
-				return
-			}
-			if alive, err := util.IcmpCheckAlive(target); err != nil {
-				setStatus("4") // 更新状态为执行失败
-				TaskServiceApp.CancelTask(task.UUID, userUUID, authorityId)
-				task.UpdateStatus("4") // 更新任务状态
-				global.Logger.Error("检测主机存活失败", zap.String("target", target), zap.Error(err))
-			} else if alive {
-				aliveTargets[target] = true
-			}
+			wg.Add(1)
+			go func(t string) {
+				defer wg.Done()
+				defer func() { <-semaphore }()
+				semaphore <- struct{}{}
+				// 任务状态出现变动，如取消 / 执行失败
+				if task.Status != "1" {
+					return
+				}
+				alive := util.IcmpCheckAlive(t)
+				if alive {
+					aliveTargets[t] = true
+				}
+			}(target)
 		}
+		wg.Wait()
 	} else {
 		// 如果不检查存活，假定所有目标都是活跃的
 		for _, target := range targets {
 			aliveTargets[target] = true
 		}
 	}
-	if getStatus() != "1" {
+
+	if len(aliveTargets) == 0 {
+		task.Note = "不存在存活地址，终止探测。"
+		task.UpdateStatus("2")
 		return
 	}
 
@@ -125,11 +112,7 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 					defer func() { <-semaphore }()
 					semaphore <- struct{}{}
 					// 任务状态出现变动，如取消 / 执行失败
-					if getStatus() != "1" {
-						return
-					}
-					if task.Status == "3" {
-						setStatus("3") // 更新状态为取消
+					if task.Status != "1" {
 						return
 					}
 					//执行端口扫描
@@ -146,8 +129,8 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 	go func() {
 		wg.Wait()
 		close(results)
-		finalStatus := getStatus()
-		if finalStatus == "1" { // 扫描正常完成的情况下，收集并处理数据
+		if task.Status == "1" { // 扫描正常完成的情况下，收集并处理数据
+			task.Note = fmt.Sprintf("扫描完成，获得数据 %v 条。", len(results))
 			task.UpdateStatus("2")
 			ps.processResults(results, userUUID, task)
 		}
@@ -155,13 +138,11 @@ func (ps *PortService) PerformPortScan(checkAlive bool, task *model.Task, target
 }
 
 func (ps *PortService) processResults(results chan model.PortScanResult, userUUID uuid.UUID, task *model.Task) {
-	count := 0
+	count := len(results)
 	for result := range results {
 		err := result.InsertData(global.DB)
 		if err != nil {
 			global.Logger.Error("插入扫描结果失败: ", zap.Error(err))
-		} else {
-			count++
 		}
 	}
 

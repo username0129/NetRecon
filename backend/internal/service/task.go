@@ -128,7 +128,8 @@ func (ts *TaskService) CancelTask(taskUUID, userUUID uuid.UUID, authorityId stri
 
 		cancel()                             // 取消任务
 		delete(global.TaskManager, taskUUID) // 从任务管理器中移除
-		task.UpdateStatus("3")               // 更新任务状态为取消
+		task.Note = fmt.Sprintf("任务被取消。")
+		task.UpdateStatus("3") // 更新任务状态为取消
 
 		// 如果任务属于资产监控
 		if task.AssetUUID != uuid.Nil {

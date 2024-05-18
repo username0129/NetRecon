@@ -14,10 +14,8 @@ type OperationRecord struct {
 	User      User      `json:"user" gorm:"foreignKey:UserUUID;references:UUID;comment:用户信息"` // 用户
 	IP        string    `json:"ip" gorm:"comment:客户端 IP"`                                     // 客户端 IP 地址
 	Method    string    `json:"method" gorm:"comment:请求方法"`                                   // 请求方法
-	Duration  string    `json:"duration" gorm:"comment:处理时间"`                                 // 处理时间
 	Path      string    `json:"path" gorm:"type:text;comment:请求路径"`                           // 请求路径
 	Code      string    `json:"code" gorm:"comment:请求响应状态"`                                   // 请求状态
-	Agent     string    `json:"agent" gorm:"type:text;comment:浏览器代理"`                         // 代理
 	Body      string    `json:"body"  gorm:"type:text;comment:请求体"`                           // 请求Body
 	Resp      string    `json:"resp" gorm:"type:text;comment:响应体"`                            // 响应Body
 	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime;comment:创建时间"`                 // 创建时间

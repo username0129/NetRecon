@@ -70,22 +70,8 @@ func (ss *SubDomainService) BruteSubdomains(req request.SubDomainRequest, userUU
 }
 
 func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []string, threads, timeout int, dict []string, cdnList map[string][]string, userUUID uuid.UUID) {
-	status := "1"              // "1" 表示正在扫描, "3" 表示已取消, "4" 表示错误
-	var statusMutex sync.Mutex // 互斥锁，保护 status
 	var wg sync.WaitGroup
 	semaphore := make(chan struct{}, threads) // 用于控制并发数量的信号量
-
-	setStatus := func(s string) {
-		statusMutex.Lock()
-		defer statusMutex.Unlock()
-		status = s
-	}
-
-	getStatus := func() string {
-		statusMutex.Lock()
-		defer statusMutex.Unlock()
-		return status
-	}
 
 	results := make(chan model.SubDomainResult, len(targets)*len(dict)) // 存储扫描结果的通道
 	for _, target := range targets {
@@ -96,11 +82,7 @@ func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []st
 				defer wg.Done()
 				defer func() { <-semaphore }()
 				// 任务状态出现变动，如取消 / 执行失败
-				if getStatus() != "1" {
-					return
-				}
-				if task.Status == "3" {
-					setStatus("3") // 更新状态为取消
+				if task.Status != "1" {
 					return
 				}
 				subdomain := sub + "." + t
@@ -108,12 +90,8 @@ func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []st
 				result, err := ss.Resolution(task.Ctx, subdomain, timeout, task.UUID, cdnList)
 				if err != nil {
 					if errors.Is(err, context.Canceled) || strings.Contains(err.Error(), "operation was canceled") {
-						setStatus("3") // 更新状态为已取消
 					} else {
-						//if !(errors.Is(err, errors.New("signal: killed")) && !errors.Is(err, errors.New("no such host"))) {
-						setStatus("4") // 更新状态为出错
 						global.Logger.Error("检测域名失败", zap.String("target", subdomain), zap.Error(err))
-						//}
 					}
 				}
 				if err == nil && result != nil {
@@ -128,8 +106,9 @@ func (ss *SubDomainService) executeBruteSubdomain(task *model.Task, targets []st
 	go func() {
 		wg.Wait()
 		close(results)
-		finalStatus := getStatus()
-		if finalStatus == "1" { // 扫描正常完成的情况下，收集并处理数据
+
+		if task.Status == "1" { // 扫描正常完成的情况下，收集并处理数据
+			task.Note = fmt.Sprintf("扫描完成，获得数据 %v 条。", len(results))
 			task.UpdateStatus("2") // 更新任务状态为 2 -> 扫描完成
 			ss.processResults(results, userUUID, task)
 		}
@@ -193,15 +172,13 @@ func (ss *SubDomainService) Resolution(ctx context.Context, domain string, timeo
 		for _, cdn := range cdns {
 			for _, cname := range cnames {
 				if strings.Contains(cname, cdn) {
-					subDomainResult.Notes = fmt.Sprintf("在 CNAME 中识别到 CDN 字段: %v", cdn)
-					return subDomainResult, nil
-				} else if strings.Contains(cname, "cdn") {
-					subDomainResult.Notes = fmt.Sprintf("在 CNAME 中检测到 cdn 关键字")
+					subDomainResult.Notes = fmt.Sprintf("识别到 CDN: %v", cdn)
 					return subDomainResult, nil
 				}
 			}
 		}
 	}
+
 	return subDomainResult, nil
 }
 
@@ -274,13 +251,11 @@ func (ss *SubDomainService) LookupHost(ctx context.Context, domain string, timeo
 }
 
 func (ss *SubDomainService) processResults(results chan model.SubDomainResult, userUUID uuid.UUID, task *model.Task) {
-	count := 0
+	count := len(results)
 	for result := range results {
 		err := result.InsertData(global.DB)
 		if err != nil {
 			global.Logger.Error("插入扫描结果失败: ", zap.Error(err))
-		} else {
-			count++
 		}
 	}
 

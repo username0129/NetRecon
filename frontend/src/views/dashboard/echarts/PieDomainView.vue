@@ -1,6 +1,6 @@
 <template>
   <div class="pie-chart-box">
-    <div class="pie-chart-title">端口资产数据</div>
+    <div class="pie-chart-title">域名资产数据</div>
     <div ref="echartPie" class="pie-chart"></div>
   </div>
 </template>
@@ -9,20 +9,19 @@
 import * as echarts from 'echarts'
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useWindowResize } from '@/hooks/use-windows-resize'
-import { FetchDomainCount, FetchPortCount, FetchTaskCount } from '@/apis/echarts.js'
+import { FetchDomainCount } from '@/apis/echarts.js'
 import { ElMessage } from 'element-plus'
 
 const echartPie = ref(null)
 let pieChart = null
 
-const data = ref([])
 
 
 const fetchPortCount = async () => {
   try {
     const response = await FetchDomainCount()
     if (response.code === 200) {
-      const formattedData = response.data.map(item => ({
+      const formattedData = response.data.map((item) => ({
         name: item.target,
         value: item.count
       }))
@@ -38,7 +37,6 @@ const fetchPortCount = async () => {
   }
 }
 
-
 const initChart = (chartData) => {
   if (!echartPie.value) return
   pieChart = echarts.init(echartPie.value)
@@ -50,7 +48,7 @@ const initChart = (chartData) => {
     legend: {
       orient: 'vertical',
       left: 'left',
-      data: chartData.map(item => item.name)
+      data: chartData.map((item) => item.name)
     },
     series: [
       {

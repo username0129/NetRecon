@@ -9,20 +9,18 @@
 import * as echarts from 'echarts'
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useWindowResize } from '@/hooks/use-windows-resize'
-import { FetchPortCount, FetchTaskCount } from '@/apis/echarts.js'
+import { FetchPortCount } from '@/apis/echarts.js'
 import { ElMessage } from 'element-plus'
 
 const echartPie = ref(null)
 let pieChart = null
-
-const data = ref([])
 
 
 const fetchPortCount = async () => {
   try {
     const response = await FetchPortCount()
     if (response.code === 200) {
-      const formattedData = response.data.map(item => ({
+      const formattedData = response.data.map((item) => ({
         name: item.target,
         value: item.count
       }))
@@ -38,7 +36,6 @@ const fetchPortCount = async () => {
   }
 }
 
-
 const initChart = (chartData) => {
   if (!echartPie.value) return
   pieChart = echarts.init(echartPie.value)
@@ -50,7 +47,7 @@ const initChart = (chartData) => {
     legend: {
       orient: 'vertical',
       left: 'left',
-      data: chartData.map(item => item.name)
+      data: chartData.map((item) => item.name)
     },
     series: [
       {

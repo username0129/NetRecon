@@ -1,6 +1,4 @@
-<script setup>
-
-</script>
+<script setup></script>
 
 <template>
   <div class="w-full h-full relative">
@@ -11,9 +9,7 @@
           <div class="flex items-center justify-center"></div>
           <div class="mb-9">
             <p class="text-center text-8xl font-bold">404</p>
-            <p class="text-center text-4xl font-normal text-gray-500 mt-2.5">
-              Page not found
-            </p>
+            <p class="text-center text-4xl font-normal text-gray-500 mt-2.5">Page not found</p>
           </div>
         </div>
       </div>
